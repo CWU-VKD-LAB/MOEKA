@@ -19,6 +19,7 @@ private:
 	void initGLEW ();
 public:
 	static Shape* s;
+	static Shape* focus;
 	static bool drawColorPicker;
 	static std::vector<ShapeManager*> managers;
 	GLFWwindow* window;

@@ -154,6 +154,7 @@
     <ClCompile Include="Disk.cpp" />
     <ClCompile Include="glm\glm\detail\glm.cpp" />
     <ClCompile Include="glm\glm\glm.cppm" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Render\IndexBuffer.cpp" />
     <ClCompile Include="Render\Shader.cpp" />
     <ClCompile Include="Render\VertexArray.cpp" />
@@ -464,6 +465,7 @@
     <ClInclude Include="glm\glm\vec3.hpp" />
     <ClInclude Include="glm\glm\vec4.hpp" />
     <ClInclude Include="glm\glm\vector_relational.hpp" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Render\IndexBuffer.h" />
     <ClInclude Include="Render\Shader.h" />
     <ClInclude Include="Render\VertexArray.h" />

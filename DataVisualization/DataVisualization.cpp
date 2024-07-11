@@ -11,6 +11,7 @@
 #include "ShapeManager.h"
 #include "Disk.h"
 #include <vector>
+#include "Model.h"
 #include "Window.h"
 
 
@@ -49,14 +50,18 @@ void init () {
     disk->addShape(s4);
     disk->setTranslation(300, 300);
 
-    w.managers.insert(w.managers.end(), disk);
+    std::vector<int> test{1, 2, 3, 4, 5};
+    Model m{ window, 300, 300 };
+    m.createDisk(test);
+    m.createDisk(test);
 
     // update loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT);
 
-        disk->draw();        
+
+        m.draw();
         drawImGuiWindow(&flags);
 
 
@@ -99,17 +104,25 @@ void drawImGuiWindow (ImGuiWindowFlags* flags) {
     }
     ImGui::End();
 
-    if (Window::drawColorPicker && Window::s != nullptr) {
+    if (Window::drawColorPicker && Window::focus != nullptr) {
         // create color picker
         ImGui::Begin("Color Picker");
         if (ImGui::MenuItem("Close")) {
             Window::drawColorPicker = false;
+            Window::focus = nullptr;
         }
-        if (Window::s != nullptr) {
-            ImGui::ColorPicker4("Shape Color", (float*)&Window::s->color, NULL);
+        if (Window::focus != nullptr) {
+            ImGui::ColorPicker4("Shape Color", (float*)&Window::focus->color, NULL);
         }
         ImGui::End();
     }
+
+    if (Window::s != nullptr) {
+        ImGui::BeginTooltip();
+        ImGui::Text(std::string("K Value: ").append(std::to_string(Window::s->getKValue())).c_str());
+        ImGui::EndTooltip();
+    }
+    
     
 
     // render and update

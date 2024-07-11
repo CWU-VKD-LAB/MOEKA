@@ -22,14 +22,18 @@ public:
 	Shader* shader;		// the program that tells OpenGL how to draw our shape
 	//
 	ImVec4 color{ 1, 1, 1, 1 };
+
 	//
 	std::vector<float> positions;
 	std::vector<unsigned int> indices;
+
 	//
 	float minBoundsX = 1, minBoundsY = 1;
 	float maxBoundsX = -1, maxBoundsY = -1;
+
 	//
 	int id;
+	int kValue = -1;
 	float x;
 	float y;
 
@@ -37,6 +41,8 @@ public:
 	void setup ();
 	void draw ();
 	void bind ();
+	void setKValue (int val);
+	int getKValue ();
 	//
 	void setPosition (float m_x, float m_y);
 	float getPositionX ();

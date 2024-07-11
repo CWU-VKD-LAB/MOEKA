@@ -24,7 +24,7 @@ protected:
 
 	glm::mat4 transMat;
 
-	GLFWwindow* window;
+	GLFWwindow* window = nullptr;
 public:
 	ShapeManager(GLFWwindow* b_window, int bindWidth, int bindHeight, int posX, int posY);
 	~ShapeManager();

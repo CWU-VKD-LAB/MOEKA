@@ -2,9 +2,12 @@
 
 std::vector<ShapeManager*> Window::managers{};
 Shape* Window::s = nullptr;
+Shape* Window::focus = nullptr;
+
 bool Window::drawColorPicker = false;
 void cursorCallback(GLFWwindow* window, int button, int action, int mods);
 void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods);
+void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
 
 Window::Window () {
     // init glfw
@@ -28,6 +31,7 @@ Window::Window () {
 
     glfwSetMouseButtonCallback(window, cursorCallback);
     glfwSetKeyCallback(window, keyCallBack);
+    glfwSetCursorPosCallback(window, cursorPositionCallback);
 
 }
 // ensure that GLEW was successful
@@ -53,10 +57,8 @@ void Window::initGLFW () {
 
 void cursorCallback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS) {
-        for (auto a : Window::managers) {
-            Window::s = a->selectedShape();
-            Window::drawColorPicker = true;
-        }
+        Window::focus = Window::s;
+        Window::drawColorPicker = true;
     }
 }
 
@@ -84,6 +86,16 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
         for (auto a : Window::managers) {
             a->setX(a->getX() + 5);
             a->setTranslation(a->getX(), a->getY());
+        }
+    }
+}
+
+void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
+    Window::s = nullptr;
+    for (auto a : Window::managers) {
+        Window::s = a->selectedShape();
+        if (Window::s != nullptr) {
+            break;
         }
     }
 }

@@ -1,12 +1,17 @@
 #include "Disk.h"
 
-Disk::Disk(GLFWwindow* m_window, int bindWidth, int bindHeight, int posX, int posY)
+Disk::Disk (GLFWwindow* m_window, int bindWidth, int bindHeight, int posX, int posY)
 	: ShapeManager(m_window, bindWidth, bindHeight, posX, posY) {
-
 	stride = 0;
 }
 
-void Disk::addShape(Shape& s) {
+Disk::~Disk () {
+	for (auto a : managedList) {
+		delete(a);
+	}
+}
+
+void Disk::addShape (Shape& s) {
 	managedList.insert(managedList.end(), &s);
 
 	// enforce layout
@@ -16,11 +21,11 @@ void Disk::addShape(Shape& s) {
 	// translate based on the stride
 	int t = (s.maxBoundsX - s.minBoundsX);
 	setShapePosition(s, positionX-(boundWidth/2) + stride, positionY-(boundHeight/2));
-	stride += t;
+	stride += t + padding;
 }
 
 
-void Disk::setTranslation(float x, float y) {
+void Disk::setTranslation (float x, float y) {
 	// set the relevant information 
 	positionX = x;
 	positionY = y;
@@ -36,7 +41,7 @@ void Disk::setTranslation(float x, float y) {
 	for (auto a : managedList) {
 		t = (a->maxBoundsX - a->minBoundsX);
 		setShapePosition(*a, positionX - (boundWidth / 2) + stride, positionY - (boundHeight / 2));
-		stride += t;
+		stride += t + padding;
 	}
 }
 

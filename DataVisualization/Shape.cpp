@@ -25,11 +25,9 @@ void Shape::setup () {
 
     // define our bounds
     float tempx , tempy;
-    std::cout << std::endl;
     for (int a = 0; a < positions.size(); a+=2) {
         tempx = positions.at(a);
         tempy = positions.at(a+1);
-        std::cout << tempx << "\t" << tempy << std::endl;
         if (tempx > maxBoundsX) maxBoundsX = tempx;
         if (tempy > maxBoundsY) maxBoundsY = tempy;
         if (tempx < minBoundsX) minBoundsX = tempx;
@@ -62,9 +60,18 @@ float Shape::getPositionY () {
     return y;
 }
 
+void Shape::setKValue(int val) {
+    kValue = val;
+}
+
 Shape::~Shape() {
     delete(vb);
     delete(ib);
     delete(va);
+    delete(shader);
+}
+
+int Shape::getKValue() {
+    return kValue;
 }
 

@@ -2,13 +2,9 @@
 
 
 ShapeManager::ShapeManager (GLFWwindow* m_window, int bindWidth, int bindHeight, int posX, int posY): boundHeight(bindHeight), boundWidth(bindWidth), totalHeight(bindHeight+posY), totalWidth(bindWidth+posX), positionX(posX), positionY(posY), window(m_window) {
-	// using this ratio, we will transform the points of the shapes using the vertex shader.
-	std::cout << "Size: " << bindWidth << "\t" << bindHeight << std::endl;
-
 	bounds = new Square{bindWidth, bindHeight, "Manager"};
-
 	bounds->shader->use();
-	bounds->color.x = .5;
+	bounds->color.x = .5*(posY/600);
 	bounds->color.y = .5;
 	bounds->color.z = .5;
 	bounds->color.w = 1;
@@ -41,11 +37,6 @@ Shape* ShapeManager::selectedShape () {
 	for (auto s : managedList) {
 		width = (s->maxBoundsX - s->minBoundsX)/2;
 		height = (s->maxBoundsY - s->minBoundsY)/2;
-
-		//std::cout << "Checking shape:\n" << 
-		//	s->x - width << "\t" << s->x + width << "\n" <<
-		//	s->y - height << "\t" << s->y + height <<
-		//std::endl;
 
 		if (cx < s->x - width || cx > s->x + width) {
 			continue;
