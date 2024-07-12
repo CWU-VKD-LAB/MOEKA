@@ -5,9 +5,11 @@ layout(location = 0) in vec4 position;
 out vec4 test;
 
 uniform mat4 posMatrix;
+uniform mat4 projMatrix;
+uniform mat4 scaleMatrix;
 
 void main() {
-	gl_Position = position * posMatrix;
+	gl_Position = position * projMatrix * scaleMatrix * posMatrix;
 };
 
 #shader frag

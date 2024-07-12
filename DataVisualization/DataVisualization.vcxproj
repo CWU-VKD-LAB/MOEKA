@@ -157,9 +157,11 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Render\IndexBuffer.cpp" />
     <ClCompile Include="Render\Shader.cpp" />
+    <ClCompile Include="Render\Texture.cpp" />
     <ClCompile Include="Render\VertexArray.cpp" />
     <ClCompile Include="Render\VertexBuffer.cpp" />
     <ClCompile Include="ShapeManager.cpp" />
+    <ClCompile Include="stb\stb_image.cpp" />
     <ClCompile Include="tools\config.cpp" />
     <ClCompile Include="DataVisualization.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
@@ -468,10 +470,12 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="Render\IndexBuffer.h" />
     <ClInclude Include="Render\Shader.h" />
+    <ClInclude Include="Render\Texture.h" />
     <ClInclude Include="Render\VertexArray.h" />
     <ClInclude Include="Render\VertexBuffer.h" />
     <ClInclude Include="Render\VertexLayout.h" />
     <ClInclude Include="ShapeManager.h" />
+    <ClInclude Include="stb\stb_image.h" />
     <ClInclude Include="tools\config.h" />
     <ClInclude Include="ImGui\imconfig.h" />
     <ClInclude Include="ImGui\imgui.h" />

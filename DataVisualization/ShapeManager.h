@@ -15,14 +15,13 @@ protected:
 	// restrict shapes in the bounds of this manager to what coordinates.
 	int boundWidth, boundHeight;
 
-	// total size of the manager
-	int totalWidth, totalHeight;
-
 	// draw the bounds of the manager
 	bool drawBounds = true;
 	Square* bounds;
 
-	glm::mat4 transMat;
+	glm::mat4 transMatrix;
+	glm::mat4 scaleMatrix;
+	float totalScale = 1;
 
 	GLFWwindow* window = nullptr;
 public:
@@ -32,11 +31,12 @@ public:
 
 	virtual void addShape (Shape& s);
 	virtual void setTranslation (float x, float y);
+	virtual void setScale(float scale);
 	int getX ();
 	int getY ();
 	void setX(int val);
 	void setY(int val);
 	void draw() override;
-	void setShapePosition(Shape& s, float x, float y);
+	void setShapePosition(Shape& s, float x, float y, float scale = 1);
 };
 

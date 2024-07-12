@@ -43,6 +43,8 @@ public:
 	void bind ();
 	void setKValue (int val);
 	int getKValue ();
+	void scaleBounds (float scale);
+	void calculateBounds ();
 	//
 	void setPosition (float m_x, float m_y);
 	float getPositionX ();

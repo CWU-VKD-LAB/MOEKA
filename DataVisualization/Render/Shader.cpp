@@ -42,13 +42,13 @@ void Shader::setUniformMat4f(const std::string& name, glm::mat4& matrix) {
 
 
 // searches if we have already found this uniform before, if so, we return it instead of searching again for performance reasons.
-unsigned int Shader::getUniformLocation(const std::string& name) {
+int Shader::getUniformLocation(const std::string& name) {
 	if (cache.find(name) != cache.end()) {
 		return cache[name];
 	}
 	GLCall(int location = glGetUniformLocation(id, name.c_str()));
 	if (location == -1) {
-		std::cout << "Warning: uniform failed to load." << std::endl;
+		std::cout << "Warning: uniform failed to load." << name << std::endl;
 	}
 	cache[name] = location;
 	return location;

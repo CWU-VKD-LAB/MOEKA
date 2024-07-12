@@ -17,7 +17,7 @@ class Shader {
 private:
 	unsigned int id;
 	std::unordered_map<std::string, int> cache{};
-	unsigned int getUniformLocation (const std::string& name);
+	int getUniformLocation (const std::string& name);
 	unsigned int compileShader(const std::string& source, unsigned int type);
 	unsigned int createShader(const std::string& vertexShader, const std::string& fragShader);
 	FullShader parseShader(const std::string& path);

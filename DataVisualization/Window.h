@@ -24,4 +24,8 @@ public:
 	static std::vector<ShapeManager*> managers;
 	GLFWwindow* window;
 	Window();
+
+	static void addToRender (ShapeManager* sm) {
+		Window::managers.insert(Window::managers.end(), sm);
+	}
 };

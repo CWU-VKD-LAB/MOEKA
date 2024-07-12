@@ -26,8 +26,8 @@ void Model::createDisk(std::vector<int>& values) {
 		s->setKValue(values.at(a));
 		disk->addShape(*s);
 	}
-	Window::managers.insert(Window::managers.end(), disk);
-	std::cout << Window::managers.size() << std::endl;
+	disk->setTranslation(posX, posY + ((sizeY + padding) * numOfDisks));
+	Window::addToRender(disk);
 	disks.insert(disks.end(), disk);
 	numOfDisks++;
 }

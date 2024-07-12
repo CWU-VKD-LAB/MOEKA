@@ -24,15 +24,7 @@ void Shape::setup () {
     clearBinds();
 
     // define our bounds
-    float tempx , tempy;
-    for (int a = 0; a < positions.size(); a+=2) {
-        tempx = positions.at(a);
-        tempy = positions.at(a+1);
-        if (tempx > maxBoundsX) maxBoundsX = tempx;
-        if (tempy > maxBoundsY) maxBoundsY = tempy;
-        if (tempx < minBoundsX) minBoundsX = tempx;
-        if (tempy < minBoundsY) minBoundsY = tempy;
-    }
+    calculateBounds();
 }
 
 void Shape::bind () {
@@ -60,18 +52,37 @@ float Shape::getPositionY () {
     return y;
 }
 
-void Shape::setKValue(int val) {
+void Shape::setKValue (int val) {
     kValue = val;
 }
 
-Shape::~Shape() {
+Shape::~Shape () {
     delete(vb);
     delete(ib);
     delete(va);
     delete(shader);
 }
 
-int Shape::getKValue() {
+int Shape::getKValue () {
     return kValue;
 }
 
+void Shape::scaleBounds (float scale) {
+    calculateBounds();
+    minBoundsX *= scale;
+    maxBoundsX *= scale;
+    minBoundsY *= scale;
+    maxBoundsY *= scale;
+}
+
+void Shape::calculateBounds () {
+    float tempx, tempy;
+    for (int a = 0; a < positions.size(); a += 2) {
+        tempx = positions.at(a);
+        tempy = positions.at(a + 1);
+        if (tempx > maxBoundsX) maxBoundsX = tempx;
+        if (tempy > maxBoundsY) maxBoundsY = tempy;
+        if (tempx < minBoundsX) minBoundsX = tempx;
+        if (tempy < minBoundsY) minBoundsY = tempy;
+    }
+}

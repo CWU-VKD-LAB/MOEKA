@@ -10,4 +10,5 @@ public:
 	~Disk();
 	void addShape (Shape& s) override;
 	void setTranslation(float x, float y) override;
+	void setScale(float scale) override;
 };
