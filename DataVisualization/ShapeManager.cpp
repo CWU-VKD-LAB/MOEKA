@@ -15,6 +15,7 @@ ShapeManager::ShapeManager (GLFWwindow* m_window, int bindWidth, int bindHeight,
 }
 
 
+
 ShapeManager::~ShapeManager () {
 	delete(bounds);
 }
@@ -51,6 +52,7 @@ Shape* ShapeManager::selectedShape () {
 
 	return nullptr;
 }
+
 
 
 void ShapeManager::setShapePosition (Shape& s, float x, float y, float scale) {
@@ -122,7 +124,7 @@ void ShapeManager::setScale (float scale) {
 	for (auto a : managedList) {
 		a->shader->use();
 		a->shader->setUniformMat4f("scaleMatrix", scaleMatrix);
-		a->scaleBounds(scale);
+		a->scaleBounds(totalScale);
 	}
 }
 

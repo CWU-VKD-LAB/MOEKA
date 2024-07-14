@@ -40,10 +40,10 @@ void init () {
     // init ImGui
     initImGui(window);
 
-    Square s1{ 75, 75 };
-    Square s2{ 75, 75 };
-    Square s3{ 100, 100 };
-    Square s4{ 75, 75 };
+    Square s1{ 75, 200 };
+    Square s2{ 75, 200 };
+    Square s3{ 75, 200 };
+    Square s4{ 75, 200 };
 
     disk = new Disk{ window, 400, 100, 200, 200 };
     disk->addShape(s1);
@@ -52,7 +52,6 @@ void init () {
     disk->addShape(s4);
     disk->setScale(.5);
     disk->setTranslation(500, 500);
-    disk->setScale(.1);
     
     Window::addToRender(disk);
 
@@ -69,8 +68,8 @@ void init () {
         glClear(GL_COLOR_BUFFER_BIT);
 
 
-        m.draw();
-        //disk->draw();
+        //m.draw();
+        disk->draw();
         drawImGuiWindow(&flags);
 
 

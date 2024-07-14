@@ -21,13 +21,14 @@ protected:
 
 	glm::mat4 transMatrix;
 	glm::mat4 scaleMatrix;
-	float totalScale = 1;
+	
 
 	GLFWwindow* window = nullptr;
 public:
 	ShapeManager(GLFWwindow* b_window, int bindWidth, int bindHeight, int posX, int posY);
 	~ShapeManager();
 	Shape* selectedShape ();
+	float totalScale = 1;
 
 	virtual void addShape (Shape& s);
 	virtual void setTranslation (float x, float y);

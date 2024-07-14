@@ -31,6 +31,9 @@ public:
 	float minBoundsX = 1, minBoundsY = 1;
 	float maxBoundsX = -1, maxBoundsY = -1;
 
+	float originalMinBoundsX = 1, originalMinBoundsY = 1;
+	float originalMaxBoundsX = -1, originalMaxBoundsY = -1;
+
 	//
 	int id;
 	int kValue = -1;

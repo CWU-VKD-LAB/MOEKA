@@ -36,6 +36,7 @@ void Disk::setTranslation (float x, float y) {
 	stride = 0;
 	for (auto a : managedList) {
 		t = (a->maxBoundsX - a->minBoundsX);
+		//std::cout << "Size: " << t << std::endl;
 		setShapePosition(*a, positionX - (boundWidth * totalScale / 2) + stride, positionY - (boundHeight * totalScale / 2));
 		stride += t + padding;
 	}
@@ -47,9 +48,9 @@ void Disk::setScale(float scale) {
 	bounds->shader->use();
 	bounds->shader->setUniformMat4f("scaleMatrix", scaleMatrix);
 	for (auto a : managedList) {
+		a->scaleBounds(scale);
 		a->shader->use();
 		a->shader->setUniformMat4f("scaleMatrix", scaleMatrix);
-		a->scaleBounds(scale);
 	}
 	setTranslation(positionX, positionY);
 }

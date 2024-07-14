@@ -4,7 +4,7 @@
 class Disk: public ShapeManager {
 private:
 	int stride;
-	int padding = 1;
+	int padding = 0;
 public:
 	Disk(GLFWwindow* window, int bindWidth, int bindHeight, int posX, int posY);
 	~Disk();

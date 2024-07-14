@@ -24,7 +24,15 @@ void Shape::setup () {
     clearBinds();
 
     // define our bounds
-    calculateBounds();
+    float tempx, tempy;
+    for (int a = 0; a < positions.size(); a += 2) {
+        tempx = positions.at(a);
+        tempy = positions.at(a + 1);
+        if (tempx > originalMaxBoundsX) originalMaxBoundsX = tempx;
+        if (tempy > originalMaxBoundsY) originalMaxBoundsY = tempy;
+        if (tempx < originalMinBoundsX) originalMinBoundsX = tempx;
+        if (tempy < originalMinBoundsY) originalMinBoundsY = tempy;
+    }
 }
 
 void Shape::bind () {
@@ -69,10 +77,10 @@ int Shape::getKValue () {
 
 void Shape::scaleBounds (float scale) {
     calculateBounds();
-    minBoundsX *= scale;
-    maxBoundsX *= scale;
-    minBoundsY *= scale;
-    maxBoundsY *= scale;
+    minBoundsX = originalMinBoundsX*(scale);
+    maxBoundsX = originalMaxBoundsX*(scale);
+    minBoundsY = originalMinBoundsY*(scale);
+    maxBoundsY = originalMaxBoundsY*(scale);
 }
 
 void Shape::calculateBounds () {
