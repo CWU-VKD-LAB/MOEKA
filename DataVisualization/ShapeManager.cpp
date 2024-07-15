@@ -1,7 +1,9 @@
 #include "ShapeManager.h"
 
 
-ShapeManager::ShapeManager (GLFWwindow* m_window, int bindWidth, int bindHeight, int posX, int posY): boundHeight(bindHeight), boundWidth(bindWidth), positionX(posX), positionY(posY), window(m_window) {
+ShapeManager::ShapeManager (GLFWwindow* m_window, int bindWidth, int bindHeight, int posX, int posY): boundHeight(bindHeight), boundWidth(bindWidth), window(m_window) {
+	positionX = posX;
+	positionY = posY;
 	bounds = new Square{bindWidth, bindHeight, "Manager"};
 	bounds->shader->use();
 	bounds->color.x = .5*(posY/600);
@@ -19,6 +21,7 @@ ShapeManager::ShapeManager (GLFWwindow* m_window, int bindWidth, int bindHeight,
 ShapeManager::~ShapeManager () {
 	delete(bounds);
 }
+
 Shape* ShapeManager::selectedShape () {
 	// use BVH-esque techniques to find the hovered shape without checking too many shapes.
 	double cx, cy;
@@ -128,15 +131,10 @@ void ShapeManager::setScale (float scale) {
 	}
 }
 
-int ShapeManager::getX () {
-	return positionX;
-}
-int ShapeManager::getY () {
-	return positionY;
-}
-void ShapeManager::setX(int val) {
+
+void ShapeManager::setX(float val) {
 	positionX = val;
 }
-void ShapeManager::setY(int val) {
+void ShapeManager::setY(float val) {
 	positionY = val;
 }

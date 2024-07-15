@@ -45,7 +45,7 @@ void init () {
     Square s3{ 75, 200 };
     Square s4{ 75, 200 };
 
-    disk = new Disk{ window, 400, 100, 200, 200 };
+    disk = new Disk{ window, 400, 200, 200, 200 };
     disk->addShape(s1);
     disk->addShape(s2);
     disk->addShape(s3);
@@ -68,7 +68,7 @@ void init () {
         glClear(GL_COLOR_BUFFER_BIT);
 
 
-        //m.draw();
+        m.draw();
         disk->draw();
         drawImGuiWindow(&flags);
 

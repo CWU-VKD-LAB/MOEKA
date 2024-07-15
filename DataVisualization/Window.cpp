@@ -1,6 +1,6 @@
 #include "Window.h"
 
-std::vector<ShapeManager*> Window::managers{};
+std::vector<Drawable*> Window::managers{};
 Shape* Window::s = nullptr;
 Shape* Window::focus = nullptr;
 

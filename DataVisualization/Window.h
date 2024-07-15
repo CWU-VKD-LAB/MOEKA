@@ -21,11 +21,11 @@ public:
 	static Shape* s;
 	static Shape* focus;
 	static bool drawColorPicker;
-	static std::vector<ShapeManager*> managers;
+	static std::vector<Drawable*> managers;
 	GLFWwindow* window;
 	Window();
 
-	static void addToRender (ShapeManager* sm) {
+	static void addToRender (Drawable* sm) {
 		Window::managers.insert(Window::managers.end(), sm);
 	}
 };

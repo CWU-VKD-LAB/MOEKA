@@ -7,10 +7,9 @@
 #include "Drawable.h"
 #include "Square.h"
 
-class ShapeManager: Drawable {
+class ShapeManager: public Drawable {
 protected:
 	std::vector<Shape*> managedList{};
-	int positionX, positionY;
 
 	// restrict shapes in the bounds of this manager to what coordinates.
 	int boundWidth, boundHeight;
@@ -27,17 +26,14 @@ protected:
 public:
 	ShapeManager(GLFWwindow* b_window, int bindWidth, int bindHeight, int posX, int posY);
 	~ShapeManager();
-	Shape* selectedShape ();
-	float totalScale = 1;
-
-	virtual void addShape (Shape& s);
-	virtual void setTranslation (float x, float y);
-	virtual void setScale(float scale);
-	int getX ();
-	int getY ();
-	void setX(int val);
-	void setY(int val);
-	void draw() override;
 	void setShapePosition(Shape& s, float x, float y, float scale = 1);
+
+	virtual Shape* selectedShape() override;
+	virtual void addShape (Shape& s);
+	virtual void setTranslation (float x, float y) override;
+	virtual void setScale(float scale) override;
+	void setX(float value) override;
+	void setY(float value) override;
+	void draw() override;
 };
 
