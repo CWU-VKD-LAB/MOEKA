@@ -50,6 +50,7 @@ Shape* ShapeManager::selectedShape () {
 		if (cy < s->y - height || cy > s->y + height) {
 			continue;
 		}
+		
 		return s;
 	}
 
@@ -66,8 +67,8 @@ void ShapeManager::setShapePosition (Shape& s, float x, float y, float scale) {
 
 
 	// set the shapes position variables incase we need to reference later
-	x += (s.maxBoundsX-s.minBoundsX)/2;
-	y += (s.maxBoundsY-s.minBoundsY)/2;
+	x += (s.maxBoundsX-s.minBoundsX)/2.0;
+	y += (s.maxBoundsY-s.minBoundsY)/2.0;
 	s.setPosition(x, y);
 
 	// convert the coordinates to its relative to the center of the manager

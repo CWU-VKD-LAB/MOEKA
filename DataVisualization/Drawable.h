@@ -15,4 +15,5 @@ public:
 	virtual void setScale (float scale) {};
 	virtual void setTranslation(float x, float y) {};
 	virtual Shape* selectedShape() {return nullptr;};
+
 };

@@ -28,6 +28,7 @@ extern std::vector<std::string> options;
 void initImGui (GLFWwindow* window);
 void init ();
 void drawImGuiWindow (ImGuiWindowFlags* flags);
+void buttonActions (int val);
 
 
 int main() {
@@ -55,10 +56,17 @@ void init () {
     
     Window::addToRender(disk);
 
-    std::vector<int> test{1, 2, 3, 4, 5};
+    std::vector<int> test{
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9 , 1, 2, 3, 4, 5, 6, 7, 8, 9,
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9 , 1, 2, 3, 4, 5, 6, 7, 8, 9,
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9 , 1, 2, 3, 4, 5, 6, 7, 8, 9,
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9 , 1, 2, 3, 4, 5, 6, 7, 8, 9
+    };
     Model m{ window, 300, 300 };
     m.createDisk(test);
     m.createDisk(test);
+
+    std::cout << m.getBar(0, 5)->getKValue() << std::endl;
 
     texture.bind();
 
@@ -69,7 +77,7 @@ void init () {
 
 
         m.draw();
-        disk->draw();
+        //disk->draw();
         drawImGuiWindow(&flags);
 
 
@@ -108,7 +116,8 @@ void drawImGuiWindow (ImGuiWindowFlags* flags) {
     // create options table
     texture.bind();
     int numOfElements = std::min((int)round(config::windowX / 32.0f), (int)config::options.size());
-    if (ImGui::BeginTable("table3", numOfElements)) {
+    ImVec2 padd{0.0, 0.0};
+    if (ImGui::BeginTable("table3", numOfElements, ImGuiTableFlags_NoPadInnerX)) {
         int x, y;
         for (int item = 0; item < config::options.size(); item++) {
             x = item%5;
@@ -130,14 +139,16 @@ void drawImGuiWindow (ImGuiWindowFlags* flags) {
             );
 
             //config::options.at(item).c_str()
+            ImGui::PushID(item);
             if (ImGui::ImageButton("", (void*)texture.id, size, uv0, uv1)) {
-                
+                buttonActions(item);
             }
             if (ImGui::IsItemHovered()) {
                 ImGui::BeginTooltip();
                 ImGui::Text(config::options.at(item).c_str());
                 ImGui::EndTooltip();
             }
+            ImGui::PopID();
             
         }
         ImGui::EndTable();
@@ -147,10 +158,7 @@ void drawImGuiWindow (ImGuiWindowFlags* flags) {
     if (Window::drawColorPicker && Window::focus != nullptr) {
         // create color picker
         ImGui::Begin("Color Picker", &Window::drawColorPicker);
-        //if (ImGui::MenuItem("Close")) {
-        //    Window::drawColorPicker = false;
-        //    Window::focus = nullptr;
-        //}
+
         if (Window::focus != nullptr) {
             ImGui::ColorPicker4("Shape Color", (float*)&Window::focus->color, NULL);
         }
@@ -171,3 +179,70 @@ void drawImGuiWindow (ImGuiWindowFlags* flags) {
 }
 
 
+void buttonActions(int val) {
+    switch (val) {
+    case (0): {
+        std::cout << "beep" << std::endl;
+        break;
+    }
+    case (1): {
+        std::cout << "boop" << std::endl;
+        break;
+    }
+    case (2): {
+        std::cout << "bop" << std::endl;
+        break;
+    }
+    case (3): {
+        break;
+    }
+    case (4): {
+        break;
+    }
+    case (5): {
+        break;
+    }
+    case (6): {
+        break;
+    }
+    case (7): {
+        break;
+    }
+    case (8): {
+        break;
+    }
+    case (9): {
+        break;
+    }
+    case (10): {
+        break;
+    }
+    case (11): {
+        break;
+    }
+    case (12): {
+        break;
+    }
+    case (13): {
+        break;
+    }
+    case (14): {
+        break;
+    }
+    case (15): {
+        break;
+    }
+    case (16): {
+        break;
+    }
+    case (17): {
+        break;
+    }
+    case (18): {
+        break;
+    }
+    case (19): {
+        break;
+    }
+    }
+}

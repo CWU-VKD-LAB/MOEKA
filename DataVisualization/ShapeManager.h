@@ -9,7 +9,7 @@
 
 class ShapeManager: public Drawable {
 protected:
-	std::vector<Shape*> managedList{};
+	
 
 	// restrict shapes in the bounds of this manager to what coordinates.
 	int boundWidth, boundHeight;
@@ -24,6 +24,7 @@ protected:
 
 	GLFWwindow* window = nullptr;
 public:
+	std::vector<Shape*> managedList{};
 	ShapeManager(GLFWwindow* b_window, int bindWidth, int bindHeight, int posX, int posY);
 	~ShapeManager();
 	void setShapePosition(Shape& s, float x, float y, float scale = 1);
@@ -35,5 +36,11 @@ public:
 	void setX(float value) override;
 	void setY(float value) override;
 	void draw() override;
+	double inline getSizeX() {
+		return (bounds->maxBoundsX - bounds->minBoundsX);
+	}
+	double inline getSizeY() {
+		return (bounds->maxBoundsY - bounds->minBoundsY);
+	}
 };
 

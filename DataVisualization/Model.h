@@ -6,9 +6,9 @@
 #include "Shape.h"
 
 class Model: public Drawable {
-	std::vector<Disk*> disks{};
+	std::vector<std::vector<Disk*>*> disks;
 	GLFWwindow* window;
-	int padding = 1;
+	int padding = 0;
 	int numOfDisks = 0;
 	int sizeX = 30;
 	int sizeY = 50;
@@ -17,6 +17,7 @@ public:
 	~Model ();
 	void draw () override;
 	void createDisk (std::vector<int>& values);
+	Shape* getBar (int disk, int index);
 
 	int getX() override;
 	int getY() override;

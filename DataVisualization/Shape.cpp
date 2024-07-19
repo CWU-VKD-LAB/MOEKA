@@ -33,6 +33,7 @@ void Shape::setup () {
         if (tempx < originalMinBoundsX) originalMinBoundsX = tempx;
         if (tempy < originalMinBoundsY) originalMinBoundsY = tempy;
     }
+    calculateBounds();
 }
 
 void Shape::bind () {
