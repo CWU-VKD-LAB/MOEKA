@@ -38,8 +38,8 @@ void Model::createDisk (std::vector<int>& values) {
 		for (int b = 0; b < config::compressBarAmount; b++) {
 			Square* s = new Square(sizeX, sizeY);
 			
-			//
-			s->kValue = (a*config::compressBarAmount) + b;
+			// set values here.
+			//s->kValue = ;
 			//
 
 			disk->addShape(*s);

@@ -16,8 +16,6 @@ ShapeManager::ShapeManager (GLFWwindow* m_window, int bindWidth, int bindHeight,
 	
 }
 
-
-
 ShapeManager::~ShapeManager () {
 	delete(bounds);
 }
@@ -56,8 +54,6 @@ Shape* ShapeManager::selectedShape () {
 
 	return nullptr;
 }
-
-
 
 void ShapeManager::setShapePosition (Shape& s, float x, float y, float scale) {
 	// check if x or y go beyond the manager bounds.

@@ -11,7 +11,7 @@ class Model: public Drawable {
 	int padding = 0;
 	int numOfDisks = 0;
 	int sizeX = 30;
-	int sizeY = 50;
+	int sizeY = 100;
 public:
 	Model (GLFWwindow* m_window, int x, int y);
 	~Model ();

@@ -32,10 +32,10 @@ public:
 	virtual Shape* selectedShape() override;
 	virtual void addShape (Shape& s);
 	virtual void setTranslation (float x, float y) override;
-	virtual void setScale(float scale) override;
-	void setX(float value) override;
-	void setY(float value) override;
-	void draw() override;
+	virtual void setScale (float scale) override;
+	void setX (float value) override;
+	void setY (float value) override;
+	void draw () override;
 	double inline getSizeX() {
 		return (bounds->maxBoundsX - bounds->minBoundsX);
 	}

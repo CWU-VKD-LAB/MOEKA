@@ -9,7 +9,7 @@ namespace config {
 	const float windowX = 800;
 	const float windowY = 800;
 	const float buttonSize = 32.f;
-	const int compressBarAmount = 5;
+	const int compressBarAmount = 10;
 	extern float color[3];
 	extern std::vector<std::string> options;
 	extern glm::mat4 proj; 
