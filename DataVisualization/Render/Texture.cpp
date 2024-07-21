@@ -9,9 +9,11 @@ Texture::Texture (const std::string& path): id(0), buffer(nullptr), filePath(pat
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	
+
 	// create and bind the texture on the gpu.
 	GLCall(glGenTextures(1, &id));
 	GLCall(glBindTexture(GL_TEXTURE_2D, id));
+
 
 	// tell openGL some parameters.
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));

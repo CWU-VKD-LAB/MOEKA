@@ -10,6 +10,7 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
 void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
 
 Window::Window () {
+    std::cout << "Creating window..." << std::endl;
     // init glfw
     initGLFW();
 
@@ -32,8 +33,11 @@ Window::Window () {
     glfwSetMouseButtonCallback(window, cursorCallback);
     glfwSetKeyCallback(window, keyCallBack);
     glfwSetCursorPosCallback(window, cursorPositionCallback);
-
+    
+    initImGui();
 }
+
+
 // ensure that GLEW was successful
 void Window::initGLEW () {
     GLenum err = glewInit();
@@ -44,7 +48,6 @@ void Window::initGLEW () {
         std::cout << "GLEW OK!" << std::endl;
     }
 }
-
 // ensure that GLFW was successful
 void Window::initGLFW () {
     if (!glfwInit()) {
@@ -55,13 +58,50 @@ void Window::initGLFW () {
     }
 }
 
+void Window::initImGui () {
+    // create the ImGui context and set some settings
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
+    flags |= ImGuiWindowFlags_NoMove;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+}
+void Window::endImGui () {
+    // end the ImGui context
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+    glfwTerminate();
+}
+void Window::drawImGuiWindow(Texture& texture) {
+    // create a new frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    createTable(texture);
+    createColorPicker();
+    createTooltip();
+
+    // render and update
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault();
+}
+
 void cursorCallback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS) {
         Window::focus = Window::s;
         Window::drawColorPicker = true;
     }
 }
-
 void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods) {
     // cleanup later but fine in short term.
     if (key == GLFW_KEY_UP && (action == GLFW_PRESS || glfwGetKey(window, key))) {
@@ -102,7 +142,6 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
         }
     }
 }
-
 void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
     Window::s = nullptr;
     for (auto a : Window::managers) {
@@ -110,5 +149,133 @@ void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
         if (Window::s != nullptr) {
             break;
         }
+    }
+}
+void Window::createTable (Texture& texture) {
+    ImGui::Begin("Options", nullptr);
+    // create options table
+    texture.bind();
+    int numOfElements = std::min((int)round(config::windowX / 32.0f), (int)config::options.size());
+    ImVec2 padd{ 0.0, 0.0 };
+    if (ImGui::BeginTable("table3", numOfElements, ImGuiTableFlags_NoPadInnerX)) {
+        int x, y;
+        for (int item = 0; item < config::options.size(); item++) {
+            x = item % 5;
+            y = item / 5;
+            ImGui::TableNextColumn();
+
+            ImVec2 size = ImVec2(config::buttonSize, config::buttonSize);                                                     // Size of the image we want to make visible
+
+            // UV coordinates for lower-left
+            ImVec2 uv0 = ImVec2(
+                (config::buttonSize * x / texture.getWidth()),
+                (config::buttonSize * y / texture.getHeight())
+            );
+
+            // UV coordinates for (32,32) in our texture
+            ImVec2 uv1 = ImVec2(
+                (config::buttonSize * (x + 1) / texture.getWidth()),
+                (config::buttonSize * (y + 1) / texture.getHeight())
+            );
+
+            ImGui::PushID(item);
+            if (ImGui::ImageButton("", (void*)texture.id, size, uv0, uv1)) {
+                Window::buttonActions(item);
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::BeginTooltip();
+                ImGui::Text(config::options.at(item).c_str());
+                ImGui::EndTooltip();
+            }
+            ImGui::PopID();
+
+        }
+        ImGui::EndTable();
+    }
+    ImGui::End();
+}
+void Window::createColorPicker () {
+    if (Window::drawColorPicker && Window::focus != nullptr) {
+        // create color picker
+        ImGui::Begin("Color Picker", &Window::drawColorPicker);
+
+        if (Window::focus != nullptr) {
+            ImGui::ColorPicker4("Shape Color", (float*)&Window::focus->color, NULL);
+        }
+        ImGui::End();
+    }
+}
+void Window::createTooltip () {
+    if (Window::s != nullptr) {
+        ImGui::BeginTooltip();
+        ImGui::Text(std::string("K Value: ").append(std::to_string(Window::s->getKValue())).c_str());
+        ImGui::EndTooltip();
+    }
+}
+void Window::buttonActions(int val) {
+    switch (val) {
+    case (0): {
+        std::cout << "beep" << std::endl;
+        break;
+    }
+    case (1): {
+        std::cout << "boop" << std::endl;
+        break;
+    }
+    case (2): {
+        std::cout << "bop" << std::endl;
+        break;
+    }
+    case (3): {
+        break;
+    }
+    case (4): {
+        break;
+    }
+    case (5): {
+        break;
+    }
+    case (6): {
+        break;
+    }
+    case (7): {
+        break;
+    }
+    case (8): {
+        break;
+    }
+    case (9): {
+        break;
+    }
+    case (10): {
+        break;
+    }
+    case (11): {
+        break;
+    }
+    case (12): {
+        break;
+    }
+    case (13): {
+        break;
+    }
+    case (14): {
+        break;
+    }
+    case (15): {
+        break;
+    }
+    case (16): {
+        break;
+    }
+    case (17): {
+        break;
+    }
+    case (18): {
+        break;
+    }
+    case (19): {
+        break;
+    }
     }
 }

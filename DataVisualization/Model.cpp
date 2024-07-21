@@ -7,8 +7,9 @@ Model::Model (GLFWwindow* m_window, int x, int y): window(m_window) {
 };
 
 Model::~Model () {
-	// free the disks
+	// free the vector of disks.
 	for (auto a : disks) {
+		// free the individual disks.
 		for (auto b : *a) {
 			delete(b);
 		}
@@ -18,10 +19,8 @@ Model::~Model () {
 
 void Model::draw () {
 	for (auto a : disks) {
-		if (a != nullptr) {
-			for (auto b : *a) {
-				b->draw();
-			}
+		for (auto b : *a) {
+			b->draw();
 		}
 	}
 }
@@ -31,19 +30,27 @@ void Model::createDisk (std::vector<int>& values) {
 
 	int elements = (int)ceil((double)values.size() / config::compressBarAmount);
 	int stride = 0;
+	int valuesIndex = 0;
 
 	for (int a = 0; a < elements; a++) {
 		Disk* disk = new Disk{window, sizeX*config::compressBarAmount, sizeY, positionX, positionY + (sizeY+padding)*numOfDisks };
+		
 		// fill the disk segment
 		for (int b = 0; b < config::compressBarAmount; b++) {
+			// if OOB, stop adding squares.
+			if (values.size() <= valuesIndex) {
+				break;
+			}
+
 			Square* s = new Square(sizeX, sizeY);
-			
 			// set values here.
-			//s->kValue = ;
+			s->setKValue(values[valuesIndex]);
+			valuesIndex++;
 			//
 
 			disk->addShape(*s);
 		}
+
 		// set positions
 		disk->positionX = positionX + stride;
 		disk->positionY = positionY + ((sizeY + padding) * numOfDisks);
@@ -60,6 +67,7 @@ void Model::createDisk (std::vector<int>& values) {
 	disks.insert(disks.end(), temp);
 }
 
+// returns a bar in the model
 Shape* Model::getBar(int disk, int index) {
 	if (disk > disks.size()) {
 		std::cout << "Invalid disk" << std::endl;
@@ -69,14 +77,15 @@ Shape* Model::getBar(int disk, int index) {
 		std::cout << "Invalid index on disk" << std::endl;
 		return nullptr;
 	}
-	std::cout << index / config::compressBarAmount << "\t" << index % config::compressBarAmount << std::endl;
 	return disks.at(disk)->at(floor(index / config::compressBarAmount))->managedList.at(index % config::compressBarAmount);
 }
 
+// returns the left coordinate of the models location
 int Model::getX () {
 	return positionX;
 }
 
+// returns the top coordinate of the models location
 int Model::getY () {
 	return positionY;
 }
