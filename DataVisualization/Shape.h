@@ -53,10 +53,10 @@ public:
 	float getPositionX ();
 	float getPositionY ();
 
-	double inline getSizeX() {
+	float inline getSizeX() {
 		return (maxBoundsX - minBoundsX);
 	}
-	double inline getSizeY() {
+	float inline getSizeY() {
 		return (maxBoundsY - minBoundsY);
 	}
 

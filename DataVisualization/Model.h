@@ -13,14 +13,14 @@ class Model: public Drawable {
 	int sizeX = 30;
 	int sizeY = 100;
 public:
-	Model (GLFWwindow* m_window, int x, int y);
+	Model (GLFWwindow* m_window, float x, float y);
 	~Model ();
 	void draw () override;
 	void createDisk (std::vector<int>& values);
 	Shape* getBar (int disk, int index);
 
-	int getX() override;
-	int getY() override;
+	float getX() override;
+	float getY() override;
 	void setX(float value) override;
 	void setY(float value) override;
 	void setScale(float scale) override;

@@ -6,7 +6,7 @@ private:
 	double stride;
 	double padding = 0;
 public:
-	Disk(GLFWwindow* window, int bindWidth, int bindHeight, int posX, int posY);
+	Disk(GLFWwindow* window, int bindWidth, int bindHeight, float posX, float posY);
 	~Disk();
 	void addShape (Shape& s) override;
 	void setTranslation (float x, float y) override;

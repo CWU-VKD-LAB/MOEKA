@@ -1,6 +1,6 @@
 #include "Model.h"
 
-Model::Model (GLFWwindow* m_window, int x, int y): window(m_window) {
+Model::Model (GLFWwindow* m_window, float x, float y): window(m_window) {
 	positionX = x;
 	positionY = y;
 	Window::addToRender(this);
@@ -77,22 +77,22 @@ Shape* Model::getBar(int disk, int index) {
 		std::cout << "Invalid index on disk" << std::endl;
 		return nullptr;
 	}
-	return disks.at(disk)->at(floor(index / config::compressBarAmount))->managedList.at(index % config::compressBarAmount);
+	return disks.at(disk)->at((int)floor(index / config::compressBarAmount))->managedList.at(index % config::compressBarAmount);
 }
 
 // returns the left coordinate of the models location
-int Model::getX () {
+float Model::getX () {
 	return positionX;
 }
 
 // returns the top coordinate of the models location
-int Model::getY () {
+float Model::getY () {
 	return positionY;
 }
 
 void Model::setX (float value) {
 	positionX = value;
-	int c = 0;
+	float c = 0;
 	for (auto a : disks) {
 		for (auto b : *a) {
 			b->setX(b->getX() + value + c);
@@ -104,7 +104,7 @@ void Model::setX (float value) {
 
 void Model::setY (float value) {
 	positionY = value;
-	int c = 0;
+	float c = 0;
 	for (auto a : disks) {
 		for (auto b : *a) {
 			b->setY(b->getY() + value + ((sizeY + padding) * c));
@@ -126,8 +126,8 @@ void Model::setScale (float scale) {
 }
 
 void Model::setTranslation (float x, float y) {
-	int c = 0;
-	int d = 0;
+	float c = 0;
+	float d = 0;
 	for (auto a : disks) {
 		for (auto b : *a) {
 			b->setTranslation(x + d, y + c);

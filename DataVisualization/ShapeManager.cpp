@@ -1,14 +1,14 @@
 #include "ShapeManager.h"
 
 
-ShapeManager::ShapeManager (GLFWwindow* m_window, int bindWidth, int bindHeight, int posX, int posY): boundHeight(bindHeight), boundWidth(bindWidth), window(m_window) {
+ShapeManager::ShapeManager (GLFWwindow* m_window, float bindWidth, float bindHeight, float posX, float posY): boundHeight(bindHeight), boundWidth(bindWidth), window(m_window) {
 	positionX = posX;
 	positionY = posY;
 	bounds = new Square{bindWidth, bindHeight, "Manager"};
 	bounds->shader->use();
-	bounds->color.x = .5*(posY/600);
-	bounds->color.y = .5;
-	bounds->color.z = .5;
+	bounds->color.x = .5f*(posY/600);
+	bounds->color.y = .5f;
+	bounds->color.z = .5f;
 	bounds->color.w = 1;
 
 	setShapePosition(*bounds, positionX, positionY);
@@ -27,8 +27,8 @@ Shape* ShapeManager::selectedShape () {
 	
 	// cx and cy will be in ranged of 0-600 from 0,0 on the top right to 600, 600, on the bottom right
 	// check if cursor is in the bounds of this manager.
-	double tempx = boundWidth/2 * totalScale;
-	double tempy = boundHeight/2 * totalScale;
+	double tempx = (double)boundWidth / 2.0f * totalScale;
+	double tempy = (double)boundHeight / 2.0f * totalScale;
 	if (positionX - tempx > cx || cx > positionX + tempx) {
 		return nullptr;
 	}
@@ -63,8 +63,8 @@ void ShapeManager::setShapePosition (Shape& s, float x, float y, float scale) {
 
 
 	// set the shapes position variables incase we need to reference later
-	x += (s.maxBoundsX-s.minBoundsX)/2.0;
-	y += (s.maxBoundsY-s.minBoundsY)/2.0;
+	x += (float)(((double)s.maxBoundsX-s.minBoundsX)/2.0);
+	y += (float)(((double)s.maxBoundsY-s.minBoundsY)/2.0);
 	s.setPosition(x, y);
 
 	// convert the coordinates to its relative to the center of the manager

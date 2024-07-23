@@ -27,7 +27,7 @@ void Shape::setup () {
     float tempx, tempy;
     for (int a = 0; a < positions.size(); a += 2) {
         tempx = positions.at(a);
-        tempy = positions.at(a + 1);
+        tempy = positions.at((long long)a + 1);
         if (tempx > originalMaxBoundsX) originalMaxBoundsX = tempx;
         if (tempy > originalMaxBoundsY) originalMaxBoundsY = tempy;
         if (tempx < originalMinBoundsX) originalMinBoundsX = tempx;
@@ -88,7 +88,7 @@ void Shape::calculateBounds () {
     float tempx, tempy;
     for (int a = 0; a < positions.size(); a += 2) {
         tempx = positions.at(a);
-        tempy = positions.at(a + 1);
+        tempy = positions.at((long long)a + 1);
         if (tempx > maxBoundsX) maxBoundsX = tempx;
         if (tempy > maxBoundsY) maxBoundsY = tempy;
         if (tempx < minBoundsX) minBoundsX = tempx;

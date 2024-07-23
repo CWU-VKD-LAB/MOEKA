@@ -3,13 +3,13 @@
 
 class Drawable {
 public:
-	int positionX, positionY;
+	float positionX = 0.0, positionY = 0.0;
 	float totalScale = 1;
 	virtual void draw() {
 
 	}
-	virtual int getX () {return positionX;};
-	virtual int getY () {return positionY;};
+	virtual float getX () {return positionX;};
+	virtual float getY () {return positionY;};
 	virtual void setX(float value) {};
 	virtual void setY(float value) {};
 	virtual void setScale (float scale) {};

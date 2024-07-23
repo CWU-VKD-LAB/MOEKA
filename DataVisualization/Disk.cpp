@@ -1,6 +1,6 @@
 #include "Disk.h"
 
-Disk::Disk (GLFWwindow* m_window, int bindWidth, int bindHeight, int posX, int posY)
+Disk::Disk (GLFWwindow* m_window, int bindWidth, int bindHeight, float posX, float posY)
 	: ShapeManager(m_window, bindWidth, bindHeight, posX, posY) {
 	stride = 0;
 }
@@ -47,7 +47,7 @@ void Disk::addShape (Shape& s) {
 	managedList.insert(managedList.end(), &s);
 
 	// enforce layout
-	setShapePosition(s, positionX-(boundWidth/2) + stride, positionY-(boundHeight/2));
+	setShapePosition(s, (float)(positionX-(boundWidth/2) + stride), (float)(positionY-(boundHeight/2)));
 }
 
 
@@ -65,8 +65,8 @@ void Disk::setTranslation (float x, float y) {
 	double t;
 	stride = 0;
 	for (auto a : managedList) {
-		t = (a->maxBoundsX - a->minBoundsX);
-		setShapePosition(*a, positionX - (boundWidth * totalScale / 2.0) + stride, positionY - (boundHeight * totalScale / 2.0));
+		t = ((double)a->maxBoundsX - a->minBoundsX);
+		setShapePosition(*a, (float)(positionX - ((double)boundWidth * totalScale / 2.0) + stride), (float)(positionY - ((double)boundHeight * totalScale / 2.0)));
 		stride += t + padding;
 	}
 }

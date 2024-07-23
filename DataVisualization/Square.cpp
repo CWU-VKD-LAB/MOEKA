@@ -19,9 +19,9 @@ Square::Square (float x1, float y1, float x2, float y2, std::string name) {
     setup();
 }
 
-Square::Square (int width, int height, std::string name) {
-    float x = width/2.0;
-    float y = height/2.0;
+Square::Square (float width, float height, std::string name) {
+    float x = width/2.0f;
+    float y = height/2.0f;
 
     positions = {
          x,  y,

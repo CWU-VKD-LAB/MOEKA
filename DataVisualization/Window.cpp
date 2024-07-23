@@ -15,7 +15,7 @@ Window::Window () {
     initGLFW();
 
     // create window
-    window = glfwCreateWindow(config::windowX, config::windowY, "Data Visualization", nullptr, nullptr);
+    window = glfwCreateWindow((int)config::windowX, (int)config::windowY, "Data Visualization", nullptr, nullptr);
     if (!window) {
         glfwTerminate();
         exit(1);
@@ -130,13 +130,13 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
     }
     if (key == GLFW_KEY_KP_ADD && (action == GLFW_PRESS || glfwGetKey(window, key))) {
         for (auto a : Window::managers) {
-            a->setScale(a->totalScale + .01);
+            a->setScale((float)(a->totalScale + .01));
         }
     }
     if (key == GLFW_KEY_KP_SUBTRACT && (action == GLFW_PRESS || glfwGetKey(window, key))) {
         for (auto a : Window::managers) {
             if ((a->totalScale - .01) > 0.00001) {
-                a->setScale(a->totalScale - .01);
+                a->setScale((float)(a->totalScale - .01));
             }
             
         }

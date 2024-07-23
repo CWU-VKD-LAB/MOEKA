@@ -12,7 +12,7 @@ protected:
 	
 
 	// restrict shapes in the bounds of this manager to what coordinates.
-	int boundWidth, boundHeight;
+	float boundWidth, boundHeight;
 
 	// draw the bounds of the manager
 	bool drawBounds = true;
@@ -25,7 +25,7 @@ protected:
 	GLFWwindow* window = nullptr;
 public:
 	std::vector<Shape*> managedList{};
-	ShapeManager(GLFWwindow* b_window, int bindWidth, int bindHeight, int posX, int posY);
+	ShapeManager(GLFWwindow* b_window, float bindWidth, float bindHeight, float posX, float posY);
 	~ShapeManager();
 	void setShapePosition(Shape& s, float x, float y, float scale = 1);
 
@@ -36,10 +36,10 @@ public:
 	void setX (float value) override;
 	void setY (float value) override;
 	void draw () override;
-	double inline getSizeX() {
+	float inline getSizeX() {
 		return (bounds->maxBoundsX - bounds->minBoundsX);
 	}
-	double inline getSizeY() {
+	float inline getSizeY() {
 		return (bounds->maxBoundsY - bounds->minBoundsY);
 	}
 };
