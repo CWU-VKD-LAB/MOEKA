@@ -1,8 +1,9 @@
 #include "Window.h"
 
+
 std::vector<Drawable*> Window::managers{};
-Shape* Window::s = nullptr;
-Shape* Window::focus = nullptr;
+Drawable* Window::s = nullptr;
+Drawable* Window::focus = nullptr;
 
 bool Window::drawColorPicker = false;
 void cursorCallback(GLFWwindow* window, int button, int action, int mods);
@@ -96,61 +97,63 @@ void Window::drawImGuiWindow(Texture& texture) {
     ImGui::RenderPlatformWindowsDefault();
 }
 
+// function that is called when the mouse is clicked
 void cursorCallback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS) {
         Window::focus = Window::s;
         Window::drawColorPicker = true;
     }
 }
+
+// function that is called when a key is pressed
 void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods) {
     // cleanup later but fine in short term.
     if (key == GLFW_KEY_UP && (action == GLFW_PRESS || glfwGetKey(window, key))) {
         for (auto a : Window::managers) {
-            a->setY(a->getY()-5);
-            a->setTranslation(a->getX(), a->getY());
+            a->setTranslation(a->getX(), a->getY()-5);
         }
     }
     if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || glfwGetKey(window, key))) {
         for (auto a : Window::managers) {
-            a->setY(a->getY() + 5);
-            a->setTranslation(a->getX(), a->getY());
+            a->setTranslation(a->getX(), a->getY()+5);
         }
     }
     if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || glfwGetKey(window, key))) {
         for (auto a : Window::managers) {
-            a->setX(a->getX() - 5);
-            a->setTranslation(a->getX(), a->getY());
+            a->setTranslation(a->getX()-5, a->getY());
         }
     }
     if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || glfwGetKey(window, key))) {
         for (auto a : Window::managers) {
-            a->setX(a->getX() + 5);
-            a->setTranslation(a->getX(), a->getY());
+            a->setTranslation(a->getX()+5, a->getY());
         }
     }
     if (key == GLFW_KEY_KP_ADD && (action == GLFW_PRESS || glfwGetKey(window, key))) {
         for (auto a : Window::managers) {
-            a->setScale((float)(a->totalScale + .01));
+            a->setScale((float)(a->getScale() + .01));
         }
     }
     if (key == GLFW_KEY_KP_SUBTRACT && (action == GLFW_PRESS || glfwGetKey(window, key))) {
         for (auto a : Window::managers) {
-            if ((a->totalScale - .01) > 0.00001) {
-                a->setScale((float)(a->totalScale - .01));
+            if ((a->getScale() - .01) > 0.00001) {
+                a->setScale((float)(a->getScale() - .01));
             }
-            
         }
     }
 }
+
+// function that is called when the cursor moves
 void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
     Window::s = nullptr;
     for (auto a : Window::managers) {
-        Window::s = a->selectedShape();
+        Window::s = a->selected(window);
         if (Window::s != nullptr) {
             break;
         }
     }
 }
+
+// creates the table of buttons by sampling a texture
 void Window::createTable (Texture& texture) {
     ImGui::Begin("Options", nullptr);
     // create options table
@@ -164,7 +167,7 @@ void Window::createTable (Texture& texture) {
             y = item / 5;
             ImGui::TableNextColumn();
 
-            ImVec2 size = ImVec2(config::buttonSize, config::buttonSize);                                                     // Size of the image we want to make visible
+            ImVec2 size = ImVec2(config::buttonSize, config::buttonSize);   // Size of the image we want to make visible
 
             // UV coordinates for lower-left
             ImVec2 uv0 = ImVec2(
@@ -194,24 +197,37 @@ void Window::createTable (Texture& texture) {
     }
     ImGui::End();
 }
+
+// when you click, it checks if we are focusing on a shape, if we are, create the color picker window.
 void Window::createColorPicker () {
     if (Window::drawColorPicker && Window::focus != nullptr) {
         // create color picker
         ImGui::Begin("Color Picker", &Window::drawColorPicker);
 
         if (Window::focus != nullptr) {
-            ImGui::ColorPicker4("Shape Color", (float*)&Window::focus->color, NULL);
+            ImGui::ColorPicker4("Shape Color", (float*)Window::focus->getColor(), NULL);
         }
         ImGui::End();
     }
 }
+
+// created when the mouse hovers a Shape
 void Window::createTooltip () {
     if (Window::s != nullptr) {
         ImGui::BeginTooltip();
-        ImGui::Text(std::string("K Value: ").append(std::to_string(Window::s->getKValue())).c_str());
+        // If we are hovering a Bar, we would want to know some specific information.
+        if (dynamic_cast<Bar*>(Window::s)) {
+            ImGui::Text(
+                std::string("Chain Number: ")
+                .append(std::to_string(static_cast<Bar*>(Window::s)->getChainNumber()))
+                .c_str()
+            );
+        }
         ImGui::EndTooltip();
     }
 }
+
+// when a button is pressed, it calls this function with a "val" equal to which button in the window is pressed.
 void Window::buttonActions(int val) {
     switch (val) {
     case (0): {

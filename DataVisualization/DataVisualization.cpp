@@ -7,13 +7,14 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>
+#include "Shape.h"
+#include "Disk.h"
 #include "Model.h"
 #include "Window.h"
 #include "Render/Texture.h"
 
 
 GLFWwindow* window;
-
 
 void init ();
 
@@ -32,10 +33,14 @@ void init () {
         1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9 , 1, 2, 3, 4, 5, 6, 7, 8, 9,
         1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9 , 1, 2, 3, 4, 5, 6, 7, 8, 9
     };
-    
-    Model m{ window, 300, 300 };
-    m.createDisk(test);
-    m.createDisk(test);
+   
+
+    Model m{};
+    m.addDisk(test);
+    m.addDisk(test);
+    m.setTranslation(400, 400);
+    m.fitToScreen();
+    w.addToRender(&m);
 
     // update loop
     while (!glfwWindowShouldClose(window)) {

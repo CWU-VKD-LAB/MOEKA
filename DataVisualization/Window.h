@@ -8,9 +8,9 @@
 #include <iostream>
 #include "tools/config.h"
 #include "Shape.h"
-#include "ShapeManager.h"
 #include "Render/Texture.h"
 #include "tools/config.h"
+#include "Bar.h"
 
 extern float color[3];
 extern std::vector<std::string> options;
@@ -22,8 +22,8 @@ private:
 	void initImGui ();
 	ImGuiWindowFlags flags = 0;
 public:
-	static Shape* s;
-	static Shape* focus;
+	static Drawable* s;
+	static Drawable* focus;
 	static bool drawColorPicker;
 	static std::vector<Drawable*> managers;
 	GLFWwindow* window;

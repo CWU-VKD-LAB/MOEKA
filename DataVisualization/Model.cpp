@@ -1,156 +1,105 @@
 #include "Model.h"
 
-Model::Model (GLFWwindow* m_window, float x, float y): window(m_window) {
-	positionX = x;
-	positionY = y;
-	Window::addToRender(this);
-};
+
+void Model::addDisk (std::vector<int> values) {
+	Disk* disk = new Disk{};
+
+	int elements = (int)ceil((double)values.size() / config::compressBarAmount);
+	
+	// maybe make recursive method in disk to replace this?
+	for (int a = 0; a < elements; a++) {
+		Disk* subDisk = new Disk{};
+		for (int b = 0; b < config::compressBarAmount; b++) {
+			subDisk->addChild(new Bar());
+		}
+		disk->addChild(subDisk);
+	}
+	disk->setTranslation(getX(), getY() + stride);
+	stride += disk->getHeight();
+	list.push_back(disk);
+}
+
+Model::Model () {
+	// the bounds of the model should be the entire screen.
+	minBoundsX = -config::windowX;
+	maxBoundsX = config::windowX;
+	minBoundsY = -config::windowY;
+	maxBoundsY = config::windowY;
+}
 
 Model::~Model () {
-	// free the vector of disks.
-	for (auto a : disks) {
-		// free the individual disks.
-		for (auto b : *a) {
-			delete(b);
-		}
+	for (auto a : list) {
 		delete(a);
 	}
 }
 
+// draw this object
 void Model::draw () {
-	for (auto a : disks) {
-		for (auto b : *a) {
-			b->draw();
-		}
+	for (auto a : list) {
+		a->draw();
 	}
 }
 
-void Model::createDisk (std::vector<int>& values) {
-	std::vector<Disk*>* temp = new std::vector<Disk*>;
+Drawable* Model::selected (GLFWwindow* window) {
+	// use BVH-esque techniques to find the hovered shape without checking too many shapes.
+	double cx, cy;
+	glfwGetCursorPos(window, &cx, &cy);
 
-	int elements = (int)ceil((double)values.size() / config::compressBarAmount);
-	int stride = 0;
-	int valuesIndex = 0;
 
-	for (int a = 0; a < elements; a++) {
-		Disk* disk = new Disk{window, sizeX*config::compressBarAmount, sizeY, positionX, positionY + (sizeY+padding)*numOfDisks };
-		
-		// fill the disk segment
-		for (int b = 0; b < config::compressBarAmount; b++) {
-			// if OOB, stop adding squares.
-			if (values.size() <= valuesIndex) {
-				break;
-			}
-
-			Square* s = new Square(sizeX, sizeY);
-			// set values here.
-			s->setKValue(values[valuesIndex]);
-			valuesIndex++;
-			//
-
-			disk->addShape(*s);
-		}
-
-		// set positions
-		disk->positionX = positionX + stride;
-		disk->positionY = positionY + ((sizeY + padding) * numOfDisks);
-
-		// set transforms
-		disk->setTranslation(positionX + stride, positionY + ((sizeY + padding) * numOfDisks));
-		disk->setScale(1);
-
-		// update variables
-		stride += sizeX*config::compressBarAmount;
-		temp->insert(temp->end(), disk);
-	}
-	numOfDisks++;
-	disks.insert(disks.end(), temp);
-}
-
-// returns a bar in the model
-Shape* Model::getBar(int disk, int index) {
-	if (disk > disks.size()) {
-		std::cout << "Invalid disk" << std::endl;
+	// cx and cy will be in ranged of 0-600 from 0,0 on the top right to 600, 600, on the bottom right
+	// check if cursor is in the bounds of this manager.
+	double tempx = (double)getWidth() / 2.0f;
+	double tempy = (double)getHeight() / 2.0f;
+	if (getX() - tempx > cx || cx > getX() + tempx) {
 		return nullptr;
 	}
-	if (index > disks.at(disk)->size()*config::compressBarAmount) {
-		std::cout << "Invalid index on disk" << std::endl;
+	if (getY() - tempy > cy || cy > getY() + tempy) {
 		return nullptr;
 	}
-	return disks.at(disk)->at((int)floor(index / config::compressBarAmount))->managedList.at(index % config::compressBarAmount);
-}
-
-// returns the left coordinate of the models location
-float Model::getX () {
-	return positionX;
-}
-
-// returns the top coordinate of the models location
-float Model::getY () {
-	return positionY;
-}
-
-void Model::setX (float value) {
-	positionX = value;
-	float c = 0;
-	for (auto a : disks) {
-		for (auto b : *a) {
-			b->setX(b->getX() + value + c);
-			c += b->getSizeX();
-		}
-		c = 0;
-	}
-}
-
-void Model::setY (float value) {
-	positionY = value;
-	float c = 0;
-	for (auto a : disks) {
-		for (auto b : *a) {
-			b->setY(b->getY() + value + ((sizeY + padding) * c));
-		}
-
-		// heh
-		c++;
-	}
-}
-
-void Model::setScale (float scale) {
-	totalScale = scale;
-	for (auto a : disks) {
-		for (auto b : *a) {
-			b->setScale(scale);
-		}
-	}
-	setTranslation(positionX, positionY);
-}
-
-void Model::setTranslation (float x, float y) {
-	float c = 0;
-	float d = 0;
-	for (auto a : disks) {
-		for (auto b : *a) {
-			b->setTranslation(x + d, y + c);
-			d += b->getSizeX();
-		}
-		d = 0;
-		c += a->at(0)->getSizeY() + padding;
-	}
-}
-
-Shape* Model::selectedShape() {
-	Shape* s = nullptr;
-	// model layer
-	for (auto a : disks) {
-		// disk layer
-		for (auto b : *a) {
-			s = b->selectedShape();
-			if (s != nullptr) {
-				return s;
-			}
+	// checks against a shapes bounding box.
+	Drawable* d;
+	for (auto s : list) {
+		d = s->selected(window);
+		if (d != nullptr) {
+			return d;
 		}
 	}
 	return nullptr;
 }
 
+void Model::setTranslation (float dx, float dy) {
+	x = dx;
+	y = dy;
+	stride = 0;
+	for (auto a : list) {
+		a->setTranslation(dx, dy + stride);
+		stride += a->getHeight();
+	}
+}
 
+void Model::setScale (float scale) {
+	totalScale = scale;
+	scaleBounds(scale);
+
+	for (auto a : list) {
+		a->setScale(scale);
+	}
+
+	setTranslation(getX(), getY());
+}
+
+// finds a scaling that will fit the model to the screen.
+void Model::fitToScreen () {
+	float largestWidth = 0.0f;
+	float largestHeight = 0.0f;
+
+	for (auto a : list) {
+		largestWidth = std::max(largestWidth, a->getWidth());
+		largestHeight = std::max(largestHeight, a->getHeight());
+	}
+
+	float ratioX = config::windowX / largestWidth;
+	float ratioY = config::windowY / largestHeight;
+
+	setScale(std::min(ratioX, ratioY));
+}

@@ -1,15 +1,42 @@
 #include "Shape.h"
 
 
-void Shape::setup () {
-    // create our vertex array object, that holds the metadata of our points
-    va = new VertexArray{};
+Shape::Shape (float width, float height) {
+    resize(width, height);
+}
 
-    // holds our points
-    vb = new VertexBuffer{1, &positions};
-    
-    // allow for reuse of points
-    ib = new IndexBuffer{1, &indices};
+void Shape::resize (float width, float height) {
+    float x = width / 2.0f;
+    float y = height / 2.0f;
+
+    positions = {
+         x,  y,
+        -x,  y,
+        -x, -y,
+         x, -y
+    };
+    indices = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    // if any of these exist, delete them first before reallocating.
+    if (va != nullptr) {
+        delete(va);
+    }
+    if (vb != nullptr) {
+        delete(vb);
+    }
+    if (ib != nullptr) {
+        delete(ib);
+    }
+    if (shader != nullptr) {
+        delete(shader);
+    }
+
+    va = new VertexArray{};                     // create our vertex array object, that holds the metadata of our points
+    vb = new VertexBuffer{ 1, &positions };     // holds our points
+    ib = new IndexBuffer{ 1, &indices };        // allow for reuse of points
 
     // set the layout
     VertexLayout vl{};
@@ -17,7 +44,7 @@ void Shape::setup () {
     va->addBuffer(*vb, vl);
 
     // set up our shader
-    shader = new Shader{"resources/shaders/basic.glsl"};
+    shader = new Shader{ "resources/shaders/basic.glsl" };
     shader->remove();
 
     // clear our bindings
@@ -34,37 +61,12 @@ void Shape::setup () {
         if (tempy < originalMinBoundsY) originalMinBoundsY = tempy;
     }
     calculateBounds();
+    setTranslation(config::windowX / 2, config::windowY / 2);
+    setScale(1);
+    shader->setUniformMat4f("projMatrix", config::proj);
 }
 
-void Shape::bind () {
-    va->bind();
-    vb->bind();
-    ib->bind();
-    shader->use();
-    shader->setUniform4f("uColor", color.x, color.y, color.z, color.w);
-}
-void Shape::draw() {
-    // bindings
-    bind();
-
-    // draw
-    GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-}
-void Shape::setPosition (float m_x, float m_y) {
-    x = m_x;
-    y = m_y;
-}
-float Shape::getPositionX () {
-    return x;
-}
-float Shape::getPositionY () {
-    return y;
-}
-
-void Shape::setKValue (int val) {
-    kValue = val;
-}
-
+// dispose of our heap allocated variables.
 Shape::~Shape () {
     delete(vb);
     delete(ib);
@@ -72,19 +74,11 @@ Shape::~Shape () {
     delete(shader);
 }
 
-int Shape::getKValue () {
-    return kValue;
+void Shape::draw () {
+    bind();
+    GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 }
-
-void Shape::scaleBounds (float scale) {
-    calculateBounds();
-    minBoundsX = originalMinBoundsX*(scale);
-    maxBoundsX = originalMaxBoundsX*(scale);
-    minBoundsY = originalMinBoundsY*(scale);
-    maxBoundsY = originalMaxBoundsY*(scale);
-}
-
-void Shape::calculateBounds () {
+void Shape::calculateBounds() {
     float tempx, tempy;
     for (int a = 0; a < positions.size(); a += 2) {
         tempx = positions.at(a);
@@ -94,4 +88,37 @@ void Shape::calculateBounds () {
         if (tempx < minBoundsX) minBoundsX = tempx;
         if (tempy < minBoundsY) minBoundsY = tempy;
     }
+}
+void Shape::bind() {
+    va->bind();
+    vb->bind();
+    ib->bind();
+    shader->use();
+    shader->setUniform4f("uColor", color.x, color.y, color.z, color.w);
+}
+
+// transformations
+void Shape::setTranslation(float dx, float dy) {
+    x = dx;
+    y = dy;
+    dx = 2 * (dx / config::windowX) - 1;
+    dy = 2 * (dy / config::windowY) - 1;
+    translateMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(dx, -dy, 0));
+    shader->use();
+    shader->setUniformMat4f("posMatrix", translateMatrix);
+};
+
+void Shape::setScale(float scale) {
+    totalScale = scale;
+    scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
+    shader->use();
+    shader->setUniformMat4f("scaleMatrix", scaleMatrix);
+    scaleBounds(totalScale);
+}
+void Shape::scaleBounds(float scale) {
+    calculateBounds();
+    minBoundsX = originalMinBoundsX * (scale);
+    maxBoundsX = originalMaxBoundsX * (scale);
+    minBoundsY = originalMinBoundsY * (scale);
+    maxBoundsY = originalMaxBoundsY * (scale);
 }

@@ -1,64 +1,30 @@
 #pragma once
-//
-#include <malloc.h>
-#include <iostream>
-#include <gl/glew.h>
-#include <GLFW/glfw3.h>
-#include <string>
-#include <imgui.h>
-//
-#include "tools/config.h"
-#include "tools/util.h"
+#include "Drawable.h"
 #include "Render/IndexBuffer.h"
 #include "Render/VertexBuffer.h"
 #include "Render/VertexArray.h"
 #include "Render/Shader.h"
+#include "tools/config.h"
 
-class Shape {
+class Shape: public Drawable {
+protected:
+	VertexBuffer* vb;					// holds the point information
+	IndexBuffer* ib;					// tells OpenGL how to draw the tri's
+	VertexArray* va;					// tells OpenGL meta information on our shape
+	Shader* shader;						// the program that tells OpenGL how to draw our shape
+
+	std::vector<float> positions;		// how many total points we have
+	std::vector<unsigned int> indices;	// how OpenGL should read our points
+	//
+	void bind();
+	void calculateBounds() override;
+	void scaleBounds(float value) override;
+	void resize(float width, float height);
 public:
-	VertexBuffer* vb;	// holds the point information
-	IndexBuffer* ib;	// tells OpenGL how to draw the tri's
-	VertexArray* va;	// tells OpenGL meta information on our shape
-	Shader* shader;		// the program that tells OpenGL how to draw our shape
-	//
-	ImVec4 color{ 1, 1, 1, 1 };
-
-	//
-	std::vector<float> positions;
-	std::vector<unsigned int> indices;
-
-	//
-	float minBoundsX = 1, minBoundsY = 1;
-	float maxBoundsX = -1, maxBoundsY = -1;
-
-	float originalMinBoundsX = 1, originalMinBoundsY = 1;
-	float originalMaxBoundsX = -1, originalMaxBoundsY = -1;
-
-	//
-	int id;
-	int kValue = -1;
-	float x;
-	float y;
-
-	//
-	void setup ();
-	void draw ();
-	void bind ();
-	void setKValue (int val);
-	int getKValue ();
-	void scaleBounds (float scale);
-	void calculateBounds ();
-	//
-	void setPosition (float m_x, float m_y);
-	float getPositionX ();
-	float getPositionY ();
-
-	float inline getSizeX() {
-		return (maxBoundsX - minBoundsX);
-	}
-	float inline getSizeY() {
-		return (maxBoundsY - minBoundsY);
-	}
-
+	Shape (float width, float height);
 	~Shape ();
+	void draw () override;
+	//
+	void setScale (float scale);
+	void setTranslation (float dx, float dy);
 };
