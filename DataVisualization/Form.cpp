@@ -111,7 +111,7 @@ void Form::drawFunction () {
 	//
 	
 	// clauses table
-	ImGui::BeginTable("##existing_clauses", history.size()+1, ImGuiTableFlags_ScrollX | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV, ImVec2{window.x * .6f, window.y * .19f});
+	ImGui::BeginTable("##existing_clauses", (int)(history.size()+1), ImGuiTableFlags_ScrollX | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV, ImVec2{window.x * .6f, window.y * .19f});
 	for (int a = 0; a < history.size(); a++) {
 		ImGui::TableSetupColumn(std::string("Clause: ").append(std::to_string(a + 1)).c_str(), config::windowX * .2f);
 	}
