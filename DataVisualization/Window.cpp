@@ -4,6 +4,7 @@
 std::vector<Drawable*> Window::managers{};
 Drawable* Window::s = nullptr;
 Drawable* Window::focus = nullptr;
+Form Window::form{};
 
 bool Window::drawColorPicker = false;
 void cursorCallback(GLFWwindow* window, int button, int action, int mods);
@@ -64,12 +65,11 @@ void Window::initImGui () {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    (void)io;
     flags |= ImGuiWindowFlags_NoMove;
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
-
+    font = io.Fonts->AddFontFromFileTTF("resources/fonts/ProggyClean.ttf", 13.0f);
     ImGuiStyle& style = ImGui::GetStyle();
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 }
@@ -86,9 +86,17 @@ void Window::drawImGuiWindow(Texture& texture) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    ImGui::PushFont(font);
     createTable(texture);
-    createColorPicker();
-    createTooltip();
+    if (!Window::form.open) {
+        createColorPicker();
+        createTooltip();
+    }
+    else {
+        form.draw();
+    }
+    //ImGui::ShowDemoWindow();
+    ImGui::PopFont();
 
     // render and update
     ImGui::Render();
@@ -139,6 +147,9 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
                 a->setScale((float)(a->getScale() - .01));
             }
         }
+    }
+    if (key == GLFW_KEY_ESCAPE && (action == GLFW_PRESS || glfwGetKey(window, key))) {
+        Window::form.open = true;
     }
 }
 

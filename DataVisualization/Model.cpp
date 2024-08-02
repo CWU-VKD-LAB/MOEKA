@@ -102,4 +102,5 @@ void Model::fitToScreen () {
 	float ratioY = config::windowY / largestHeight;
 
 	setScale(std::min(ratioX, ratioY));
+	setTranslation(config::windowX / 2.0f, config::windowY / 2.0f);
 }

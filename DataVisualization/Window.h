@@ -11,6 +11,7 @@
 #include "Render/Texture.h"
 #include "tools/config.h"
 #include "Bar.h"
+#include "Form.h"
 
 extern float color[3];
 extern std::vector<std::string> options;
@@ -21,7 +22,9 @@ private:
 	void initGLEW ();
 	void initImGui ();
 	ImGuiWindowFlags flags = 0;
+	ImFont* font = nullptr;
 public:
+	static Form form;
 	static Drawable* s;
 	static Drawable* focus;
 	static bool drawColorPicker;

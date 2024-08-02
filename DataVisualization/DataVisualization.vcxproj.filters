@@ -84,6 +84,9 @@
     <ClCompile Include="Bar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Form.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tools\config.h">
@@ -1022,6 +1025,9 @@
     <ClInclude Include="Bar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Form.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\basic.glsl" />
@@ -1440,5 +1446,9 @@
     <None Include="glm\glm\gtx\wrap.inl">
       <Filter>Header Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="resources\fonts\JetBrainsMono-Medium.ttf" />
+    <Font Include="resources\fonts\ProggyClean.ttf" />
   </ItemGroup>
 </Project>

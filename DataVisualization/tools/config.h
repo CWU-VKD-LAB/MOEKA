@@ -4,6 +4,9 @@
 #include "glm/glm.hpp"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include <imgui_impl_opengl3.h>
 
 namespace config {
 	const float windowX = 800;
@@ -11,8 +14,8 @@ namespace config {
 	const float buttonSize = 32.f;
 
 	// Bar specific
-	const int compressBarAmount = 5;
-	const int compressValue = 10;
+	const int compressBarAmount = 3;
+	const int compressValue = 1;
 	const float barWidth = 25.0f;
 	const float barHeight = 100.0f;
 	//

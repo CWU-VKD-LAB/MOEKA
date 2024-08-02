@@ -156,6 +156,7 @@
     <ClCompile Include="glm\glm\detail\glm.cpp" />
     <ClCompile Include="glm\glm\glm.cppm" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Form.cpp" />
     <ClCompile Include="Render\IndexBuffer.cpp" />
     <ClCompile Include="Render\Shader.cpp" />
     <ClCompile Include="Render\Texture.cpp" />
@@ -468,6 +469,7 @@
     <ClInclude Include="glm\glm\vec4.hpp" />
     <ClInclude Include="glm\glm\vector_relational.hpp" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Form.h" />
     <ClInclude Include="Render\IndexBuffer.h" />
     <ClInclude Include="Render\Shader.h" />
     <ClInclude Include="Render\Texture.h" />
@@ -630,6 +632,10 @@
     <None Include="glm\glm\gtx\wrap.inl" />
     <None Include="resources\shaders\basic.glsl" />
     <None Include="resources\shaders\manager.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="resources\fonts\JetBrainsMono-Medium.ttf" />
+    <Font Include="resources\fonts\ProggyClean.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

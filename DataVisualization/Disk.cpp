@@ -67,6 +67,10 @@ void Disk::setScale(float scale) {
 }
 void Disk::draw() {
 	if (compress) {
+		color.x = 0;
+		color.y = 0;
+		color.w = 0;
+		color.z = 0;
 		for (auto a : managedList) {
 			color.x += a->getR();
 			color.y += a->getG();
