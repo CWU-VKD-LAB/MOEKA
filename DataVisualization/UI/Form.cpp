@@ -3,22 +3,19 @@
 #include <iostream>
 
 Form::Form () {
-	attributeValueCounts.resize(defaultAmount);
-	std::fill(attributeValueCounts.begin(), attributeValueCounts.end(), 1);
+	setNewFunc();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	font = io.Fonts->AddFontFromFileTTF("resources/fonts/JetBrainsMono-Medium.ttf", config::windowY / 42.0f);
 }
 
 Form::~Form () {
-	delete(clause);
-	for (auto a : history) {
+	for (auto a : functionList) {
 		delete(a);
 	}
 }
 
 void Form::draw () {
-	
 	if (open) {
 		switch (current) {
 			case PREP:
@@ -38,17 +35,18 @@ void Form::drawPrep () {
 	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5f - (ImGui::CalcTextSize("Amount of Attributes: ").x * .5f));
 	ImGui::Text("Amount of Attributes: ");
 	ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .95f);
-	ImGui::SliderInt("##amtSlider", &attributeCount, 1, defaultAmount);
+	ImGui::SliderInt("##amtSlider", &func->attributeCount, 1, defaultAmount);
 	ImGui::Separator();
 
 	// create a subwindow that contains the attributes
 	ImGui::BeginChild("##", ImVec2{ ImGui::GetWindowSize().x * .95f, ImGui::GetWindowSize().y * .69f }, ImGuiChildFlags_None, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-	for (int a = 0; a < attributeCount; a++) {
+	for (int a = 0; a < func->attributeCount; a++) {
 		ImGui::Text(std::string("Attribute ").append(std::to_string(a + 1)).c_str(),
 			std::string("# of values for ").append(std::to_string(a + 1)).c_str());
 		ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .66f);
 		ImGui::SameLine(ImGui::GetWindowSize().x * .3f);
-		ImGui::SliderInt(std::string("##").append(std::to_string(a)).c_str(), &attributeValueCounts.data()[a], 1, 10);
+		ImGui::SliderInt(std::string("##").append(std::to_string(a)).c_str(), 
+			&func->attributeValueCounts.data()[a], 1, 10);
 	}
 	ImGui::PopFont();
 	ImGui::EndChild();
@@ -60,9 +58,9 @@ void Form::drawPrep () {
 	if (ImGui::Button("Enter", ImVec2{ ImGui::GetWindowSize().x * .2f, ImGui::GetWindowSize().y * .1f })) {
 		current = FUNCTION;
 		std::vector<int>* temp = new std::vector<int>;
-		temp->resize(attributeCount);
+		temp->resize(func->attributeCount);
 		std::fill(temp->begin(), temp->end(), 0);
-		clause = temp;
+		func->clause = temp;
 	}
 
 	// set window size and position
@@ -87,21 +85,38 @@ void Form::drawFunction () {
 	// header
 	ImGui::PushFont(font);
 	ImGui::Text("Create a Clause");
+	ImGui::SameLine(window.x * .835f);
+	ImGui::Text((currentFunction + " " + std::to_string(functionIndex+1) + "/" + std::to_string(functionList.size())).c_str());
+	ImGui::SameLine();
+	if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
+		if (functionIndex > 0) {
+			functionIndex--;
+			func = functionList.at(functionIndex);
+		}
+	}
+	ImGui::SameLine();
+	if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
+		if (functionIndex < functionList.size()) {
+			functionIndex++;
+			func = functionList.at(functionIndex);
+		}
+	}
+
 	ImGui::Separator();
 
 	// value setting field
-	ImGui::BeginChild("##subwindow", ImVec2{ window.x * .95f, window.y * .65f }, ImGuiChildFlags_None);
+	ImGui::BeginChild("##subwindow", ImVec2{ window.x * .95f, window.y * .58f }, ImGuiChildFlags_None);
 	ImGui::SetNextItemWidth(100);
-	ImGui::BeginTable("##functiontable", attributeCount, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedSame | ImGuiTableFlags_BordersOuterV);
+	ImGui::BeginTable("##functiontable", func->attributeCount, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedSame | ImGuiTableFlags_BordersOuterV);
 	
-	for (int a = 0; a < attributeCount; a++) {
+	for (int a = 0; a < func->attributeCount; a++) {
 		ImGui::TableSetupColumn( std::string("x").append(std::to_string(a + 1)).c_str(), config::windowX * .2f );
 	}
 	ImGui::TableHeadersRow();
-	for (int a = 0; a < attributeCount; a++) {
+	for (int a = 0; a < func->attributeCount; a++) {
 		ImGui::TableNextColumn();
-		for (int b = 0; b < attributeValueCounts.at(a) + 1; b++) {
-			ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(a)).c_str(), &clause->data()[a], b);
+		for (int b = 0; b < func->attributeValueCounts.at(a) + 1; b++) {
+			ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(a)).c_str(), &func->clause->data()[a], b);
 		}
 	}
 	ImGui::EndTable();
@@ -111,30 +126,41 @@ void Form::drawFunction () {
 	//
 	
 	// clauses table
-	ImGui::BeginTable("##existing_clauses", (int)(history.size()+1), ImGuiTableFlags_ScrollX | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV, ImVec2{window.x * .6f, window.y * .19f});
-	for (int a = 0; a < history.size(); a++) {
+	ImGui::BeginTable("##existing_clauses", (int)(func->clauseList.size()+1), ImGuiTableFlags_ScrollX | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV, ImVec2{window.x * .6f, window.y * .19f});
+	for (int a = 0; a < func->clauseList.size(); a++) {
 		ImGui::TableSetupColumn(std::string("Clause: ").append(std::to_string(a + 1)).c_str(), config::windowX * .2f);
 	}
-	for (int a = 0; a < history.size(); a++) {
+	for (int a = 0; a < func->clauseList.size(); a++) {
 		ImGui::TableNextColumn();
 		ImGui::SetNextItemWidth(100);
 		ImGui::Text(std::string("Clause ").append(std::to_string(a+1)).c_str());
 		ImGui::SameLine(85);
 		if (ImGui::Button(std::string("x##").append(std::to_string(a)).c_str(), ImVec2{15.0f, 15.0f})) {
-			history.erase(history.begin()+a);
+			func->clauseList.erase(func->clauseList.begin()+a);
 			statusMessage = std::string("Removed Clause ").append(std::to_string(a + 1));
 			action = "Add Clause";
 		}
 		if (ImGui::Button(std::string("Load##").append(std::to_string(a)).c_str(), ImVec2{100, 38})) {
-			clause = history.at(a);
+			func->clause = func->clauseList.at(a);
 			statusMessage = std::string("Loaded Clause ").append(std::to_string(a+1));
 			action = "Update Clause";
 		}
 	}
 	ImGui::EndTable();
 
-	// options
+	//// options
 	ImVec2 buttonSize{ window.x * .3f, window.y * .06f };
+
+	// new function
+	ImGui::SetCursorPosX(window.x * .99f - buttonSize.x);
+	ImGui::SetCursorPosY(window.y * .98f - (4.0f * buttonSize.y) - window.y * .01f);
+	if (ImGui::Button("Add a function", buttonSize)) {
+		setNewFunc();
+		functionIndex++;
+		current = PREP;
+	}
+
+	// status message
 	if (!statusMessage.empty()) {
 		float shift = ImGui::CalcTextSize(statusMessage.c_str()).x;
 		ImGui::SetCursorPosX(window.x * .99f - shift - (buttonSize.x - shift)/2.0f);
@@ -143,32 +169,33 @@ void Form::drawFunction () {
 	}
 	ImGui::SetCursorPosX(window.x * .99f - buttonSize.x);
 	ImGui::SetCursorPosY(window.y * .98f - (2.0f * buttonSize.y) - window.y * .01f);
+
+	// add clause button
 	if (ImGui::Button(action.c_str(), buttonSize)) {
 		if (action == "Add Clause") {
 			statusMessage = "Added Clause";
-			history.insert(history.end(), clause);
+			func->clauseList.insert(func->clauseList.end(), func->clause);
 		}
 		else if (action == "Update Clause") {
 			statusMessage = "Updated Clause";
 		}
-		clause = new std::vector<int>{};
-		clause->resize(attributeCount);
-		std::fill(clause->begin(), clause->end(), 0);
+		func->clause = new std::vector<int>{};
+		func->clause->resize(func->attributeCount);
+		std::fill(func->clause->begin(), func->clause->end(), 0);
 		action = "Add Clause";
-
-		//history.insert(history.end(), temp);
-		////std::fill(clause->begin(), clause->end(), 0);
-		// TODO check for dupes
+		// TODO check for dupes?
 	}
+	
+	// finish button
 	ImGui::SetCursorPosX(window.x * .99f - buttonSize.x);
 	ImGui::SetCursorPosY(window.y * .98f - buttonSize.y);
 	if (ImGui::Button("Finish", buttonSize)) {
 		statusMessage = "Pressed Finish Button";
 		// TODO save to file screen
 		std::ofstream file("output.csv");
-		for (int a = 0; a < history.size(); a++) {
-			for (int b = 0; b < history.at(a)->size(); b++) {
-				file << history.at(a)->at(b) << ", ";
+		for (int a = 0; a < func->clauseList.size(); a++) {
+			for (int b = 0; b < func->clauseList.at(a)->size(); b++) {
+				file << func->clauseList.at(a)->at(b) << ", ";
 			}
 			file << std::endl;
 		}
@@ -186,4 +213,9 @@ void Form::openWindow () {
 	open = true;
 }
 
-
+void Form::setNewFunc () {
+	func = new Function();
+	func->attributeValueCounts.resize(defaultAmount);
+	std::fill(func->attributeValueCounts.begin(), func->attributeValueCounts.end(), 1);
+	functionList.insert(functionList.end(), func);
+}

@@ -30,11 +30,14 @@ void init () {
     std::vector<int> test{
         1, 2, 3, 4, 5, 6, 7, 8, 9
     };
+    std::vector<int> test2{
+        1, 2, 3, 4, 5, 6, 7, 8, 9
+    };
    
 
     Model m{};
     m.addDisk(test);
-    m.addDisk(test);
+    m.addDisk(test2);
     m.fitToScreen();
     w.addToRender(&m);
 

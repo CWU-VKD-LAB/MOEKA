@@ -11,7 +11,7 @@ Disk::~Disk() {
 void Disk::addChild(Drawable* child) {
 	managedList.push_back(child);
 	child->setTranslation(stride+getX()-(getWidth()/2.0f)+(child->getWidth()/2.0f), getY());
-	stride += child->getWidth();
+	stride += child->getWidth() + padding;
 	
 	// average color for later if compressed.
 	color = {0, 0, 0, 0};
@@ -49,7 +49,7 @@ void Disk::setTranslation(float dx, float dy) {
 			continue;
 		}
 		a->setTranslation(x + stride + (a->getWidth() / 2.0f) - (getWidth() / 2.0f), y);
-		stride += a->getWidth();
+		stride += a->getWidth() + padding;
 	}
 }
 void Disk::setScale(float scale) {
