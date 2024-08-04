@@ -1,22 +1,48 @@
 #include "Model.h"
 
 
-void Model::addDisk (std::vector<int> values) {
-	Disk* disk = new Disk{};
+void Model::addColumn (std::vector<int>* values) {
+	Section* column = recursiveCreateSections(values);
 
-	int elements = (int)ceil((double)values.size() / config::compressBarAmount);
-	
-	// maybe make recursive method in disk to replace this?
-	for (int a = 0; a < elements; a++) {
-		Disk* subDisk = new Disk{};
-		for (int b = 0; b < config::compressBarAmount; b++) {
-			subDisk->addChild(new Bar());
-		}
-		disk->addChild(subDisk);
+	////int elements = (int)ceil((double)values.size() / config::compressBarAmount);
+	//
+	//// maybe make recursive method in disk to replace this?
+	//for (int a = 0; a < values->size(); a++) {
+	//	column->addChild(new Bar());
+	//}
+	// which side to set this to be drawn on
+	int side = 0;
+	// every other insertion should see side be negative
+	if (list.size() != 0) {
+		side = list.size() % 2 == 0 ? -1 : 1;
 	}
-	disk->setTranslation(getX(), getY() + stride);
-	stride += disk->getHeight();
-	list.push_back(disk);
+	if (side == 1) {
+		// every other insertion increases the stride
+		stride += column->getWidth() + padding;
+	}
+	column->setTranslation(getX() + (stride * side), getY());
+	list.push_back(column);
+}
+
+Section* Model::recursiveCreateSections (std::vector<int>* values) {
+	if (values->size() <= config::compressBarAmount) {
+		Section* s = new Section();
+		for (auto a : *values) {
+			s->addChild(new Bar());
+		}
+		return s;
+	}
+
+	size_t middle = values->size() / 2;
+	std::vector<int> left {values->begin(), values->begin()+middle};
+	std::vector<int> right {values->begin()+middle, values->end()};
+
+	Section* s = new Section();
+
+	s->addChild(recursiveCreateSections(&left));
+	s->addChild(recursiveCreateSections(&right));
+
+	return s;
 }
 
 Model::Model () {
@@ -71,9 +97,17 @@ void Model::setTranslation (float dx, float dy) {
 	x = dx;
 	y = dy;
 	stride = 0;
+	int pos = 0;
 	for (auto a : list) {
-		a->setTranslation(dx, dy + stride);
-		stride += a->getHeight();
+		int side = 0;
+		if (pos != 0) {
+			side = pos % 2 == 0 ? -1 : 1;
+		}
+		if (side == 1) {
+			stride += a->getWidth() + padding;
+		}
+		a->setTranslation(dx + stride * side, dy);
+		pos++;
 	}
 }
 

@@ -1,38 +1,66 @@
-#include "Disk.h"
+#include "Section.h"
 
-Disk::Disk (): Shape (0, 0) {
+Section::Section (): Shape (0, 0) {
 	color = { .5, .5, .5, 1 };
 }
-Disk::~Disk() {
+Section::~Section () {
 	for (auto a : managedList) {
 		delete(a);
 	}
 }
-void Disk::addChild(Drawable* child) {
+
+// adds a drawable object to this objects managedList, then calculates what this objects compressed color should be.
+void Section::addChild (Drawable* child) {
 	managedList.push_back(child);
-	child->setTranslation(stride+getX()-(getWidth()/2.0f)+(child->getWidth()/2.0f), getY());
-	stride += child->getWidth() + padding;
+	// for x/y, we calculate the translation by using its current x/y, the stride x/y, half this objects width/height, and half the child drawables width/height.
+	child->setTranslation(strideX + getX() - (getWidth() * 0.5f) + (child->getWidth() * 0.5f), strideY + getY() - (getHeight() * 0.5f) + (child->getHeight() * 0.5f));
+	if (horizontal) {
+		strideX += child->getWidth() + paddingX;
+	}
+	else {
+		strideY += child->getHeight() + paddingY;
+	}
 	
-	// average color for later if compressed.
+	
+	// average color for background
 	color = {0, 0, 0, 0};
 	float width = 0;
+	float maxWidth = 0;
 	float height = 0;
-	for (auto a : managedList) {
-		color.x += a->getR();
-		color.y += a->getG();
-		color.z += a->getB();
-		color.w += a->getA();
-		width += a->getWidth();
-		height = std::max(getHeight(), child->getHeight());
+	float maxHeight = 0;
+	Drawable* temp;
+	for (int a = 0; a < managedList.size(); a++) {
+		temp = managedList.at(a);
+		color.x += temp->getR();
+		color.y += temp->getG();
+		color.z += temp->getB();
+		color.w += temp->getA();
+		if (a != 0) {
+			width+=paddingX*totalScale;
+			height+=paddingY*totalScale;
+		}
+		width += temp->getWidth();
+		maxWidth = std::max(temp->getWidth(), maxWidth);
+		height += temp->getHeight();
+		maxHeight = std::max(temp->getHeight(), maxHeight);
 	}
 	color.x /= (float)managedList.size();
 	color.y /= (float)managedList.size();
 	color.z /= (float)managedList.size();
 	color.w /= (float)managedList.size();
 
-	resize(width, height);
+
+	if (horizontal) {
+		resize(width, maxHeight);
+	}
+	else {
+		resize(maxWidth, height);
+	}
+	
 }
-void Disk::setTranslation(float dx, float dy) {
+
+// changes where on the screen this object gets rendered, and the rendering positions of its children.
+void Section::setTranslation (float dx, float dy) {
 	// compute some variables then set the position matrix
 	x = dx;
 	y = dy;
@@ -43,16 +71,28 @@ void Disk::setTranslation(float dx, float dy) {
 	shader->setUniformMat4f("posMatrix", translateMatrix);
 
 	// reset the stride then set the translations again for each child drawable.
-	stride = 0;
-	for (auto a : managedList) {
-		if (a == nullptr) {
+	strideX = 0;
+	strideY = 0;
+	Drawable* temp;
+	for (int a = 0; a < managedList.size(); a++) {
+		temp = managedList.at(a);
+		if (temp == nullptr) {
 			continue;
 		}
-		a->setTranslation(x + stride + (a->getWidth() / 2.0f) - (getWidth() / 2.0f), y);
-		stride += a->getWidth() + padding;
+		// we calculate the translation by using its current x/y, the stride x/y, half this objects width/height, and half the child drawables width/height.
+		temp->setTranslation(strideX + x - (getWidth() * 0.5f) + (temp->getWidth() * 0.5f), strideY + y - (getHeight() * 0.5f) + (temp->getHeight() * 0.5f));
+		if (horizontal) {
+			strideX += temp->getWidth()+(paddingX*totalScale);
+		}
+		else {
+			strideY += temp->getHeight()+(paddingY*totalScale);
+
+		}
 	}
 }
-void Disk::setScale(float scale) {
+
+// sets the scale of this object, and the scale of its children.
+void Section::setScale (float scale) {
 	totalScale = scale;
 	scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
 	shader->use();
@@ -65,7 +105,9 @@ void Disk::setScale(float scale) {
 	}
 	setTranslation(getX(), getY());
 }
-void Disk::draw() {
+
+// draws this object and its children.
+void Section::draw () {
 	if (compress) {
 		color.x = 0;
 		color.y = 0;
@@ -85,13 +127,12 @@ void Disk::draw() {
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 		return;
 	}
-	
 	for (auto a : managedList) {
 		a->draw();
 	}
 }
 
-Drawable* Disk::selected (GLFWwindow* window) {
+Drawable* Section::selected (GLFWwindow* window) {
 	// use BVH-esque techniques to find the hovered shape without checking too many shapes.
 	double cx, cy;
 	glfwGetCursorPos(window, &cx, &cy);

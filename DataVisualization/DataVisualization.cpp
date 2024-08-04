@@ -8,7 +8,7 @@
 #include <iostream>
 #include <vector>
 #include "Shape.h"
-#include "Disk.h"
+#include "Section.h"
 #include "Model.h"
 #include "Window.h"
 #include "Render/Texture.h"
@@ -27,18 +27,31 @@ void init () {
     Texture texture{ "../resources/icons.png" };
     window = w.window;
 
-    std::vector<int> test{
-        1, 2, 3, 4, 5, 6, 7, 8, 9
+    std::vector<int> test {
+        1, 2, 3, 4, 5, 6
     };
-    std::vector<int> test2{
-        1, 2, 3, 4, 5, 6, 7, 8, 9
+    std::vector<int> test2 {
+        1, 2, 3, 4, 5
+    };
+    std::vector<int> test3 {
+        1, 2, 3, 4
     };
    
 
     Model m{};
-    m.addDisk(test);
-    m.addDisk(test2);
+    m.addColumn(&test);
+    m.addColumn(&test2);
+    m.addColumn(&test2);
+    m.addColumn(&test3);
+    m.addColumn(&test3);
     m.fitToScreen();
+
+    //Section s{};
+    //for (int a = 0; a < 5; a++) {
+    //    s.addChild(new Bar());
+    //}
+    
+
     w.addToRender(&m);
 
     // update loop
