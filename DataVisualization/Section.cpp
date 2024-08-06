@@ -3,6 +3,7 @@
 Section::Section (): Shape (0, 0) {
 	color = { .5, .5, .5, 1 };
 }
+
 Section::~Section () {
 	for (auto a : managedList) {
 		delete(a);
@@ -21,7 +22,6 @@ void Section::addChild (Drawable* child) {
 		strideY += child->getHeight() + paddingY;
 	}
 	
-	
 	// average color for background
 	color = {0, 0, 0, 0};
 	float width = 0;
@@ -29,21 +29,25 @@ void Section::addChild (Drawable* child) {
 	float height = 0;
 	float maxHeight = 0;
 	Drawable* temp;
+
 	for (int a = 0; a < managedList.size(); a++) {
 		temp = managedList.at(a);
 		color.x += temp->getR();
 		color.y += temp->getG();
 		color.z += temp->getB();
 		color.w += temp->getA();
+
 		if (a != 0) {
 			width+=paddingX*totalScale;
 			height+=paddingY*totalScale;
 		}
+
 		width += temp->getWidth();
 		maxWidth = std::max(temp->getWidth(), maxWidth);
 		height += temp->getHeight();
 		maxHeight = std::max(temp->getHeight(), maxHeight);
 	}
+
 	color.x /= (float)managedList.size();
 	color.y /= (float)managedList.size();
 	color.z /= (float)managedList.size();
@@ -74,6 +78,7 @@ void Section::setTranslation (float dx, float dy) {
 	strideX = 0;
 	strideY = 0;
 	Drawable* temp;
+
 	for (int a = 0; a < managedList.size(); a++) {
 		temp = managedList.at(a);
 		if (temp == nullptr) {
