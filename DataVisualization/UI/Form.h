@@ -13,9 +13,8 @@ enum state {
 	FUNCTION,
 	INTERVIEW
 };
+
 // multiple functions, rename attributes, word wrapping, load from csv
-
-
 // figure how closing the window should affect function list
 
 class Form {
@@ -36,6 +35,8 @@ private:
 	std::vector<std::string> functionNames{};
 	std::string currentFunction = "";
 	int functionIndex = 0;
+
+	void drawFunctionSelect ();
 public:
 	bool open = false;
 	Form ();
@@ -44,4 +45,5 @@ public:
 	void drawPrep ();
 	void drawFunction ();
 	void openWindow ();
+	void saveToCSV ();
 };

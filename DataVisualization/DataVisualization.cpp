@@ -45,11 +45,6 @@ void init () {
     m.addColumn(&test3);
     m.addColumn(&test3);
     m.fitToScreen();
-
-    //Section s{};
-    //for (int a = 0; a < 5; a++) {
-    //    s.addChild(new Bar());
-    //}
     
 
     w.addToRender(&m);
