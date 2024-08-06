@@ -206,6 +206,7 @@ void Form::drawFunction () {
 	// finish button
 	ImGui::SetCursorPosX(window.x * .99f - buttonSize.x);
 	ImGui::SetCursorPosY(window.y * .98f - buttonSize.y);
+
 	if (ImGui::Button("Finish", buttonSize)) {
 		statusMessage = "Pressed Finish Button";
 		// TODO save to file screen
