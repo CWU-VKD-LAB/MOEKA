@@ -23,5 +23,8 @@ namespace config {
 		"Show 3D compressed view", 
 		"Show initial position of disk"
 	};
+	float windowX = 800;
+	float windowY = 800;
 	glm::mat4 proj = glm::ortho(-windowX / 2, windowX / 2, windowY / 2, -windowY / 2, 1.0f, -1.0f);
+
 }

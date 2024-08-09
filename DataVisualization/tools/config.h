@@ -9,8 +9,6 @@
 #include <imgui_impl_opengl3.h>
 
 namespace config {
-	const float windowX = 800;
-	const float windowY = 800;
 	const float buttonSize = 32.f;
 
 	// Bar specific
@@ -18,9 +16,12 @@ namespace config {
 	const int compressValue = 1;
 	const float barWidth = 25.0f;
 	const float barHeight = 100.0f;
+	const int maxClassValue = 6;
 	//
 	
 	extern float color[3];
 	extern std::vector<std::string> options;
 	extern glm::mat4 proj; 
+	extern float windowX;
+	extern float windowY;
 }

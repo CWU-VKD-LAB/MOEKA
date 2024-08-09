@@ -6,6 +6,7 @@
 #include <imgui_impl_opengl3.h>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include "Function.h"
 
 enum state {
@@ -46,4 +47,5 @@ public:
 	void drawFunction ();
 	void openWindow ();
 	void saveToCSV ();
+	void readCSV (std::string path);
 };

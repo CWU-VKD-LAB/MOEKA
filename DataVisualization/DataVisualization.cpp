@@ -45,8 +45,6 @@ void init () {
     m.addColumn(&test3);
     m.addColumn(&test3);
     m.fitToScreen();
-    
-
     w.addToRender(&m);
 
     // update loop
@@ -54,9 +52,7 @@ void init () {
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // draw models/any additional things
-        m.draw();
-
+        w.draw();
 
         w.drawImGuiWindow(texture);
         glfwSwapBuffers(window);

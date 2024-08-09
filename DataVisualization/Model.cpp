@@ -28,7 +28,7 @@ Section* Model::recursiveCreateSections (std::vector<int>* values) {
 	if (values->size() <= config::compressBarAmount) {
 		Section* s = new Section();
 		for (auto a : *values) {
-			s->addChild(new Bar());
+			s->addChild(new Bar(a));
 		}
 		return s;
 	}

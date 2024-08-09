@@ -1,7 +1,7 @@
 #include "Window.h"
 
 
-std::vector<Drawable*> Window::managers{};
+std::vector<Drawable*> Window::managedList{};
 Drawable* Window::s = nullptr;
 Drawable* Window::focus = nullptr;
 Form Window::form{};
@@ -10,6 +10,7 @@ bool Window::drawColorPicker = false;
 void cursorCallback(GLFWwindow* window, int button, int action, int mods);
 void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods);
 void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
+void windowResizeCallback (GLFWwindow* window, int width, int height);
 
 Window::Window () {
     std::cout << "Creating window..." << std::endl;
@@ -35,8 +36,10 @@ Window::Window () {
     glfwSetMouseButtonCallback(window, cursorCallback);
     glfwSetKeyCallback(window, keyCallBack);
     glfwSetCursorPosCallback(window, cursorPositionCallback);
+    glfwSetWindowSizeCallback(window, windowResizeCallback);
     
     initImGui();
+    //form.readCSV("output.csv");
 }
 
 
@@ -98,7 +101,6 @@ void Window::drawImGuiWindow(Texture& texture) {
     else {
         form.draw();
     }
-    //ImGui::ShowDemoWindow();
     ImGui::PopFont();
 
     // render and update
@@ -120,32 +122,32 @@ void cursorCallback(GLFWwindow* window, int button, int action, int mods) {
 void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods) {
     // cleanup later but fine in short term.
     if (key == GLFW_KEY_UP && (action == GLFW_PRESS || glfwGetKey(window, key))) {
-        for (auto a : Window::managers) {
+        for (auto a : Window::managedList) {
             a->setTranslation(a->getX(), a->getY()-5);
         }
     }
     if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || glfwGetKey(window, key))) {
-        for (auto a : Window::managers) {
+        for (auto a : Window::managedList) {
             a->setTranslation(a->getX(), a->getY()+5);
         }
     }
     if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || glfwGetKey(window, key))) {
-        for (auto a : Window::managers) {
+        for (auto a : Window::managedList) {
             a->setTranslation(a->getX()-5, a->getY());
         }
     }
     if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || glfwGetKey(window, key))) {
-        for (auto a : Window::managers) {
+        for (auto a : Window::managedList) {
             a->setTranslation(a->getX()+5, a->getY());
         }
     }
     if (key == GLFW_KEY_KP_ADD && (action == GLFW_PRESS || glfwGetKey(window, key))) {
-        for (auto a : Window::managers) {
+        for (auto a : Window::managedList) {
             a->setScale((float)(a->getScale() + .01));
         }
     }
     if (key == GLFW_KEY_KP_SUBTRACT && (action == GLFW_PRESS || glfwGetKey(window, key))) {
-        for (auto a : Window::managers) {
+        for (auto a : Window::managedList) {
             if ((a->getScale() - .01) > 0.00001) {
                 a->setScale((float)(a->getScale() - .01));
             }
@@ -159,7 +161,7 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
 // function that is called when the cursor moves
 void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
     Window::s = nullptr;
-    for (auto a : Window::managers) {
+    for (auto a : Window::managedList) {
         Window::s = a->selected(window);
         if (Window::s != nullptr) {
             break;
@@ -167,9 +169,16 @@ void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
     }
 }
 
+void windowResizeCallback (GLFWwindow* window, int width, int height) {
+    float scale = std::min(config::windowX/width, config::windowY/height);
+    config::windowX = width;
+    config::windowY = height;
+    //config::proj = glm::ortho(-config::windowX / 2, config::windowX / 2, config::windowY / 2, -config::windowY / 2, 1.0f, -1.0f);
+}
+
 // creates the table of buttons by sampling a texture
 void Window::createTable (Texture& texture) {
-    ImGui::Begin("Options", nullptr);
+    ImGui::Begin("Options", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
     // create options table
     texture.bind();
     int numOfElements = std::min((int)round(config::windowX / 32.0f), (int)config::options.size());
@@ -209,6 +218,8 @@ void Window::createTable (Texture& texture) {
         }
         ImGui::EndTable();
     }
+    ImGui::SetWindowSize(ImVec2(config::windowX, config::buttonSize*2));
+    ImGui::SetWindowPos(ImVec2(0.0f, 0.0f));
     ImGui::End();
 }
 
@@ -238,6 +249,13 @@ void Window::createTooltip () {
             );
         }
         ImGui::EndTooltip();
+    }
+}
+
+// draws the members of the managedList
+void Window::draw () {
+    for (auto a : managedList) {
+        a->draw();
     }
 }
 

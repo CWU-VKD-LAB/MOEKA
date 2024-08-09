@@ -1,6 +1,4 @@
 #include "Form.h"
-#include <sstream>
-#include <iostream>
 
 Form::Form () {
 	setNewFunc();
@@ -63,7 +61,8 @@ void Form::drawPrep () {
 	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .56f);
 	ImVec2 buttonSize{ ImGui::GetWindowSize().x * .2f, ImGui::GetWindowSize().y * .1f };
 
-	if (functionList.size() == 0) {
+	// creates the skip button, if function list is empty however, disable it.
+	if (functionList.empty()) {
 		ImGui::BeginDisabled();
 	}
 	if (ImGui::Button("Skip", buttonSize)) {
@@ -73,7 +72,7 @@ void Form::drawPrep () {
 		}
 		func = functionList.at(functionIndex);
 	}
-	if (functionList.size() == 0) {
+	if (functionList.empty()) {
 		ImGui::SetItemTooltip("Must create a function first.");
 		ImGui::EndDisabled();
 	}
@@ -97,6 +96,7 @@ void Form::drawPrep () {
 	ImGui::End();
 }
 
+// draws the function screen where the user can input clauses and save to file.
 void Form::drawFunction () {
 	ImGui::Begin("##", &open, flags);
 
@@ -133,9 +133,6 @@ void Form::drawFunction () {
 	for (int a = 0; a < func->attributeCount; a++) {
 		ImGui::TableNextColumn();
 		for (int b = 0; b < func->kValues.at(a); b++) {
-			if (func->clause == nullptr) {
-				continue;
-			}
 			ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(a)).c_str(), &func->clause->data()[a], b);
 		}
 	}
@@ -211,6 +208,7 @@ void Form::drawFunction () {
 		statusMessage = "Pressed Finish Button";
 		// TODO save to file screen
 		saveToCSV();
+		open = !open;
 	}
 
 	//
@@ -223,6 +221,7 @@ void Form::openWindow () {
 	open = true;
 }
 
+// when we click to add a new function, or open the program for the first time, this creates a function in memory.
 void Form::setNewFunc () {
 	char* name = new char[128];
 	strcpy_s(name, 128, std::string("Function ").append(std::to_string(functionList.size() + 1)).c_str());
@@ -241,17 +240,26 @@ void Form::setNewFunc () {
 	std::fill(func->kValues.begin(), func->kValues.end(), 2);
 }
 
+// saves the contents of the functionList and its related clauses to a CSV file.
 void Form::saveToCSV () {
 	std::ofstream file("output.csv");
 	Function* f;
 	// for each function in memory
 	for (int a = 0; a < functionList.size(); a++) {
 		f = functionList.at(a);
+		file << "#" << f->functionName << std::endl;
 		// write the attribute names
 		for (int b = 0; b < f->attributeCount; b++) {
 			file << f->attributeNames.at(b) << ", ";
 		}
 		file << std::endl;
+
+		// write the range of kValues
+		for (int c = 0; c < f->kValues.size(); c++) {
+			file << f->kValues.at(c) << ", ";
+		}
+		file << std::endl;
+
 		// for each clause
 		for (int c = 0; c < f->clauseList.size(); c++) {
 			for (int d = 0; d < f->clauseList.at(c)->size(); d++) {
@@ -264,6 +272,7 @@ void Form::saveToCSV () {
 	file.close();
 }
 
+// this draws the 2 arrows for swapping between functions.
 void Form::drawFunctionSelect () {
 	ImGui::Text((currentFunction + " " + std::to_string(functionIndex + 1) + "/" + std::to_string(functionList.size())).c_str());
 	ImGui::SameLine();
@@ -279,5 +288,84 @@ void Form::drawFunctionSelect () {
 			functionIndex++;
 			func = functionList.at(functionIndex);
 		}
+	}
+}
+
+void Form::readCSV (std::string path) {
+	
+	std::ifstream file(path);
+	std::string line;
+	std::string delimiter = ", ";
+	std::string token;
+	std::vector<Function*> tempFuncList;
+	Function* current = nullptr;
+	bool clauseDefined = false;
+	while (std::getline(file, line)) {
+		if (line.empty()) {
+			continue;
+		}
+		
+		// the start of a new function is denoted by a #
+		if (line.at(0) == '#') {
+			char* tempString = new char[128];
+			strcpy_s(tempString, 128, line.substr(1, line.length()).c_str());
+			current = new Function(tempString);
+			clauseDefined = false;
+			continue;
+		}
+
+		if (current == nullptr) {
+			continue;
+		}
+
+		// body of a function, maybe find better way of testing.
+		if (!std::isdigit(line.at(0))) {
+			// names of the attributes.
+			while (!line.empty()) {
+				token = line.substr(0, line.find(delimiter));
+				line.erase(0, line.find(delimiter) + delimiter.length());
+				// the warning given below should not happen, given a properly saved csv.
+				char* tempString = new char[128];
+				strcpy_s(tempString, 128, token.c_str());
+				current->attributeNames.insert(current->attributeNames.end(), tempString);
+			}
+			current->attributeCount = current->attributeNames.size();
+			current->kValues.resize(current->attributeCount);
+			tempFuncList.insert(tempFuncList.end(), current);
+		}
+		else {
+			int index = 0;
+			int val;
+			std::vector<int>* tempClause = new std::vector<int>;
+			while (!line.empty()) {
+				token = line.substr(0, line.find(delimiter));
+				line.erase(0, line.find(delimiter) + delimiter.length());
+				val = std::stoi(token);
+				if (!clauseDefined) {
+					current->kValues.at(index) = val;
+					index++;
+					continue;
+				}
+				//current->kValues.at(index) = std::max(current->kValues.at(index), val);
+				tempClause->insert(tempClause->end(), val);
+				index++;
+			}
+			if (!clauseDefined) {
+				clauseDefined = true;
+				continue;
+			}
+			current->clauseList.insert(current->clauseList.end(), tempClause);
+		}
+	}
+	functionList.swap(tempFuncList);
+	func = functionList.at(0);
+	if (func->clauseList.size() != 0) {
+		func->clause = func->clauseList.at(0);
+	}
+	else {
+		std::vector<int>* temp = new std::vector<int>;
+		temp->resize(func->attributeCount);
+		std::fill(temp->begin(), temp->end(), 0);
+		func->clause = temp;
 	}
 }

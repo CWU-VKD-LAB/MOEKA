@@ -28,7 +28,7 @@ public:
 	static Drawable* s;
 	static Drawable* focus;
 	static bool drawColorPicker;
-	static std::vector<Drawable*> managers;
+	static std::vector<Drawable*> managedList;
 	GLFWwindow* window;
 	static void createTable (Texture& texture);
 	static void buttonActions (int val);
@@ -37,8 +37,9 @@ public:
 	Window();
 	void endImGui ();
 	void drawImGuiWindow(Texture& texture);
+	void draw ();
 
-	static void addToRender (Drawable* sm) {
-		Window::managers.insert(Window::managers.end(), sm);
+	static void addToRender (Drawable* obj) {
+		Window::managedList.insert(Window::managedList.end(), obj);
 	}
 };
