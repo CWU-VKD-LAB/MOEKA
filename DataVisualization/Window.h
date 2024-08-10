@@ -10,6 +10,7 @@
 #include "Shape.h"
 #include "Render/Texture.h"
 #include "tools/config.h"
+#include "Model.h"
 #include "Bar.h"
 #include "UI/Form.h"
 
@@ -38,6 +39,8 @@ public:
 	void endImGui ();
 	void drawImGuiWindow(Texture& texture);
 	void draw ();
+
+	void addModelFromForm();
 
 	static void addToRender (Drawable* obj) {
 		Window::managedList.insert(Window::managedList.end(), obj);

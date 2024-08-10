@@ -42,6 +42,10 @@ void Form::drawPrep () {
 	ImGui::SliderInt("##amtSlider", &func->attributeCount, 2, defaultAmount);
 	ImGui::Separator();
 
+	//make sure kvalues accurately are the attributeCOunt
+	//func->kValues.resize(func->attributeCount);
+	//func->attributeNames.resize(func->attributeCount);
+
 	// create a subwindow that contains the attributes
 	ImGui::BeginChild("##", ImVec2{ ImGui::GetWindowSize().x * .95f, ImGui::GetWindowSize().y * .63f }, ImGuiChildFlags_None, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 	for (int a = 0; a < func->attributeCount; a++) {
@@ -55,6 +59,8 @@ void Form::drawPrep () {
 	ImGui::PopFont();
 	ImGui::EndChild();
 	//
+
+	
 
 	// create the bottom section that contains the enter button.
 	ImGui::Separator();
@@ -143,24 +149,27 @@ void Form::drawFunction () {
 	//
 	
 	// clauses table
-	ImGui::BeginTable("##existing_clauses", (int)(func->clauseList.size()+1), ImGuiTableFlags_ScrollX | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV, ImVec2{window.x * .6f, window.y * .19f});
-	for (int a = 0; a < func->clauseList.size(); a++) {
-		ImGui::TableNextColumn();
-		ImGui::SetNextItemWidth(100);
-		ImGui::Text(std::string("Clause ").append(std::to_string(a+1)).c_str());
-		ImGui::SameLine(85);
-		if (ImGui::Button(std::string("x##").append(std::to_string(a)).c_str(), ImVec2{15.0f, 15.0f})) {
-			func->clauseList.erase(func->clauseList.begin()+a);
-			statusMessage = std::string("Removed Clause ").append(std::to_string(a + 1));
-			action = "Add Clause";
+	if (functionIndex < func->clauseList.size())
+	{
+		ImGui::BeginTable("##existing_clauses", (int)(func->clauseList[functionIndex].size() + 1), ImGuiTableFlags_ScrollX | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV, ImVec2{ window.x * .6f, window.y * .19f });
+		for (int a = 0; a < func->clauseList[functionIndex].size(); a++) {
+			ImGui::TableNextColumn();
+			ImGui::SetNextItemWidth(100);
+			ImGui::Text(std::string("Clause ").append(std::to_string(a + 1)).c_str());
+			ImGui::SameLine(85);
+			if (ImGui::Button(std::string("x##").append(std::to_string(a)).c_str(), ImVec2{ 15.0f, 15.0f })) {
+				func->clauseList[functionIndex].erase(func->clauseList[functionIndex].begin() + a);
+				statusMessage = std::string("Removed Clause ").append(std::to_string(a + 1));
+				action = "Add Clause";
+			}
+			if (ImGui::Button(std::string("Load##").append(std::to_string(a)).c_str(), ImVec2{ 100, 38 })) {
+				func->clause = func->clauseList[functionIndex].at(a);
+				statusMessage = std::string("Loaded Clause ").append(std::to_string(a + 1));
+				action = "Update Clause";
+			}
 		}
-		if (ImGui::Button(std::string("Load##").append(std::to_string(a)).c_str(), ImVec2{100, 38})) {
-			func->clause = func->clauseList.at(a);
-			statusMessage = std::string("Loaded Clause ").append(std::to_string(a+1));
-			action = "Update Clause";
-		}
+		ImGui::EndTable();
 	}
-	ImGui::EndTable();
 
 	//// options
 	ImVec2 buttonSize{ window.x * .3f, window.y * .06f };
@@ -168,10 +177,13 @@ void Form::drawFunction () {
 	// new function
 	ImGui::SetCursorPosX(window.x * .99f - buttonSize.x);
 	ImGui::SetCursorPosY(window.y * .98f - (4.0f * buttonSize.y) - window.y * .01f);
-	if (ImGui::Button("Add a function", buttonSize)) {
-		setNewFunc();
+	if (ImGui::Button("Add a sibling function", buttonSize)) {
+		//setNewFunc();
 		functionIndex++;
-		current = PREP;
+		func->clauseList.push_back({});
+		//current = PREP;
+
+		// add increment
 	}
 
 	// status message
@@ -188,7 +200,13 @@ void Form::drawFunction () {
 	if (ImGui::Button(action.c_str(), buttonSize)) {
 		if (action == "Add Clause") {
 			statusMessage = "Added Clause";
-			func->clauseList.insert(func->clauseList.end(), func->clause);
+			
+			if (func->clauseList.empty())
+			{
+				func->clauseList.push_back({});
+			}
+
+			func->clauseList[functionIndex].insert(func->clauseList[functionIndex].end(), func->clause);
 		}
 		else if (action == "Update Clause") {
 			statusMessage = "Updated Clause";
@@ -209,6 +227,15 @@ void Form::drawFunction () {
 		// TODO save to file screen
 		saveToCSV();
 		open = !open;
+
+		//create hanselChainSet for function
+		func->initializeHanselChains();
+
+		// organize them and assign classes such that we can visualize
+		func->setUpHanselChains();
+
+		// create a model for the hanselChains
+		addModel = true;
 	}
 
 	//
@@ -226,7 +253,7 @@ void Form::setNewFunc () {
 	char* name = new char[128];
 	strcpy_s(name, 128, std::string("Function ").append(std::to_string(functionList.size() + 1)).c_str());
 	func = new Function(name);
-	func->kValues.resize(defaultAmount);
+	func->kValues.resize(defaultAmount); // TODO: needs to be the actual number of values
 	func->attributeNames.resize(defaultAmount);
 	// set default names of attributes
 	int b = 0;
@@ -262,8 +289,8 @@ void Form::saveToCSV () {
 
 		// for each clause
 		for (int c = 0; c < f->clauseList.size(); c++) {
-			for (int d = 0; d < f->clauseList.at(c)->size(); d++) {
-				file << f->clauseList.at(c)->at(d) << ", ";
+			for (int d = 0; d < f->clauseList[0].at(c)->size(); d++) {
+				file << f->clauseList[0].at(c)->at(d) << ", ";
 			}
 			file << std::endl;
 		}
@@ -354,13 +381,13 @@ void Form::readCSV (std::string path) {
 				clauseDefined = true;
 				continue;
 			}
-			current->clauseList.insert(current->clauseList.end(), tempClause);
+			current->clauseList[0].insert(current->clauseList[0].end(), tempClause);
 		}
 	}
 	functionList.swap(tempFuncList);
 	func = functionList.at(0);
 	if (func->clauseList.size() != 0) {
-		func->clause = func->clauseList.at(0);
+		func->clause = func->clauseList[0].at(0);
 	}
 	else {
 		std::vector<int>* temp = new std::vector<int>;

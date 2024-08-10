@@ -123,6 +123,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>glm;$(SolutionDir)\Dependencies\GLFW\include;$(SolutionDir)\Dependencies\GLEW\include;$(ProjectDir)\ImGui\</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Bar.cpp" />
+    <ClCompile Include="HanselChains.cpp" />
     <ClCompile Include="Section.cpp" />
     <ClCompile Include="glm\glm\detail\glm.cpp" />
     <ClCompile Include="glm\glm\glm.cppm" />
@@ -179,6 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bar.h" />
+    <ClInclude Include="HanselChains.h" />
     <ClInclude Include="Section.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="glm\glm\common.hpp" />
@@ -632,6 +635,7 @@
     <None Include="glm\glm\gtx\vector_angle.inl" />
     <None Include="glm\glm\gtx\vector_query.inl" />
     <None Include="glm\glm\gtx\wrap.inl" />
+    <None Include="imgui.ini" />
     <None Include="resources\shaders\basic.glsl" />
     <None Include="resources\shaders\manager.glsl" />
   </ItemGroup>

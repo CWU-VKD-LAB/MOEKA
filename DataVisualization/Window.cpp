@@ -259,6 +259,28 @@ void Window::draw () {
     }
 }
 
+void Window::addModelFromForm() {
+    const auto classIndex = this->form.getFunc()->hanselChains->dimension - 1;
+    Model* m = new Model();
+
+    for (const auto& chain : this->form.getFunc()->hanselChains->hanselChainSet)
+    {
+        std::vector<int> classes;
+
+        for (const auto& e : chain)
+        {
+            classes.push_back(e[classIndex]);
+        }
+
+        m->addColumn(&classes);
+    }
+
+    m->fitToScreen();
+    this->addToRender(m);
+    this->form.addModel = !this->form.addModel;
+}
+
+
 // when a button is pressed, it calls this function with a "val" equal to which button in the window is pressed.
 void Window::buttonActions(int val) {
     switch (val) {

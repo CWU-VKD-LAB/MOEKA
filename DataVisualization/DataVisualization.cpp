@@ -38,7 +38,7 @@ void init () {
     };
    
 
-    Model m{};
+    /*Model m{};
     m.addColumn(&test);
     m.addColumn(&test2);
     m.addColumn(&test2);
@@ -46,11 +46,17 @@ void init () {
     m.addColumn(&test3);
     m.fitToScreen();
     w.addToRender(&m);
+    */
 
     // update loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT);
+
+        if (w.form.addModel)
+        {
+            w.addModelFromForm();
+        }
 
         w.draw();
 

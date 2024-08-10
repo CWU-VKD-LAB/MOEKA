@@ -39,6 +39,8 @@ private:
 
 	void drawFunctionSelect ();
 public:
+	/// @brief add a new model to be drawn by the window
+	bool addModel = false;
 	bool open = false;
 	Form ();
 	~Form ();
@@ -48,4 +50,6 @@ public:
 	void openWindow ();
 	void saveToCSV ();
 	void readCSV (std::string path);
+
+	Function* getFunc(void) { return func; }
 };
