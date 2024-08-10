@@ -21,7 +21,7 @@ enum state {
 class Form {
 private:
 	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
-	int defaultAmount = 20;
+	int defaultAmount = 15;
 	int current = state::PREP;
 
 	//
