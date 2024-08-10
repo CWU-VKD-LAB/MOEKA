@@ -53,7 +53,6 @@ void Window::initGLEW () {
         std::cout << "GLEW OK!" << std::endl;
     }
 }
-
 // ensure that GLFW was successful
 void Window::initGLFW () {
     if (!glfwInit()) {
@@ -77,7 +76,6 @@ void Window::initImGui () {
     ImGuiStyle& style = ImGui::GetStyle();
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 }
-
 void Window::endImGui () {
     // end the ImGui context
     ImGui_ImplOpenGL3_Shutdown();
@@ -85,7 +83,6 @@ void Window::endImGui () {
     ImGui::DestroyContext();
     glfwTerminate();
 }
-
 void Window::drawImGuiWindow(Texture& texture) {
     // create a new frame
     ImGui_ImplOpenGL3_NewFrame();
@@ -154,7 +151,7 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
         }
     }
     if (key == GLFW_KEY_ESCAPE && (action == GLFW_PRESS || glfwGetKey(window, key))) {
-        Window::form.open = !Window::form.open;
+        Window::form.open = true;
     }
 }
 
