@@ -36,6 +36,7 @@ private:
 	std::vector<std::string> functionNames{};
 	std::string currentFunction = "";
 	int functionIndex = 0;
+	int subfunctionIndex = 0;
 
 	void drawFunctionSelect ();
 public:

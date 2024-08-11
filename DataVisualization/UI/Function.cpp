@@ -46,9 +46,9 @@ void Function::applyFunctiontoChains()
 		for (auto& d : chain)
 		{
 			// get each MOF starting at kn+1 = 1 up to maximum kn+1
-			for (int i = (int)clauseList.size() - 1; i >= 0; --i)
+			for (int i = (int)subfunctionList.size() - 1; i >= 0; --i)
 			{
-				auto& mof = clauseList[i];
+				auto& mof = subfunctionList[i];
 
 				// get each clause
 				for (auto& clause : mof)
@@ -87,7 +87,7 @@ void Function::applyFunctiontoChains()
 
 Function::~Function () {
 	delete(clause);
-	for (auto a : clauseList) {
+	for (auto a : subfunctionList) {
 		//delete(a);
 	}
 	for (auto a : attributeNames) {
