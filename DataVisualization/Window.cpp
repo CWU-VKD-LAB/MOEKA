@@ -39,7 +39,11 @@ Window::Window () {
     glfwSetWindowSizeCallback(window, windowResizeCallback);
     
     initImGui();
-    //form.readCSV("output.csv");
+
+    for (int a = 0; a < config::maxClassValue; a++) {
+        float val = 0.8f * (((float)a+1)/(config::maxClassValue+1));
+        config::classColors.insert(config::classColors.end(), ImVec4{val, val, val, 1.0f});
+    }
 }
 
 
@@ -121,40 +125,45 @@ void cursorCallback(GLFWwindow* window, int button, int action, int mods) {
 // function that is called when a key is pressed
 void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods) {
     // cleanup later but fine in short term.
-    if (key == GLFW_KEY_UP && (action == GLFW_PRESS || glfwGetKey(window, key))) {
+    if (key == GLFW_KEY_UP && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
         for (auto a : Window::managedList) {
             a->setTranslation(a->getX(), a->getY()-5);
         }
     }
-    if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || glfwGetKey(window, key))) {
+    if (key == GLFW_KEY_DOWN && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
         for (auto a : Window::managedList) {
             a->setTranslation(a->getX(), a->getY()+5);
         }
     }
-    if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || glfwGetKey(window, key))) {
+    if (key == GLFW_KEY_LEFT && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
         for (auto a : Window::managedList) {
             a->setTranslation(a->getX()-5, a->getY());
         }
     }
-    if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || glfwGetKey(window, key))) {
+    if (key == GLFW_KEY_RIGHT && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
         for (auto a : Window::managedList) {
             a->setTranslation(a->getX()+5, a->getY());
         }
     }
-    if (key == GLFW_KEY_KP_ADD && (action == GLFW_PRESS || glfwGetKey(window, key))) {
+    if (key == GLFW_KEY_KP_ADD && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
         for (auto a : Window::managedList) {
-            a->setScale((float)(a->getScale() + .01));
+            a->setScale((float)(a->getScale() + .02));
         }
     }
-    if (key == GLFW_KEY_KP_SUBTRACT && (action == GLFW_PRESS || glfwGetKey(window, key))) {
+    if (key == GLFW_KEY_KP_SUBTRACT && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
         for (auto a : Window::managedList) {
-            if ((a->getScale() - .01) > 0.00001) {
+            if ((a->getScale() - .02) > 0.00001) {
                 a->setScale((float)(a->getScale() - .01));
             }
         }
     }
     if (key == GLFW_KEY_ESCAPE && (action == GLFW_PRESS || glfwGetKey(window, key))) {
         Window::form.open = !Window::form.open;
+        // prob better in the actual form class, but sets it so if the user presses escape while the form is open on the intro screen, it goes to the prep screen rather than
+        // the intro screen again when the window is opened.
+        if (Window::form.current == 4) {
+            Window::form.current = 1;
+        }
     }
 }
 
@@ -173,7 +182,6 @@ void windowResizeCallback (GLFWwindow* window, int width, int height) {
     float scale = std::min(config::windowX/width, config::windowY/height);
     config::windowX = width;
     config::windowY = height;
-    //config::proj = glm::ortho(-config::windowX / 2, config::windowX / 2, config::windowY / 2, -config::windowY / 2, 1.0f, -1.0f);
 }
 
 // creates the table of buttons by sampling a texture
@@ -239,16 +247,16 @@ void Window::createColorPicker () {
 // created when the mouse hovers a Shape
 void Window::createTooltip () {
     if (Window::s != nullptr) {
-        ImGui::BeginTooltip();
-        // If we are hovering a Bar, we would want to know some specific information.
-        if (dynamic_cast<Bar*>(Window::s)) {
-            ImGui::Text(
-                std::string("Chain Number: ")
-                .append(std::to_string(static_cast<Bar*>(Window::s)->getChainNumber()))
-                .c_str()
-            );
-        }
-        ImGui::EndTooltip();
+        //ImGui::BeginTooltip();
+        //// If we are hovering a Bar, we might want to know some specific information.
+        //if (dynamic_cast<Bar*>(Window::s)) {
+        //    //ImGui::Text(
+        //    //    std::string("Chain Number: ")
+        //    //    .append(std::to_string(static_cast<Bar*>(Window::s)->getChainNumber()))
+        //    //    .c_str()
+        //    //);
+        //}
+        //ImGui::EndTooltip();
     }
 }
 

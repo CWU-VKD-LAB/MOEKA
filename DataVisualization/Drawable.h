@@ -4,12 +4,13 @@
 #include <iostream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include "tools/config.h"
 
 class Drawable {
 protected:
 	float x = 0.0f, y = 0.0f;
 	float totalScale = 1;
-	ImVec4 color{ 1.0f, 1.0f, 1.0f, 1.0f };
+	ImVec4* color = &config::defaultColor;
 
 	//
 	float minBoundsX = 1, minBoundsY = 1;
@@ -38,15 +39,19 @@ public:
 	virtual void calculateBounds () {};
 	virtual void scaleBounds (float value) {};
 	virtual void setColor (float r, float g, float b, float a) {
-		color = {r, g, b, a};
+		color->x = r;
+		color->y = g;
+		color->z = b;
+		color->w = a;
+		//color = {r, g, b, a};
 	};
 
 	// get color components
-	float getR () {return color.x;};
-	float getG () {return color.y;};
-	float getB () {return color.z;};
-	float getA () {return color.w;};
-	ImVec4* getColor () {return &color;};
+	float getR () {return color->x;};
+	float getG () {return color->y;};
+	float getB () {return color->z;};
+	float getA () {return color->w;};
+	ImVec4* getColor () {return color;};
 
 	// method to find if the cursor lands in the bounds of this drawable
 	virtual Drawable* selected(GLFWwindow* window) {

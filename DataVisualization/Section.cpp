@@ -1,12 +1,15 @@
 #include "Section.h"
 
 Section::Section (): Shape (0, 0) {
-	color = { .5, .5, .5, 1 };
+	color = new ImVec4{ .5, .5, .5, 1 };
 }
 
 Section::~Section () {
 	for (auto a : managedList) {
 		delete(a);
+	}
+	if (color != &config::defaultColor) {
+		delete(color);
 	}
 }
 
@@ -23,7 +26,10 @@ void Section::addChild (Drawable* child) {
 	}
 	
 	// average color for background
-	color = {0, 0, 0, 0};
+	color->x = 0.0f;
+	color->y = 0.0f;
+	color->z = 0.0f;
+	color->w = 0.0f;
 	float width = 0;
 	float maxWidth = 0;
 	float height = 0;
@@ -32,10 +38,10 @@ void Section::addChild (Drawable* child) {
 
 	for (int a = 0; a < managedList.size(); a++) {
 		temp = managedList.at(a);
-		color.x += temp->getR();
-		color.y += temp->getG();
-		color.z += temp->getB();
-		color.w += temp->getA();
+		color->x += temp->getR();
+		color->y += temp->getG();
+		color->z += temp->getB();
+		color->w += temp->getA();
 
 		if (a != 0) {
 			width+=paddingX*totalScale;
@@ -48,10 +54,10 @@ void Section::addChild (Drawable* child) {
 		maxHeight = std::max(temp->getHeight(), maxHeight);
 	}
 
-	color.x /= (float)managedList.size();
-	color.y /= (float)managedList.size();
-	color.z /= (float)managedList.size();
-	color.w /= (float)managedList.size();
+	color->x /= (float)managedList.size();
+	color->y /= (float)managedList.size();
+	color->z /= (float)managedList.size();
+	color->w /= (float)managedList.size();
 
 
 	if (horizontal) {
@@ -114,20 +120,20 @@ void Section::setScale (float scale) {
 // draws this object and its children.
 void Section::draw () {
 	if (compress) {
-		color.x = 0;
-		color.y = 0;
-		color.w = 0;
-		color.z = 0;
+		color->x = 0;
+		color->y = 0;
+		color->w = 0;
+		color->z = 0;
 		for (auto a : managedList) {
-			color.x += a->getR();
-			color.y += a->getG();
-			color.z += a->getB();
-			color.w += a->getA();
+			color->x += a->getR();
+			color->y += a->getG();
+			color->z += a->getB();
+			color->w += a->getA();
 		}
-		color.x /= (float)managedList.size();
-		color.y /= (float)managedList.size();
-		color.z /= (float)managedList.size();
-		color.w /= (float)managedList.size();
+		color->x /= (float)managedList.size();
+		color->y /= (float)managedList.size();
+		color->z /= (float)managedList.size();
+		color->w /= (float)managedList.size();
 		bind();
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 		return;

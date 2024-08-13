@@ -94,7 +94,7 @@ void Shape::bind() {
     vb->bind();
     ib->bind();
     shader->use();
-    shader->setUniform4f("uColor", color.x, color.y, color.z, color.w);
+    shader->setUniform4f("uColor", color->x, color->y, color->z, color->w);
 }
 
 // transformations
