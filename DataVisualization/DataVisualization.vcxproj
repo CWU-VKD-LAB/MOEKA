@@ -181,6 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bar.h" />
+    <ClInclude Include="DecisionTable.h" />
     <ClInclude Include="HanselChains.h" />
     <ClInclude Include="Section.h" />
     <ClInclude Include="Drawable.h" />
@@ -638,6 +639,7 @@
     <None Include="imgui.ini" />
     <None Include="resources\shaders\basic.glsl" />
     <None Include="resources\shaders\manager.glsl" />
+    <None Include="test.csv" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="resources\fonts\JetBrainsMono-Medium.ttf" />

@@ -6,12 +6,11 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <vector>
-#include "Shape.h"
-#include "Section.h"
-#include "Model.h"
+#include "DecisionTable.h"
 #include "Window.h"
 #include "Render/Texture.h"
+
+
 
 
 GLFWwindow* window;
@@ -27,7 +26,17 @@ void init () {
     Texture texture{ "../resources/icons.png" };
     window = w.window;
 
-    std::vector<int> test {
+    DecisionTable<int> dt{};
+    dt.readData("test.csv");
+    std::vector<int> test {NULL, NULL, 3};
+    std::vector<int> result = dt.getDecision(test);
+
+    std::cout << "Checking" << std::endl;
+    for (auto a : result) {
+        std::cout << a << std::endl;
+    }
+
+    /*std::vector<int> test {
         1, 2, 3, 4, 5, 6
     };
     std::vector<int> test2 {
@@ -35,7 +44,7 @@ void init () {
     };
     std::vector<int> test3 {
         1, 2, 3, 4
-    };
+    };*/
    
 
     /*Model m{};

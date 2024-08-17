@@ -484,4 +484,5 @@ void Form::readCSV (std::string path) {
 		std::fill(temp->begin(), temp->end(), 0);
 		func->clause = temp;
 	}
+	file.close();
 }

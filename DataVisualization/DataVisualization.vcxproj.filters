@@ -1040,6 +1040,9 @@
     <ClInclude Include="HanselChains.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DecisionTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\basic.glsl" />
@@ -1459,6 +1462,7 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="imgui.ini" />
+    <None Include="test.csv" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="resources\fonts\JetBrainsMono-Medium.ttf" />
