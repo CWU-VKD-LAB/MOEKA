@@ -141,7 +141,7 @@ void Form::drawPrep () {
 		interview.datapoints.resize(func->subfunctionList.size());
 		for (int a = 0; a < interview.datapoints.size(); a++) {
 			std::vector<std::vector<int>>* category = new std::vector<std::vector<int>>;
-			category->resize(std::max((int)func->subfunctionList[a].size(), 1));
+			category->resize(interview.datapoints.size());
 			//
 			for (int b = 0; b < category->size(); b++) {
 				std::vector<int>* datapoint = new std::vector<int>;
@@ -487,13 +487,14 @@ void Form::drawInterview () {
 	if (ImGui::Button("Add Datapoint##", buttonSize)) {
 		interview.datapoints[interview.categoryIndex][interview.datapointIndex].push_back(interview.dataPointValue);
 
-		std::cout << "---" << std::endl;
+		std::cout << "------------" << std::endl;
+		std::cout << "function" << std::endl;
 		for (auto a : interview.datapoints) {
-			std::cout << "category" << std::endl;
+			std::cout << " categories" << std::endl;
 			for (auto b : a) {
-				std::cout << "datapoints" << std::endl;
+				std::cout << "  ----------\n  datapoints" << std::endl;
 				for (auto c : b) {
-					std::cout << c << std::endl;
+					std::cout << "  " << c << std::endl;
 				}
 			}
 		}

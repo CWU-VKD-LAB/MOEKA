@@ -99,7 +99,7 @@ void Window::drawImGuiWindow(Texture& texture) {
     ImGui::NewFrame();
 
     ImGui::PushFont(font);
-    createTable(texture);
+    createOptions(texture);
     if (!Window::form.open) {
         createColorPicker();
         createTooltip();
@@ -191,49 +191,69 @@ void frameBufferCallback(GLFWwindow* window, int width, int height) {
 }
 
 // creates the table of buttons by sampling a texture
-void Window::createTable (Texture& texture) {
-    ImGui::Begin("Options", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+void Window::createOptions (Texture& texture) {
+    ImGui::Begin("Options", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
     // create options table
     texture.bind();
     int numOfElements = std::min((int)round(config::windowX / 32.0f), (int)config::options.size());
-    ImVec2 padd{ 0.0, 0.0 };
-    if (ImGui::BeginTable("table3", numOfElements, ImGuiTableFlags_NoPadInnerX)) {
-        int x, y;
-        for (int item = 0; item < config::options.size(); item++) {
-            x = item % 5;
-            y = item / 5;
-            ImGui::TableNextColumn();
+    ImVec2 window = ImGui::GetWindowSize();
 
-            ImVec2 size = ImVec2(config::buttonSize, config::buttonSize);   // Size of the image we want to make visible
+    int x, y;
+    for (int item = 0; item < config::options.size(); item++) {
+        x = item % 5;
+        y = item / 5;
+        ImGui::SameLine();
 
-            // UV coordinates for lower-left
-            ImVec2 uv0 = ImVec2(
-                (config::buttonSize * x / texture.getWidth()),
-                (config::buttonSize * y / texture.getHeight())
-            );
+        ImVec2 size = ImVec2(config::buttonSize, config::buttonSize);   // Size of the image we want to make visible
 
-            // UV coordinates for (32,32) in our texture
-            ImVec2 uv1 = ImVec2(
-                (config::buttonSize * (x + 1) / texture.getWidth()),
-                (config::buttonSize * (y + 1) / texture.getHeight())
-            );
+        // UV coordinates for lower-left
+        ImVec2 uv0 = ImVec2(
+            (config::buttonSize * x / texture.getWidth()),
+            (config::buttonSize * y / texture.getHeight())
+        );
 
-            ImGui::PushID(item);
-            if (ImGui::ImageButton("", (void*)texture.id, size, uv0, uv1)) {
-                Window::buttonActions(item);
-            }
-            if (ImGui::IsItemHovered()) {
-                ImGui::BeginTooltip();
-                ImGui::Text(config::options.at(item).c_str());
-                ImGui::EndTooltip();
-            }
-            ImGui::PopID();
+        // UV coordinates for (32,32) in our texture
+        ImVec2 uv1 = ImVec2(
+            (config::buttonSize * (x + 1) / texture.getWidth()),
+            (config::buttonSize * (y + 1) / texture.getHeight())
+        );
 
+        ImGui::PushID(item);
+        if (ImGui::ImageButton("", (void*)texture.id, size, uv0, uv1)) {
+            Window::buttonActions(item);
         }
-        ImGui::EndTable();
+        if (ImGui::IsItemHovered()) {
+            ImGui::BeginTooltip();
+            ImGui::Text(config::options.at(item).c_str());
+            ImGui::EndTooltip();
+        }
+        ImGui::PopID();
+
     }
+
+
     ImGui::SetWindowSize(ImVec2(config::windowX, config::buttonSize*2));
     ImGui::SetWindowPos(ImVec2(0.0f, 0.0f));
+    ImGui::End();
+    
+    ImGui::Begin("##formState", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+    ImGui::SetWindowSize(ImVec2(config::windowX * .4f, config::windowY * .05f));
+    ImGui::SetWindowPos(ImVec2(0.0f, config::windowY * .95f));
+    window = ImGui::GetWindowSize();
+    ImVec2 buttonSize{window.x * .3f, window.y * .6f};
+    if (ImGui::Button("Open Help##", buttonSize)) {
+        // 5 == STATE.INTRODUCTION
+        form.current = 5;
+        form.openWindow();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Open Prep##", buttonSize)) {
+        // 1 == STATE.PREP
+        form.current = 1;
+        form.openWindow();
+    }
+    ImGui::SameLine();
+    ImGui::Button("Edit colors##", buttonSize);
     ImGui::End();
 }
 

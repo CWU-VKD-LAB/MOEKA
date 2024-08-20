@@ -31,7 +31,7 @@ public:
 	static bool drawColorPicker;
 	static std::vector<Drawable*> managedList;
 	GLFWwindow* window;
-	static void createTable (Texture& texture);
+	static void createOptions (Texture& texture);
 	static void buttonActions (int val);
 	static void createColorPicker ();
 	static void createTooltip ();
