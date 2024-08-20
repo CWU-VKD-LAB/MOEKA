@@ -24,7 +24,7 @@ public:
 	// diabetes
 	//std::vector<int> attributes = { 4, 2, 2, 3, 4, 4, 4 };
 	//std::vector<int> attributes = { 5, 5, 2, 2 };
-	//std::vector<int> attributes = {2, 2, 2};
+	//std::vector<int> attributes = { 2, 2, 2 };
 
 	// gout
 	//std::vector<int> attributes = { 5, 2, 5};

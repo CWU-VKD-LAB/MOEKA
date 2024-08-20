@@ -122,24 +122,25 @@ template<typename T>
 std::vector<int> DecisionTable<T>::getDecision(std::vector<int>& data) {
 	std::vector<int> result{};
 	int resultIndex = 0;
-	int index = 0;
 	bool addToResult;
+
 	for (int a = 0; a < rowCount; a++) {
 		addToResult = true;
-		index = 0;
-		for (int b = 0; b < table.size()-2; b++) {
+
+		for (int b = 0; b < table.size()-1; b++) {
 			if (table[b]->at(a) == 0) {
 				continue;
 			}
-			if (table[b]->at(a) != data.at(index)) {
+			if (table[b]->at(a) != data.at(b)) {
 				addToResult = false;
 				break;
 			}
-			index++;
 		}
+
 		if (addToResult) {
-			result.insert(result.end(), table[table.size()-1]->at(resultIndex));
+			result.push_back(table[table.size()-1]->at(resultIndex));
 		}
+
 		resultIndex++;
 	}
 	// remove any conflicts here
