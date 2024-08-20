@@ -22,6 +22,7 @@ namespace config {
 	extern float color[3];
 	extern std::vector<std::string> options;
 	extern std::vector<ImVec4> classColors;
+	extern std::vector<std::vector<std::string>> pilotQuestions;
 	extern ImVec4 defaultColor;
 	extern glm::mat4 proj; 
 	extern float windowX;

@@ -5,11 +5,19 @@ Form::Form () {
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	font = io.Fonts->AddFontFromFileTTF("resources/fonts/JetBrainsMono-Medium.ttf", config::windowY / 42.0f);
+	interview.pilotAnswers.resize(config::pilotQuestions.size());
+	std::fill(interview.pilotAnswers.begin(), interview.pilotAnswers.end(), 0);
 }
 
 Form::~Form () {
 	for (auto a : functionList) {
 		delete(a);
+	}
+	for (auto a : interview.datapoints) {
+		for (auto b : a) {
+			delete(&b);
+		}
+		delete(&a);
 	}
 }
 
@@ -25,6 +33,12 @@ void Form::draw () {
 			case FUNCTION:
 				drawFunction();
 				break;
+			case PILOT:
+				drawInterviewPilot();
+				break;
+			case INTERVIEW:
+				drawInterview();
+				break;
 		}
 	}
 }
@@ -38,7 +52,7 @@ void Form::drawIntro () {
 	ImGui::SetWindowSize(ImVec2(ImGui::CalcTextSize(config::instructions).x * 1.04f, config::windowY * .2f) );
 	ImGui::SetWindowPos( ImVec2(config::windowX * .5f - window.x * .5f, config::windowY * .5f - window.y * .5f) );
 
-	ImGui::SetCursorPosX(window.x * .5 - window.x * .15);
+	ImGui::SetCursorPosX(window.x * .5f - window.x * .15);
 	if (ImGui::Button("OK##", ImVec2(window.x * .3f, window.y *.2f))) {
 		open = false;
 		current = PREP;
@@ -67,7 +81,7 @@ void Form::drawPrep () {
 	// create a subwindow that contains the attributes
 	ImGui::BeginChild("##", ImVec2{ ImGui::GetWindowSize().x * .95f, ImGui::GetWindowSize().y * .63f }, ImGuiChildFlags_None, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 	for (int a = 0; a < func->attributeCount; a++) {
-		ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .28);
+		ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .28f);
 		ImGui::InputText(std::string("##Text").append(std::to_string(a)).c_str(), func->attributeNames.at(a), 128);
 		ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .66f);
 		ImGui::SameLine(ImGui::GetWindowSize().x * .3f);
@@ -82,7 +96,7 @@ void Form::drawPrep () {
 
 	// create the bottom section that contains the enter button.
 	ImGui::Separator();
-	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .56f);
+	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .34f);
 	ImVec2 buttonSize{ ImGui::GetWindowSize().x * .2f, ImGui::GetWindowSize().y * .1f };
 
 	// creates the skip button, if function list is empty however, disable it.
@@ -102,7 +116,7 @@ void Form::drawPrep () {
 	}
 
 	ImGui::SameLine();
-	if (ImGui::Button("Enter", buttonSize)) {		
+	if (ImGui::Button("Function", buttonSize)) {		
 		current = FUNCTION;
 		std::vector<int>* temp = new std::vector<int>;
 		temp->resize(func->attributeCount);
@@ -111,6 +125,31 @@ void Form::drawPrep () {
 		if (std::count(functionList.begin(), functionList.end(), func) == 0) {
 			functionList.insert(functionList.end(), func);
 		}
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Interview", buttonSize)) {		
+		current = PILOT;
+		std::vector<int>* temp = new std::vector<int>;
+		temp->resize(func->attributeCount);
+		std::fill(temp->begin(), temp->end(), 0);
+		func->clause = temp;
+		if (std::count(functionList.begin(), functionList.end(), func) == 0) {
+			functionList.insert(functionList.end(), func);
+		}
+
+		//
+		interview.datapoints.resize(func->subfunctionList.size());
+		for (int a = 0; a < interview.datapoints.size(); a++) {
+			std::vector<std::vector<int>>* category = new std::vector<std::vector<int>>;
+			category->resize(std::max((int)func->subfunctionList[a].size(), 1));
+			//
+			for (int b = 0; b < category->size(); b++) {
+				std::vector<int>* datapoint = new std::vector<int>;
+				category->at(a) = *datapoint;
+			}
+			interview.datapoints[a] = *category;
+		}
+		//
 	}
 	
 
@@ -138,7 +177,7 @@ void Form::drawFunction () {
 	ImGui::SetCursorPosX(window.x * .4f - (ImGui::CalcTextSize("Create a Clause").x * .5f));
 	ImGui::PushFont(font);
 	ImGui::Text("Create a Clause");
-	ImGui::SameLine(window.x * .835 - ImGui::CalcTextSize(func->functionName).x);
+	ImGui::SameLine(window.x * .835f - ImGui::CalcTextSize(func->functionName).x);
 	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(50, 50, 255, 255));
 	ImGui::Text(func->functionName);
 	ImGui::PopStyleColor();
@@ -150,19 +189,20 @@ void Form::drawFunction () {
 	// value setting field
 	ImGui::BeginChild("##subwindow", ImVec2{ window.x * .95f, window.y * .61f }, ImGuiChildFlags_None);
 	ImGui::SetNextItemWidth(100);
-	ImGui::BeginTable("##functiontable", func->attributeCount, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedSame | ImGuiTableFlags_BordersOuterV);
-	
-	for (int a = 0; a < func->attributeCount; a++) {
-		ImGui::TableSetupColumn(func->attributeNames.at(a), 160);
-	}
-	ImGui::TableHeadersRow();
-	for (int a = 0; a < func->attributeCount; a++) {
-		ImGui::TableNextColumn();
-		for (int b = 0; b < func->kValues.at(a); b++) {
-			ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(a)).c_str(), &func->clause->data()[a], b);
+	if (ImGui::BeginTable("##functiontable", func->attributeCount, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedSame | ImGuiTableFlags_BordersOuterV)) {
+		for (int a = 0; a < func->attributeCount; a++) {
+			ImGui::TableSetupColumn(func->attributeNames.at(a), 160);
 		}
+		ImGui::TableHeadersRow();
+		for (int a = 0; a < func->attributeCount; a++) {
+			ImGui::TableNextColumn();
+			for (int b = 0; b < func->kValues.at(a); b++) {
+				ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(a)).c_str(), &func->clause->data()[a], b);
+			}
+		}
+		ImGui::EndTable();
 	}
-	ImGui::EndTable();
+	
 	ImGui::EndChild();
 	ImGui::PopFont();
 	ImGui::Separator();
@@ -322,6 +362,152 @@ void Form::drawFunction () {
 	ImGui::End();
 }
 
+void Form::drawInterviewPilot () {
+	ImGui::Begin("##", &open, flags);
+	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .5f));
+	ImVec2 window = ImGui::GetWindowSize();
+	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .625f), window.y - (config::windowY * .25f)));
+	std::string question;
+
+	//
+	ImGui::PushFont(font);
+	std::string temp;
+	for (int b = 0; b < config::pilotQuestions.size(); b++) {
+		if (config::pilotQuestions[b][0][config::pilotQuestions[b][0].size() - 2] == 's') {
+			question = "What are the ";
+		}
+		else {
+			question = "What is the ";
+		}
+		question.append(config::pilotQuestions[b][0]);
+
+		
+		ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize(question.c_str()).x * .5f);
+		ImGui::Text(question.c_str());
+		ImGui::Separator();
+		
+		if (ImGui::BeginTable(std::string("##Question ").append(std::to_string(b)).c_str(), config::pilotQuestions[b].size() - 1, ImGuiTableFlags_ScrollX | ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_BordersInnerV, ImVec2{ window.x, window.y * .195f })) {
+			for (int a = 1; a < config::pilotQuestions[b].size(); a++) {
+				ImGui::TableNextColumn();
+				temp = config::pilotQuestions[b][a];
+				ImGui::RadioButton(temp.append("##").append(std::to_string(b)).c_str(), &interview.pilotAnswers[b], a);
+			}
+			ImGui::EndTable();
+		}
+	}
+	ImGui::Separator();
+	ImGui::PopFont();
+	//
+
+
+	//
+	ImVec2 buttonSize{window.x * .1f, window.y * .1f};
+	ImGui::SetCursorPosX(window.x * .9875f - buttonSize.x);
+	bool disable = false;
+	for (auto a : interview.pilotAnswers) {
+		if (a == 0) {
+			disable = true;
+			break;
+		}
+	}
+	if (disable) {
+		ImGui::BeginDisabled();
+	}
+	if (ImGui::Button("Next##", buttonSize)) {
+		interview.datapoint.resize(func->clause->size());
+		current = state::INTERVIEW;
+	}
+	if (disable) {
+		ImGui::EndDisabled();
+	}
+	//
+
+	ImGui::End();
+}
+
+void Form::drawInterview () {
+	ImGui::Begin("##", &open, flags);
+	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .4f));
+	ImVec2 window = ImGui::GetWindowSize();
+	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .625f), window.y - (config::windowY * .1f)));
+	ImGui::PushFont(font);
+
+	// TODO: replace with actual datapoint.
+	std::vector<int> data{};
+	data.resize(interview.datapoint.size());
+
+	ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize("Input a class for this datapoint.").x * .5f - window.x * .1f);
+	ImGui::Text("Input a value for this datapoint.");
+	ImGui::SetNextItemWidth(window.x * .2f);
+	ImGui::SameLine();
+	if (ImGui::InputInt("##input", &interview.dataPointValue, 1)) {
+		if (interview.dataPointValue > config::maxClassValue) {
+			interview.dataPointValue = 0;
+		}
+		else if (interview.dataPointValue < 1) {
+			interview.dataPointValue = config::maxClassValue;
+		}
+	}
+
+	ImVec2 size{ window.x * .97f, window.y * .71f };
+	ImGui::BeginChild("##subwindowIntervew", size, ImGuiChildFlags_None);
+	ImGui::SetNextItemWidth(100);
+	if (ImGui::BeginTable("##functiontableInterview", func->attributeCount, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedSame | ImGuiTableFlags_BordersOuterV, size)) {
+		for (int a = 0; a < func->attributeCount; a++) {
+			ImGui::TableSetupColumn(func->attributeNames.at(a), 160);
+		}
+		ImGui::TableHeadersRow();
+		for (int a = 0; a < func->attributeCount; a++) {
+			ImGui::TableNextColumn();
+			ImGui::BeginDisabled();
+			for (int b = 0; b < func->kValues.at(a); b++) {
+				if (func->clause != nullptr) {
+					ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(a)).c_str(), &data.data()[a], b);
+				}
+			}
+			ImGui::EndDisabled();
+		}
+		ImGui::EndTable();
+		ImGui::EndChild();
+	}
+	ImGui::PopFont();
+	//
+	ImGui::Separator();
+	//
+	ImGui::SetCursorPosY(window.y * 0.88f);
+	ImVec2 buttonSize{ window.x * .2f, window.y * .1f };
+	ImGui::SetCursorPosX(window.x * .56f - buttonSize.x);
+
+	if (ImGui::Button("Next Category##", buttonSize)) {
+		std::vector<int>* temp = new std::vector<int>;
+		interview.datapoints[interview.categoryIndex].push_back(*temp);
+		interview.datapointIndex++;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Add Datapoint##", buttonSize)) {
+		interview.datapoints[interview.categoryIndex][interview.datapointIndex].push_back(interview.dataPointValue);
+
+		std::cout << "---" << std::endl;
+		for (auto a : interview.datapoints) {
+			std::cout << "category" << std::endl;
+			for (auto b : a) {
+				std::cout << "datapoints" << std::endl;
+				for (auto c : b) {
+					std::cout << c << std::endl;
+				}
+			}
+		}
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Done##", buttonSize)) {
+		action = state::PREP;
+		open = !open;
+	}
+	//
+
+	ImGui::End();
+}
+
 void Form::openWindow () {
 	open = true;
 }
@@ -445,7 +631,7 @@ void Form::readCSV (std::string path) {
 				strcpy_s(tempString, 128, token.c_str());
 				current->attributeNames.insert(current->attributeNames.end(), tempString);
 			}
-			current->attributeCount = current->attributeNames.size();
+			current->attributeCount = (int)current->attributeNames.size();
 			current->kValues.resize(current->attributeCount);
 			tempFuncList.insert(tempFuncList.end(), current);
 		}

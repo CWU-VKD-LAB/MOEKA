@@ -13,7 +13,17 @@ enum state {
 	PREP = 1,
 	FUNCTION,
 	INTERVIEW,
-	INTRODUCTION
+	PILOT,
+	INTRODUCTION,
+};
+
+struct Interview {
+	int datapointIndex = 0;
+	int categoryIndex = 0;
+	std::vector<int> pilotAnswers{};
+	std::vector<std::vector<std::vector<int>>> datapoints{};
+	std::vector<int> datapoint{};
+	int dataPointValue = 1;
 };
 
 // multiple functions, rename attributes, word wrapping, load from csv
@@ -23,6 +33,10 @@ class Form {
 private:
 	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
 	int defaultAmount = 15;
+
+	//
+	Interview interview{};
+	//
 
 	//
 	Function* func = nullptr;
@@ -38,7 +52,6 @@ private:
 	int clauseIndex = -1;
 	int functionIndex = 0;
 	int subfunctionIndex = 0;
-
 	void drawFunctionSelect ();
 public:
 	int current = state::INTRODUCTION;
@@ -51,6 +64,8 @@ public:
 	void draw ();
 	void drawPrep ();
 	void drawFunction ();
+	void drawInterviewPilot ();
+	void drawInterview ();
 	void drawIntro ();
 	void openWindow ();
 	void saveToCSV ();

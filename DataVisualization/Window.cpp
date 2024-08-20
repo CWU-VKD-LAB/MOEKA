@@ -11,6 +11,7 @@ void cursorCallback(GLFWwindow* window, int button, int action, int mods);
 void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods);
 void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
 void windowResizeCallback (GLFWwindow* window, int width, int height);
+void frameBufferCallback(GLFWwindow* window, int width, int height);
 
 Window::Window () {
     std::cout << "Creating window..." << std::endl;
@@ -27,7 +28,7 @@ Window::Window () {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
+    glViewport(0, 0, config::windowX, config::windowY);
     //
 
     // init glew
@@ -37,6 +38,7 @@ Window::Window () {
     glfwSetKeyCallback(window, keyCallBack);
     glfwSetCursorPosCallback(window, cursorPositionCallback);
     glfwSetWindowSizeCallback(window, windowResizeCallback);
+    glfwSetFramebufferSizeCallback(window, frameBufferCallback);
     
     initImGui();
 
@@ -182,6 +184,10 @@ void windowResizeCallback (GLFWwindow* window, int width, int height) {
     float scale = std::min(config::windowX/width, config::windowY/height);
     config::windowX = width;
     config::windowY = height;
+}
+
+void frameBufferCallback(GLFWwindow* window, int width, int height) {
+    glViewport(0, 0, width, height);
 }
 
 // creates the table of buttons by sampling a texture

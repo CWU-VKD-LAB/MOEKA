@@ -126,16 +126,14 @@ std::vector<int> DecisionTable<T>::getDecision(std::vector<int>& data) {
 	bool addToResult;
 	for (int a = 0; a < rowCount; a++) {
 		addToResult = true;
-		index = 0;
-		for (int b = 0; b < table.size()-2; b++) {
+		for (int b = 0; b < table.size()-1; b++) {
 			if (table[b]->at(a) == 0) {
 				continue;
 			}
-			if (table[b]->at(a) != data.at(index)) {
+			if (table[b]->at(a) != data.at(b)) {
 				addToResult = false;
 				break;
 			}
-			index++;
 		}
 		if (addToResult) {
 			result.insert(result.end(), table[table.size()-1]->at(resultIndex));
