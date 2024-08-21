@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include "tools/config.h"
 
 template <typename T>
 class DecisionTable {
@@ -13,6 +14,7 @@ private:
 
 	void addRow (std::string& line);
 	void calcColumns (std::string& line);
+	void readPilotQuestions (std::ifstream& file);
 
 	// convert
 	template<typename T, typename V>
@@ -64,6 +66,7 @@ void DecisionTable<T>::readData(std::string path) {
 		std::cout << "Invalid file path" << std::endl;
 	}
 	std::string line;
+	readPilotQuestions(file);
 	std::streampos old = file.tellg();
 	std::getline(file, line);
 	calcColumns(line);
@@ -75,13 +78,39 @@ void DecisionTable<T>::readData(std::string path) {
 }
 
 template<typename T>
+void DecisionTable<T>::readPilotQuestions (std::ifstream& file) {
+	std::string delimiter = ", ";
+	std::string token;
+	std::string line;
+	int index = -1;
+
+	while (std::getline(file, line)) {
+		if (line == "%") {
+			break;
+		}
+		while (!line.empty()) {
+			token = line.substr(0, line.find(delimiter));
+			line.erase(0, line.find(delimiter) + delimiter.length());
+			if (token.find('?') != std::string::npos) {
+				std::vector<std::string>* arr = new std::vector<std::string>;
+				config::pilotQuestions.push_back(*arr);
+				index++;
+				config::pilotQuestions[index].push_back(token);
+				continue;
+			}
+			config::pilotQuestions[index].push_back(token);
+		}
+	}
+}
+
+template<typename T>
 void DecisionTable<T>::addRow(std::string& line) {
 	std::string delimiter = ", ";
 	std::string token;
 	int index = 0;
 
 	// iterate through the columns
-	for (int a = 0; a <  table.size()-1; a++) {
+	for (int a = 0; a < table.size()-1; a++) {
 		// dont go out of array bounds
 		if (index > (table.size() - 1)) {
 			std::cout << "Invalid size" << std::endl;
@@ -111,7 +140,11 @@ void DecisionTable<T>::calcColumns(std::string& line) {
 	while (!line.empty()) {
 		token = line.substr(0, line.find(delimiter));
 		line.erase(0, line.find(delimiter) + delimiter.length());
-		if (!token.empty()) {
+		if (token[0] == '#') {
+			line.clear();
+			continue;
+		}
+		if (!token.empty() && !line.empty()) {
 			addColumn();
 			colCount++;
 		}

@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include "Function.h"
+#include "../DecisionTable.h"
 
 enum state {
 	PREP = 1,
@@ -24,6 +25,7 @@ struct Interview {
 	std::vector<std::vector<std::vector<int>>> datapoints{};
 	std::vector<int> datapoint{};
 	int dataPointValue = 1;
+	DecisionTable<int> dt{};
 };
 
 // multiple functions, rename attributes, word wrapping, load from csv

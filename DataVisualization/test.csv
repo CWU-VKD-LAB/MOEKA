@@ -1,3 +1,7 @@
-1, 2, 3, 
-3, 0, 0, 
-0, 0, 3, 
+low unit position?, unknown, bottom, middle, top, 
+low unit positive values?, unknown, low, equal, high, 
+known values?, unknown, confirmed, 
+%
+1, 2, 3, #decisionA
+3, 0, 0, #decisionB
+0, 0, 3, #decisionC

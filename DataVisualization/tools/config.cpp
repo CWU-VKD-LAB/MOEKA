@@ -38,10 +38,6 @@ Keypad +/-: zoom in or zoom out
 Arrow Keys: move the model
 		)";
 
-	std::vector<std::vector<std::string>> pilotQuestions {
-		{"low unit position?", "unknown", "bottom", "middle", "top"},
-		{"low unit positive values?", "unknown", "low", "equal", "high"},
-		{"known values?", "unknown", "confirmed"}
-	};
+	std::vector<std::vector<std::string>> pilotQuestions {};
 
 }

@@ -1,6 +1,7 @@
 #include "Form.h"
 
 Form::Form () {
+	interview.dt.readData("test.csv");
 	setNewFunc();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -427,55 +428,37 @@ void Form::drawInterviewPilot () {
 
 void Form::drawInterview () {
 	ImGui::Begin("##", &open, flags);
-	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .4f));
+	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .2f));
 	ImVec2 window = ImGui::GetWindowSize();
-	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .625f), window.y - (config::windowY * .1f)));
+	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .625f), config::windowY * .4f));
 	ImGui::PushFont(font);
 
-	// TODO: replace with actual datapoint.
+	//// TODO: replace with actual datapoint.
 	std::vector<int> data{};
 	data.resize(interview.datapoint.size());
+	////
 
-	ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize("Input a class for this datapoint.").x * .5f - window.x * .1f);
-	ImGui::Text("Input a value for this datapoint.");
+	ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize("Input a class for this datapoint.").x * .5f);
+	ImGui::Text("Input a value for datapoint.");
 	ImGui::SetNextItemWidth(window.x * .2f);
-	ImGui::SameLine();
-	if (ImGui::InputInt("##input", &interview.dataPointValue, 1)) {
-		if (interview.dataPointValue > config::maxClassValue) {
-			interview.dataPointValue = 0;
-		}
-		else if (interview.dataPointValue < 1) {
-			interview.dataPointValue = config::maxClassValue;
-		}
+	ImGui::Separator();
+	ImGui::Text("Value: ");
+	for (int b = 0; b < data.size(); b++) {
+		ImGui::SameLine();
+		ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(b)).c_str(), &data.data()[b], b);
 	}
-
-	ImVec2 size{ window.x * .97f, window.y * .71f };
-	ImGui::BeginChild("##subwindowIntervew", size, ImGuiChildFlags_None);
-	ImGui::SetNextItemWidth(100);
-	if (ImGui::BeginTable("##functiontableInterview", func->attributeCount, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedSame | ImGuiTableFlags_BordersOuterV, size)) {
-		for (int a = 0; a < func->attributeCount; a++) {
-			ImGui::TableSetupColumn(func->attributeNames.at(a), 160);
-		}
-		ImGui::TableHeadersRow();
-		for (int a = 0; a < func->attributeCount; a++) {
-			ImGui::TableNextColumn();
-			ImGui::BeginDisabled();
-			for (int b = 0; b < func->kValues.at(a); b++) {
-				if (func->clause != nullptr) {
-					ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(a)).c_str(), &data.data()[a], b);
-				}
-			}
-			ImGui::EndDisabled();
-		}
-		ImGui::EndTable();
-		ImGui::EndChild();
+	ImGui::Text("Datapoint: ");
+	for (int a = 0; a < data.size(); a++) {
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(font->FontSize);
+		ImGui::Text(std::to_string(data[a]).c_str());
 	}
 	ImGui::PopFont();
 	//
 	ImGui::Separator();
 	//
-	ImGui::SetCursorPosY(window.y * 0.88f);
-	ImVec2 buttonSize{ window.x * .2f, window.y * .1f };
+	ImGui::SetCursorPosY(window.y * 0.75f);
+	ImVec2 buttonSize{ window.x * .2f, window.y * .2f };
 	ImGui::SetCursorPosX(window.x * .56f - buttonSize.x);
 
 	if (ImGui::Button("Next Category##", buttonSize)) {
@@ -487,6 +470,7 @@ void Form::drawInterview () {
 	if (ImGui::Button("Add Datapoint##", buttonSize)) {
 		interview.datapoints[interview.categoryIndex][interview.datapointIndex].push_back(interview.dataPointValue);
 
+		// debug
 		std::cout << "------------" << std::endl;
 		std::cout << "function" << std::endl;
 		for (auto a : interview.datapoints) {
@@ -498,6 +482,7 @@ void Form::drawInterview () {
 				}
 			}
 		}
+		//
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Done##", buttonSize)) {
