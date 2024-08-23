@@ -25,6 +25,7 @@ struct Interview {
 	std::vector<std::vector<std::vector<int>>> datapoints{};
 	std::vector<int> datapoint{};
 	int dataPointValue = 1;
+	int _class = 0;
 	DecisionTable<int> dt{};
 };
 

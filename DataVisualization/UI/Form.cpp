@@ -73,6 +73,12 @@ void Form::drawPrep () {
 	ImGui::InputText("##", func->functionName, 128);
 	ImGui::SameLine(window.x * .7575f);
 	drawFunctionSelect();
+	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5f - (ImGui::CalcTextSize("Amount of Target Attributes: ").x * .5f));
+	ImGui::Text("Amount of Target Attributes: ");
+	ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .96f);
+	ImGui::SliderInt("##amtTargetSlider", &func->targetAttributeCount, 2, defaultAmount);
+	ImGui::Separator();
+
 	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5f - (ImGui::CalcTextSize("Amount of Attributes: ").x * .5f));
 	ImGui::Text("Amount of Attributes: ");
 	ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .96f);
@@ -80,7 +86,7 @@ void Form::drawPrep () {
 	ImGui::Separator();
 
 	// create a subwindow that contains the attributes
-	ImGui::BeginChild("##", ImVec2{ ImGui::GetWindowSize().x * .95f, ImGui::GetWindowSize().y * .63f }, ImGuiChildFlags_None, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+	ImGui::BeginChild("##", ImVec2{ ImGui::GetWindowSize().x * .95f, ImGui::GetWindowSize().y * .5f }, ImGuiChildFlags_None, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 	for (int a = 0; a < func->attributeCount; a++) {
 		ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .28f);
 		ImGui::InputText(std::string("##Text").append(std::to_string(a)).c_str(), func->attributeNames.at(a), 128);
@@ -364,6 +370,7 @@ void Form::drawFunction () {
 }
 
 void Form::drawInterviewPilot () {
+	// TO DO : add stuff for decision table for pilot questions
 	ImGui::Begin("##", &open, flags);
 	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .5f));
 	ImVec2 window = ImGui::GetWindowSize();
@@ -415,6 +422,9 @@ void Form::drawInterviewPilot () {
 		ImGui::BeginDisabled();
 	}
 	if (ImGui::Button("Next##", buttonSize)) {
+		// this doesnt do anything really - need to change 
+		func->initializeHanselChains();
+		interview.datapoints = func->hanselChains->hanselChainSet;
 		interview.datapoint.resize(func->clause->size());
 		current = state::INTERVIEW;
 	}
@@ -434,24 +444,31 @@ void Form::drawInterview () {
 	ImGui::PushFont(font);
 
 	//// TODO: replace with actual datapoint.
-	std::vector<int> data{};
-	data.resize(interview.datapoint.size());
+	
+	// below obsolete now
+	//std::vector<int> data{};
+	//data.resize(interview.datapoint.size());
+	
+	//create hanselChainSet for function
+	// is this done every frame
+	auto& datapoint = interview.datapoints[interview.categoryIndex][interview.datapointIndex];
+
 	////
 
 	ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize("Input a class for this datapoint.").x * .5f);
-	ImGui::Text("Input a value for datapoint.");
+	ImGui::Text("Input a target value (class) for the datapoint.");
 	ImGui::SetNextItemWidth(window.x * .2f);
 	ImGui::Separator();
-	ImGui::Text("Value: ");
-	for (int b = 0; b < data.size(); b++) {
-		ImGui::SameLine();
-		ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(b)).c_str(), &data.data()[b], b);
-	}
 	ImGui::Text("Datapoint: ");
-	for (int a = 0; a < data.size(); a++) {
+	for (int a = 0; a < datapoint.size(); a++) {
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(font->FontSize);
-		ImGui::Text(std::to_string(data[a]).c_str());
+		ImGui::Text(std::to_string(datapoint[a]).c_str());
+	}
+	ImGui::Text("Target Value (Class): ");
+	for (int b = 0; b < interview.datapoint.size(); b++) {
+		ImGui::SameLine();
+		ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(b)).c_str(), &interview._class, b);
 	}
 	ImGui::PopFont();
 	//
@@ -461,11 +478,30 @@ void Form::drawInterview () {
 	ImVec2 buttonSize{ window.x * .2f, window.y * .2f };
 	ImGui::SetCursorPosX(window.x * .56f - buttonSize.x);
 
-	if (ImGui::Button("Next Category##", buttonSize)) {
-		std::vector<int>* temp = new std::vector<int>;
-		interview.datapoints[interview.categoryIndex].push_back(*temp);
-		interview.datapointIndex++;
+	// below  dont do anything need to change 
+	if (ImGui::Button("Next##", buttonSize)) {
+		// add monotonic expansion
+		// increment intra chain
+		if (interview.datapointIndex < interview.datapoints[interview.categoryIndex].size() - 1)
+		{
+			interview.datapointIndex++;
+		}
+		// incrememnt chain
+		else if (interview.categoryIndex < interview.datapoints.size() - 1)
+		{
+			interview.categoryIndex++;
+			interview.datapointIndex = 0;
+		}
+		// else interview is done
+		else
+		{
+			action = state::PREP;
+			open = !open;
+		}
 	}
+
+	// temporarily disable
+	/*
 	ImGui::SameLine();
 	if (ImGui::Button("Add Datapoint##", buttonSize)) {
 		interview.datapoints[interview.categoryIndex][interview.datapointIndex].push_back(interview.dataPointValue);
@@ -483,7 +519,7 @@ void Form::drawInterview () {
 			}
 		}
 		//
-	}
+	}*/
 	ImGui::SameLine();
 	if (ImGui::Button("Done##", buttonSize)) {
 		action = state::PREP;

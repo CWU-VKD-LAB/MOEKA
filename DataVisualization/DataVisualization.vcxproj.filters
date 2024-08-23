@@ -93,6 +93,27 @@
     <ClCompile Include="HanselChains.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="moeka\hierarchyDriver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="moeka\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="moeka\oekaAuxiliary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="moeka\oekaExperimental.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="moeka\oekaGraph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="moeka\oekaMethods.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="moeka\oekaOracle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tools\config.h">
@@ -1041,6 +1062,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DecisionTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="moeka\dvector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="moeka\graph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="moeka\hierarchyDriver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="moeka\oeka.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

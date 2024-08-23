@@ -10,6 +10,7 @@ private:
 
 public:
 	int attributeCount = 2;
+	int targetAttributeCount = 2;
 	std::vector<int> kValues{};
 	std::vector<char*> attributeNames{};
 
@@ -20,9 +21,14 @@ public:
 
 	HanselChains* hanselChains;
 
+	/// @brief create the hansel chains
 	void initializeHanselChains();
 
+	/// @brief set them up for visualization if entering a function
 	void setUpHanselChains();
+
+	/// @brief set them up for interviewing
+	void interviewHanselChains();
 
 	void applyFunctiontoChains();
 
