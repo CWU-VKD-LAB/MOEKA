@@ -83,6 +83,7 @@ void DecisionTable<T>::readPilotQuestions (std::ifstream& file) {
 	std::string token;
 	std::string line;
 	int index = -1;
+	bool descriptionNextLine = false;
 
 	while (std::getline(file, line)) {
 		if (line == "%") {
@@ -96,9 +97,15 @@ void DecisionTable<T>::readPilotQuestions (std::ifstream& file) {
 				config::pilotQuestions.push_back(*arr);
 				index++;
 				config::pilotQuestions[index].push_back(token);
+				descriptionNextLine = true;
 				continue;
 			}
 			config::pilotQuestions[index].push_back(token);
+		}
+		if (descriptionNextLine) {
+			std::getline(file, line);
+			config::pilotQuestionDescriptions.push_back(line);
+			descriptionNextLine = false;
 		}
 	}
 }

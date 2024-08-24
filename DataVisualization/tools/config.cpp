@@ -39,5 +39,6 @@ Arrow Keys: move the model
 		)";
 
 	std::vector<std::vector<std::string>> pilotQuestions {};
+	std::vector<std::string> pilotQuestionDescriptions {};
 
 }

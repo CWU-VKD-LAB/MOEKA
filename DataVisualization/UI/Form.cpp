@@ -390,8 +390,20 @@ void Form::drawInterviewPilot () {
 		question.append(config::pilotQuestions[b][0]);
 
 		
-		ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize(question.c_str()).x * .5f);
+		ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize(question.c_str()).x * .5f - (ImGui::CalcTextSize("(?)").x * .5f));
+		//
+		ImGui::TextDisabled("(?)");
+		if (ImGui::BeginItemTooltip())
+		{
+			ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+			ImGui::TextUnformatted(config::pilotQuestionDescriptions[b].c_str());
+			ImGui::PopTextWrapPos();
+			ImGui::EndTooltip();
+		}
+		//
+		ImGui::SameLine();
 		ImGui::Text(question.c_str());
+
 		ImGui::Separator();
 		
 		if (ImGui::BeginTable(std::string("##Question ").append(std::to_string(b)).c_str(), config::pilotQuestions[b].size() - 1, ImGuiTableFlags_ScrollX | ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_BordersInnerV, ImVec2{ window.x, window.y * .195f })) {

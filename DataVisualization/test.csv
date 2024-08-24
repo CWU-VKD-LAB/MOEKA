@@ -1,6 +1,9 @@
 low unit position?, unknown, bottom, middle, top, 
+blah blah blah
 low unit positive values?, unknown, low, equal, high, 
+somesuch or other
 known values?, unknown, confirmed, 
+no shenanigans here
 %
 1, 2, 3, #decisionA
 3, 0, 0, #decisionB
