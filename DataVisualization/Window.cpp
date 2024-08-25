@@ -163,8 +163,8 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
         Window::form.open = !Window::form.open;
         // prob better in the actual form class, but sets it so if the user presses escape while the form is open on the intro screen, it goes to the prep screen rather than
         // the intro screen again when the window is opened.
-        if (Window::form.current == 4) {
-            Window::form.current = 1;
+        if (Window::form.current == state::INTRODUCTION) {
+            Window::form.current = state::FUNCTION;
         }
     }
 }
@@ -242,18 +242,19 @@ void Window::createOptions (Texture& texture) {
     window = ImGui::GetWindowSize();
     ImVec2 buttonSize{window.x * .3f, window.y * .6f};
     if (ImGui::Button("Open Help##", buttonSize)) {
-        // 5 == STATE.INTRODUCTION
-        form.current = 5;
+        form.current = state::INTRODUCTION;
         form.openWindow();
     }
     ImGui::SameLine();
     if (ImGui::Button("Open Prep##", buttonSize)) {
-        // 1 == STATE.PREP
-        form.current = 1;
+        form.current = state::PREP;
         form.openWindow();
     }
     ImGui::SameLine();
-    ImGui::Button("Edit colors##", buttonSize);
+    if (ImGui::Button("Edit colors##", buttonSize)) {
+        form.current = state::COLOR;
+        form.openWindow();
+    }
     ImGui::End();
 }
 

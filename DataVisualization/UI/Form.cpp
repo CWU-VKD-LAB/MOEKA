@@ -40,6 +40,9 @@ void Form::draw () {
 			case INTERVIEW:
 				drawInterview();
 				break;
+			case COLOR:
+				drawColor();
+				break;
 		}
 	}
 }
@@ -544,6 +547,104 @@ void Form::drawInterview () {
 
 void Form::openWindow () {
 	open = true;
+}
+
+void Form::drawColor () {
+	ImGui::Begin("Set the Colors of each Class Value##ClassColors", &open, flags);
+	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .4f));
+	ImVec2 window = ImGui::GetWindowSize();
+	ImGui::SetWindowPos(ImVec2(config::windowX * .5f - window.x * .5f, config::windowY * .5f - window.y * .5f));
+
+	float paddingX = ImGui::GetStyle().WindowPadding.x * 2.0f;
+	float itemSpacingX = ImGui::GetStyle().ItemSpacing.x;
+	float size = (window.x - paddingX - (itemSpacingX * (config::classColors.size()-1)) ) / config::classColors.size();
+	ImVec2 item{size, size};
+	ImVec4 col;
+
+	ImGui::Checkbox("Use Gradient Instead?", &useGradient);
+	ImGui::SeparatorText("Gradient");
+	//
+	if (!useGradient) {
+		ImGui::BeginDisabled();
+	}
+	
+	col = config::classColors[0];
+	ImGui::Text("Gradient Start: ");
+	ImGui::SameLine();
+	ImGui::SetCursorPosX(window.x * .2f);
+	ImGui::Text("Gradient End: ");
+	ImGui::PushStyleColor(ImGuiCol_Button, col);
+	if (ImGui::Button("##0", item)) {
+		colorPickerState = 0;
+		colorPickerOpen = true;
+	}
+	ImGui::SameLine();
+	ImGui::PopStyleColor();
+	col = config::classColors[config::classColors.size()-1];
+	ImGui::SameLine();
+	ImGui::PushStyleColor(ImGuiCol_Button, col);
+	ImGui::SetCursorPosX(window.x * .2f);
+	if (ImGui::Button("##1", item)) {
+		colorPickerState = config::classColors.size()-1;
+		colorPickerOpen = true;
+	}
+	ImGui::PopStyleColor();
+	ImGui::SeparatorText("Class Colors:");
+
+	if (!useGradient) {
+		ImGui::EndDisabled();
+	}
+	//
+
+	//
+	if (useGradient) {
+		ImGui::BeginDisabled();
+	}
+	ImGui::PushFont(font);
+	std::string base = "Class ";
+	for (int a = 0; a < config::classColors.size(); a++) {
+		col = config::classColors[a];
+		ImGui::PushStyleColor(ImGuiCol_Button, col);
+		if (ImGui::Button((base + std::to_string(a + 1)).c_str(), item)) {
+			colorPickerState = a;
+			colorPickerOpen = true;
+		}
+		ImGui::SameLine();
+		ImGui::PopStyleColor();
+	}
+	ImGui::PopFont();
+	if (useGradient) {
+		ImGui::EndDisabled();
+	}
+	//
+	
+	//
+	if (colorPickerOpen) {
+		ImGui::Begin("Color Picker", &colorPickerOpen);
+		ImGui::SetWindowFocus();
+		ImVec2 colorPickerSize{ config::windowX * .3f, config::windowY * .3f };
+		ImGui::SetWindowSize(colorPickerSize);
+		ImGui::SetWindowPos(ImVec2(config::windowX * .5f - colorPickerSize.x * .5, config::windowY * .5f - colorPickerSize.y * .5));
+		ImGui::SetNextItemWidth(colorPickerSize.x -(ImGui::GetStyle().WindowPadding.x * 2.0f));
+		if (ImGui::ColorPicker4((base + std::to_string(colorPickerState + 1)).c_str(), (float*)&config::classColors[colorPickerState], ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoLabel)) {
+			if (useGradient) {
+				// change in rgb
+				int end = config::classColors.size() - 1;
+				float dr = (config::classColors[end].x - config::classColors[0].x) / end;
+				float dg = (config::classColors[end].y - config::classColors[0].y) / end;
+				float db = (config::classColors[end].z - config::classColors[0].z) / end;
+				for (int a = 0; a < config::classColors.size(); a++) {
+					config::classColors[a].x = config::classColors[0].x + dr * a;
+					config::classColors[a].y = config::classColors[0].y + dg * a;
+					config::classColors[a].z = config::classColors[0].z + db * a;
+				}
+			}
+			
+		}
+		ImGui::End();
+	}
+
+	ImGui::End();
 }
 
 // when we click to add a new function, or open the program for the first time, this creates a function in memory.

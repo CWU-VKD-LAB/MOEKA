@@ -16,6 +16,7 @@ enum state {
 	INTERVIEW,
 	PILOT,
 	INTRODUCTION,
+	COLOR
 };
 
 struct Interview {
@@ -28,9 +29,6 @@ struct Interview {
 	int _class = 0;
 	DecisionTable<int> dt{};
 };
-
-// multiple functions, rename attributes, word wrapping, load from csv
-// figure how closing the window should affect function list
 
 class Form {
 private:
@@ -55,6 +53,9 @@ private:
 	int clauseIndex = -1;
 	int functionIndex = 0;
 	int subfunctionIndex = 0;
+	int colorPickerState = -1;
+	bool colorPickerOpen = false;
+	bool useGradient = false;
 	void drawFunctionSelect ();
 public:
 	int current = state::INTRODUCTION;
@@ -70,6 +71,7 @@ public:
 	void drawInterviewPilot ();
 	void drawInterview ();
 	void drawIntro ();
+	void drawColor();
 	void openWindow ();
 	void saveToCSV ();
 	void readCSV (std::string path);
