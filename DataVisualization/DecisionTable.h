@@ -28,6 +28,7 @@ private:
 	}
 
 public:
+	std::unordered_map<int, std::string> questionType;
 	std::vector<std::vector<T>*> table{};
 	DecisionTable ();
 	~DecisionTable ();
@@ -92,6 +93,12 @@ void DecisionTable<T>::readPilotQuestions (std::ifstream& file) {
 		while (!line.empty()) {
 			token = line.substr(0, line.find(delimiter));
 			line.erase(0, line.find(delimiter) + delimiter.length());
+			// save alternate question answer layout
+			if (token.find('$') != std::string::npos) {
+				questionType.insert(std::make_pair(index+1, token));
+				continue;
+			}
+			// check if line is a question
 			if (token.find('?') != std::string::npos) {
 				std::vector<std::string>* arr = new std::vector<std::string>;
 				config::pilotQuestions.push_back(*arr);

@@ -378,7 +378,7 @@ void Form::drawFunction () {
 
 void Form::drawInterviewPilot () {
 	// TODO : add stuff for decision table for pilot questions
-	ImGui::Begin("##", &open, flags);
+	ImGui::Begin("##", &open, flags | ImGuiWindowFlags_AlwaysVerticalScrollbar);
 	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .5f));
 	ImVec2 window = ImGui::GetWindowSize();
 	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .625f), window.y - (config::windowY * .25f)));
@@ -387,11 +387,15 @@ void Form::drawInterviewPilot () {
 	//
 	ImGui::PushFont(font);
 	std::string temp;
+
+	bool isSlider = false;
+	bool isTable = false;
+	std::string tempString;
 	for (int b = 0; b < config::pilotQuestions.size(); b++) {
 		question = config::pilotQuestions[b][0];
 
 		
-		ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize(question.c_str()).x * .5f - (ImGui::CalcTextSize("(?)").x * .5f));
+		//ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize(question.c_str()).x * .5f - (ImGui::CalcTextSize("(?)").x * .5f));
 		//
 		ImGui::TextDisabled("(?)");
 		if (ImGui::BeginItemTooltip())
@@ -403,19 +407,69 @@ void Form::drawInterviewPilot () {
 		}
 		//
 		ImGui::SameLine();
-		ImGui::Text(question.c_str());
+		ImGui::PushTextWrapPos(window.x * .95);
+		ImGui::TextWrapped(question.c_str());
+		ImGui::PopTextWrapPos();
 
 		ImGui::Separator();
-		
-		// TODO: make last two pilto questions sliders instead somehow
-		if (ImGui::BeginTable(std::string("##Question ").append(std::to_string(b)).c_str(), config::pilotQuestions[b].size() - 1, ImGuiTableFlags_ScrollX | ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_BordersInnerV, ImVec2{ window.x, window.y * .195f })) {
-			for (int a = 1; a < config::pilotQuestions[b].size(); a++) {
-				ImGui::TableNextColumn();
-				temp = config::pilotQuestions[b][a];
-				ImGui::RadioButton(temp.append("##").append(std::to_string(b)).c_str(), &interview.pilotAnswers[b], a);
+
+
+		if (interview.dt.questionType.contains(b)) {
+			tempString = interview.dt.questionType.at(b);
+			if (tempString.find("slider") != std::string::npos) {
+				isSlider = true;
 			}
-			ImGui::EndTable();
+			else if (tempString.find("table") != std::string::npos) {
+				isTable = true;
+			}
 		}
+		
+		
+		if (isSlider) {
+			// if the slider tag was implemented correctly, the contents of the string stream should be
+			// slider min max
+			std::stringstream ss(tempString);
+			std::string token;
+			int min, max;
+			std::getline(ss, token, '/');
+			std::getline(ss, token, '/');
+			min = stoi(token);
+			std::getline(ss, token, '/');
+			max = stoi(token);
+			if (interview.pilotAnswers[b] == 0) {
+				interview.pilotAnswers[b] = min;
+			}
+			ImGui::SetNextItemWidth(window.x * .96);
+			ImGui::SliderInt(std::string("##slider").append(std::to_string(b)).c_str(), &interview.pilotAnswers[b], min, max);
+		}
+		else if (isTable) {
+			ImVec2 tableSize {window.x * .96f, window.y * .5f };
+			if (ImGui::BeginTable("##functiontableinterview", func->attributeCount, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_ScrollX | ImGuiTableFlags_SizingFixedSame | ImGuiTableFlags_BordersOuterV, tableSize)) {
+				for (int a = 0; a < func->attributeCount; a++) {
+					ImGui::TableSetupColumn(func->attributeNames.at(a), 160);
+				}
+				ImGui::TableHeadersRow();
+				for (int a = 0; a < func->attributeCount; a++) {
+					ImGui::TableNextColumn();
+					for (int b = 0; b < func->kValues.at(a); b++) {
+						ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(a)).c_str(), &func->clause->data()[a], b);
+					}
+				}
+				ImGui::EndTable();
+			}
+		}
+		else {
+			if (ImGui::BeginTable(std::string("##Question ").append(std::to_string(b)).c_str(), config::pilotQuestions[b].size() - 1, ImGuiTableFlags_ScrollX | ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_BordersInnerV, ImVec2{ window.x, window.y * .195f })) {
+				for (int a = 1; a < config::pilotQuestions[b].size(); a++) {
+					ImGui::TableNextColumn();
+					temp = config::pilotQuestions[b][a];
+					ImGui::RadioButton(temp.append("##").append(std::to_string(b)).c_str(), &interview.pilotAnswers[b], a);
+				}
+				ImGui::EndTable();
+			}
+		}
+		isSlider = false;
+		isTable = false;
 	}
 	ImGui::Separator();
 	ImGui::PopFont();
