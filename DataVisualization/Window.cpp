@@ -1,5 +1,6 @@
 #include "Window.h"
 
+#define NOMINMAX
 
 std::vector<Drawable*> Window::managedList{};
 Drawable* Window::s = nullptr;

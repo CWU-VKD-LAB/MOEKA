@@ -276,7 +276,7 @@ std::vector<int> moeka::init()
 	std::cout << "\n2 - Manual Hansel Chain Order";
 	std::cout << "\n3 - Default Hansel Chain Algorithm Order";
 	std::cout << "\n4 - MST Hansel Chain Order"; 
-	std::cout << "\n5 - Simple Sort Hansel Chain Order";
+	std::cout << "\n5 - Simple Sort Hansel Chain Order"; // AKA linkage sort order
 	std::cout << "\n6 - Shortest Path Hansel Chain Order";
 	std::cout << "\nEnter: " << std::flush;
 
@@ -304,6 +304,58 @@ std::vector<int> moeka::init()
 
 	return genericParentOrChildList;
 }
+
+
+std::vector<int> moeka::initFromUI(std::vector<std::string> attributes, std::vector<int> kValues, int functionKV, int staticInterChainOrder,
+	std::vector<int> trueAttributes, bool chainJump, bool majority, bool topBottomOrBinarySearch)
+{
+	std::vector<int> genericParentOrChildList;
+
+	// TODO: hierachical modeling 
+
+	function_kv = functionKV;
+
+	// init attributes and k-values
+	attribute_names.resize(attributes.size());
+	
+	for (size_t i = 0; i < attributes.size(); i++)
+	{
+		attribute_names[i].kv = kValues[i];
+		attribute_names[i].name = attributeSymbol + std::to_string(i + 1);
+	}
+
+	// init hansel chains
+	calculateHanselChains(dimension);
+	numChains = (int)hanselChainSet.size();
+	numConfirmedInChains.resize(numChains);
+	chainsVisited.resize(numChains);
+
+	int orderOption = 0; 
+
+	if (staticInterChainOrder == 0)
+	{
+		orderOption = 3; // default order
+	}
+	else if (staticInterChainOrder == 1)
+	{
+		orderOption = 0; // SHCF
+	}
+	else if (staticInterChainOrder == 2)
+	{
+		orderOption = 1; // LHCF
+	}
+	else if (staticInterChainOrder == 3)
+	{
+		orderOption = 5; // linkage sort order aka simple sort hc order (should be refactored)
+	}
+
+	// TODO: implement new trueAttributes function
+
+	// TODO: change majority to work as written
+
+	return genericParentOrChildList;
+}
+
 
 
 void moeka::findTrueAttributes()
@@ -550,6 +602,15 @@ void moeka::start()
 			break;
 		}
 	}
+}
+
+
+void moeka::start(bool* flag)
+{
+	synchronizationFlag = flag;
+
+	// TODO: possible bug fixes with UI if real data is used and such
+	start();
 }
 
 

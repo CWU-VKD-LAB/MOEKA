@@ -8,6 +8,10 @@ Form::Form () {
 	font = io.Fonts->AddFontFromFileTTF("resources/fonts/JetBrainsMono-Medium.ttf", config::windowY / 42.0f);
 	interview.pilotAnswers.resize(config::pilotQuestions.size());
 	std::fill(interview.pilotAnswers.begin(), interview.pilotAnswers.end(), 0);
+
+	// synchronization flag
+	bool temp = true;
+	startMoeka = &temp;
 }
 
 Form::~Form () {
@@ -373,7 +377,7 @@ void Form::drawFunction () {
 }
 
 void Form::drawInterviewPilot () {
-	// TO DO : add stuff for decision table for pilot questions
+	// TODO : add stuff for decision table for pilot questions
 	ImGui::Begin("##", &open, flags);
 	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .5f));
 	ImVec2 window = ImGui::GetWindowSize();
@@ -384,13 +388,7 @@ void Form::drawInterviewPilot () {
 	ImGui::PushFont(font);
 	std::string temp;
 	for (int b = 0; b < config::pilotQuestions.size(); b++) {
-		if (config::pilotQuestions[b][0][config::pilotQuestions[b][0].size() - 2] == 's') {
-			question = "What are the ";
-		}
-		else {
-			question = "What is the ";
-		}
-		question.append(config::pilotQuestions[b][0]);
+		question = config::pilotQuestions[b][0];
 
 		
 		ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize(question.c_str()).x * .5f - (ImGui::CalcTextSize("(?)").x * .5f));
@@ -409,6 +407,7 @@ void Form::drawInterviewPilot () {
 
 		ImGui::Separator();
 		
+		// TODO: make last two pilto questions sliders instead somehow
 		if (ImGui::BeginTable(std::string("##Question ").append(std::to_string(b)).c_str(), config::pilotQuestions[b].size() - 1, ImGuiTableFlags_ScrollX | ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_BordersInnerV, ImVec2{ window.x, window.y * .195f })) {
 			for (int a = 1; a < config::pilotQuestions[b].size(); a++) {
 				ImGui::TableNextColumn();
@@ -437,10 +436,90 @@ void Form::drawInterviewPilot () {
 		ImGui::BeginDisabled();
 	}
 	if (ImGui::Button("Next##", buttonSize)) {
-		// this doesnt do anything really - need to change 
-		func->initializeHanselChains();
+		// TODO: take decision table and use it to initialize moeka object
+		edm = new moeka('x');
+
+		std::vector<int> decisions = interview.dt.getDecision(interview.pilotAnswers);
+
+		std::vector<std::string> attrNames;
+
+		for (auto a : func->attributeNames)
+		{
+			attrNames.push_back(a);
+		}
+
+		// TODO: need slider for kn+1
+		int functionKV = 2; 
+
+		int staticInterChainOrder = 1; // 0 default, 1 SHCF, 2 LHCF, 3 LSO
+		bool chainJump = -1;
+
+		// TODO: user needs to select lowest acceptable datapoint from UI, then that is sent into moeka object init function
+		bool majority = -1;
+
+		bool topBottomOrBinarySearch = -1;
+
+		// TODO: implement this in decision table instead of hardcode? save last line of DT and getDecision should return above variables instead?
+		// its just kind of weird to have DT when these if statements are needed anyway 
+
+		// okay after implementing decision table seems useless for this application... 
+		// would be easy to just take pilot answer data structure and iterate over it
+		// DT is useful for presentatation and explanation though
+		
+		// positioin of low unit
+		if (decisions[0] == 1)
+		{
+			staticInterChainOrder = 1; // SHCF
+			topBottomOrBinarySearch = 1; // bottom
+		}
+		else if (decisions[1] == 1)
+		{
+			topBottomOrBinarySearch = 2; // binarySearch
+		}
+		else if (decisions[3] == 1)
+		{
+			staticInterChainOrder = 2; // LHCF
+			topBottomOrBinarySearch = 0;
+		}
+		
+		// if not using binary search and user is confident, use chainJump
+		if (topBottomOrBinarySearch != 2 && decisions[2] == 1)
+		{
+			chainJump = true;
+		}
+
+		if (decisions[4] == 1)
+		{
+			staticInterChainOrder = 1; // SHCF only
+		}
+
+		if (decisions[5] == 1)
+		{
+			staticInterChainOrder == 2; // LHCF only
+		}
+
+		// needs to be 0 since majority is absence of answer
+		if (decisions[6] == 0)
+		{
+			majority = true;
+		}
+
+		if (decisions[7] == 1)
+		{
+			staticInterChainOrder == 3; // LSO 
+		}
+
+		std::vector<int> trueAttr(func->attributeCount, 0);
+
+		edm->initFromUI(attrNames, func->kValues, functionKV, staticInterChainOrder, trueAttr, chainJump, majority, topBottomOrBinarySearch);
+
+		// now, need to start thread either in new functionor in drawInterview...
+
+
+		/*func->initializeHanselChains();
 		interview.datapoints = func->hanselChains->hanselChainSet;
-		interview.datapoint.resize(func->clause->size());
+		interview.datapoint.resize(func->clause->size());*/
+
 		current = state::INTERVIEW;
 	}
 	if (disable) {
@@ -451,7 +530,18 @@ void Form::drawInterviewPilot () {
 	ImGui::End();
 }
 
+void Form::start(bool* flag)
+{
+	(*edm).start(flag);
+}
+
 void Form::drawInterview () {
+
+	// start moeka interview thread
+	//auto f = [this]() { edm->start(); };
+
+	//std::thread thr(start, startMoeka);
+
 	ImGui::Begin("##", &open, flags);
 	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .2f));
 	ImVec2 window = ImGui::GetWindowSize();
@@ -466,7 +556,7 @@ void Form::drawInterview () {
 	
 	//create hanselChainSet for function
 	// is this done every frame
-	auto& datapoint = interview.datapoints[interview.categoryIndex][interview.datapointIndex];
+	auto& datapoint = interview.datapoints[interview.hanselChainIndex][interview.datapointIndex];
 
 	////
 
@@ -497,14 +587,14 @@ void Form::drawInterview () {
 	if (ImGui::Button("Next##", buttonSize)) {
 		// add monotonic expansion
 		// increment intra chain
-		if (interview.datapointIndex < interview.datapoints[interview.categoryIndex].size() - 1)
+		if (interview.datapointIndex < interview.datapoints[interview.hanselChainIndex].size() - 1)
 		{
 			interview.datapointIndex++;
 		}
 		// incrememnt chain
-		else if (interview.categoryIndex < interview.datapoints.size() - 1)
+		else if (interview.hanselChainIndex < interview.datapoints.size() - 1)
 		{
-			interview.categoryIndex++;
+			interview.hanselChainIndex++;
 			interview.datapointIndex = 0;
 		}
 		// else interview is done

@@ -1,10 +1,21 @@
-low unit position?, unknown, bottom, middle, top, 
+$rWhat is the position of the low unit?, unknown, bottom,  middle, top, 
 blah blah blah
-low unit positive values?, unknown, low, equal, high, 
+Is there  high confidence in the position of the low unit?, low confidence, high confidence, 
+blH BLAH
+How many positive values vs negative values are in the low unit?, unknown, low/equal, high, 
 somesuch or other
-known values?, unknown, confirmed, 
+Is there little variation between cases out in the field?, high variation, low variation, 
+blah blah
+Is there a minimum acceptable class/value for the datapoints?, false, true, 
+something some
+Are there known values for any of the attributes for the target value?, attribute number of sliders from 1 to k[i], here, 
 no shenanigans here
 %
-1, 2, 3, #decisionA
-3, 0, 0, #decisionB
-0, 0, 3, #decisionC
+1, 0, 0, 0, 0, 0, #bottomSHCF
+2, 0, 0, 0, 0, 0, #binarySearch
+0, 1, 0, 0, 0, 0, #chainJump
+3, 0, 0, 0, 0, 0, #topLHCF
+0, 0, 1, 0, 0, 0, #SHCF
+0, 0, 2, 0, 0, 0, #LHCF
+0, 0, 0, 0, 0, 0, #majority
+0, 0, 0, 1, 0, 0, #linkageSortOrder

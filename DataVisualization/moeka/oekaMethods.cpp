@@ -1128,6 +1128,25 @@ bool moeka::questionFunc(int i, int j, int& vector_class)
 
 int moeka::askingOfQuestion(int i, int j)
 {
+	// syncrhonization here
+
+	if (synchronizationFlag)
+	{
+		while (true)
+		{
+			// if true, then continue
+			if (*synchronizationFlag)
+			{
+				break;
+			}
+			// else wait until flag is turned true
+			else
+			{
+
+			}
+		}
+	}
+
 	int vector_class = -1;
 	bool ask = true;
 
@@ -1153,6 +1172,11 @@ int moeka::askingOfQuestion(int i, int j)
 		// if there is no oracle, then ask expert
 		if (hanselChainSet[i][j].oracle == -1)
 		{
+			if (synchronizationFlag)
+			{
+				// TODO: send data to UI
+			}
+
 			std::cout << "\nEnter the class for this data point:\n";
 
 			for (int k = 0; k < dimension; k++)
@@ -1216,6 +1240,12 @@ int moeka::askingOfQuestion(int i, int j)
 	if (hanselChainSet[i][j]._class == 0 || hanselChainSet[i][j]._class == function_kv - 1)
 	{
 		hanselChainSet[i][j].weak = false;
+	}
+
+	if (synchronizationFlag)
+	{
+		// set synchronization flag to false so that when it gets to the next question, it will not continue yet
+		*synchronizationFlag = false;
 	}
 
 	return vector_class;

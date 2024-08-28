@@ -35,6 +35,9 @@ class moeka
 public:
 	// flags 
 
+	bool* synchronizationFlag;
+
+
 	/// @brief needs to be changed for whatever oracle is supposed to be used
 	std::string oraclePath = "";// "MonotoneDataGenerator/diabetesOracleKV.csv";
 	//kv3_7D_summation.csv //sum10D8T.csv
@@ -111,9 +114,29 @@ public:
 	/// @return vector starts with -1 if it is a list of attributes with child functions. Otherwise, first number is group size, next numbers are attributes in that group, and repeat
 	std::vector<int> init();
 
+	/// @brief same as above function, except done via the new UI and not from the console
+	/// @param attributes 
+	/// @param kValues 
+	/// @param mof 
+	/// @param intraChainOrder 
+	/// @param trueAttributes 
+	/// @param chainJump 
+	/// @param majority 
+	/// @param top 
+	/// @return 
+	std::vector<int> initFromUI(std::vector<std::string> attributes, std::vector<int> kValues, int functionKV, int staticInterChainOrder,
+		std::vector<int> trueAttributes, bool chainJump, bool majority, bool topBottomOrBinarySearch);
+
+
 
 	/// @brief start expert data mining sequence
 	void start();
+
+
+	/// @brief same as above but uses flag for synchronization with UI
+	/// @param flag 
+	void start(bool* flag);
+
 
 
 	/// @brief print results to file

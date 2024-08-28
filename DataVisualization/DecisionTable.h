@@ -160,8 +160,9 @@ void DecisionTable<T>::calcColumns(std::string& line) {
 
 template<typename T>
 std::vector<int> DecisionTable<T>::getDecision(std::vector<int>& data) {
-	std::vector<int> result{};
-	int resultIndex = 0;
+	//std::vector<int> result{};
+	std::vector<int> result(rowCount, 0);
+	//int resultIndex = 0;
 	bool addToResult;
 
 	for (int a = 0; a < rowCount; a++) {
@@ -178,10 +179,12 @@ std::vector<int> DecisionTable<T>::getDecision(std::vector<int>& data) {
 		}
 
 		if (addToResult) {
-			result.push_back(table[table.size()-1]->at(resultIndex));
+			//result.push_back(table[table.size()-1]->at(resultIndex));
+			//this means that the decision associated with this index location is to be enacted, check the decision table last column "#"
+			result[a] = 1;  
 		}
 
-		resultIndex++;
+		//resultIndex++;
 	}
 	// remove any conflicts here
 	
