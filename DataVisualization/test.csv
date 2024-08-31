@@ -6,7 +6,7 @@ How many positive values vs negative values are in the low unit?, unknown, low/e
 somesuch or other
 Is there little variation between cases out in the field?, high variation, low variation, 
 blah blah
-$slider/1/11, Is there a minimum acceptable class/value for the datapoints?, false, true, 
+$slider/1, Is there a minimum acceptable class/value for the datapoints?, false, true, 
 something some
 $table, Are there known values for any of the attributes for the target value?, attribute number of sliders from 1 to k[i], here, 
 no shenanigans here

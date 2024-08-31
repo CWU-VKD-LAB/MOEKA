@@ -11,6 +11,7 @@
 #include "Function.h"
 #include "../moeka/dvector.h"
 #include "../DecisionTable.h"
+#include "../FileReader.h"
 
 // weird bug if this isn't defined due to some file included in oeka.h
 #define NOMINMAX
@@ -40,7 +41,6 @@ struct Interview {
 class Form {
 private:
 	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
-	int defaultAmount = 15;
 
 	//
 	Interview interview{};
@@ -90,7 +90,6 @@ public:
 	void drawColor();
 	void openWindow ();
 	void saveToCSV ();
-	void readCSV (std::string path);
 
 	Function* getFunc(void) { return func; }
 };

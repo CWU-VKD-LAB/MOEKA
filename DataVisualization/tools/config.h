@@ -17,6 +17,7 @@ namespace config {
 	const float barWidth = 25.0f;
 	const float barHeight = 100.0f;
 	const int maxClassValue = 6;
+	const int defaultAmount = 15;
 	//
 	
 	extern float color[3];

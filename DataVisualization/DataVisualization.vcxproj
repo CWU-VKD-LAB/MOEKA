@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Bar.cpp" />
+    <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="HanselChains.cpp" />
     <ClCompile Include="moeka\hierarchyDriver.cpp" />
     <ClCompile Include="moeka\main.cpp" />
@@ -189,6 +190,7 @@
   <ItemGroup>
     <ClInclude Include="Bar.h" />
     <ClInclude Include="DecisionTable.h" />
+    <ClInclude Include="FileReader.h" />
     <ClInclude Include="HanselChains.h" />
     <ClInclude Include="moeka\dvector.h" />
     <ClInclude Include="moeka\graph.h" />
