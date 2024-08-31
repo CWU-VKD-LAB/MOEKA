@@ -306,7 +306,7 @@ std::vector<int> moeka::init()
 }
 
 
-std::vector<int> moeka::initFromUI(std::vector<std::string> attributes, std::vector<int> kValues, int functionKV, int staticInterChainOrder,
+std::vector<int> moeka::initFromUI(int attributeCount, std::vector<std::string> attributes, std::vector<int> kValues, int functionKV, int staticInterChainOrder,
 	std::vector<int> trueAttributes, bool chainJump, bool majority, bool topBottomOrBinarySearch)
 {
 	std::vector<int> genericParentOrChildList;
@@ -316,9 +316,10 @@ std::vector<int> moeka::initFromUI(std::vector<std::string> attributes, std::vec
 	function_kv = functionKV;
 
 	// init attributes and k-values
-	attribute_names.resize(attributes.size());
+	attribute_names.resize(attributeCount);
+	dimension = attributeCount;
 	
-	for (size_t i = 0; i < attributes.size(); i++)
+	for (size_t i = 0; i < dimension; i++)
 	{
 		attribute_names[i].kv = kValues[i];
 		attribute_names[i].name = attributeSymbol + std::to_string(i + 1);
@@ -472,6 +473,8 @@ moeka::moeka(char attributeSymbol, std::vector<std::vector<std::string>> childAt
 
 void moeka::start()
 {
+	std::cout << "Thread: hellow from start()" << std::endl;
+
 	if (parent_attribute != "")
 	{
 		std::cout << "This dataset represents the nested attribute_names for the attribute " << parent_attribute << " of the ems that is one level higher." << std::endl;
@@ -607,6 +610,9 @@ void moeka::start()
 
 void moeka::start(bool* flag)
 {
+	std::cout << "Thread: hello from start." << std::endl;
+	std::cout << "Thread: Synchronization flag is " << *flag << std::endl;
+
 	synchronizationFlag = flag;
 
 	// TODO: possible bug fixes with UI if real data is used and such

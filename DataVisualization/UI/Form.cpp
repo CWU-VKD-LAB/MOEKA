@@ -8,10 +8,10 @@ Form::Form () {
 	font = io.Fonts->AddFontFromFileTTF("resources/fonts/JetBrainsMono-Medium.ttf", config::windowY / 42.0f);
 	interview.pilotAnswers.resize(config::pilotQuestions.size());
 	std::fill(interview.pilotAnswers.begin(), interview.pilotAnswers.end(), 0);
+	func->trueAttributes = new std::vector<int>(func->attributeCount);
 
 	// synchronization flag
-	bool temp = true;
-	startMoeka = &temp;
+	startMoeka = true;
 	//readCSV("output.csv");
 }
 
@@ -380,6 +380,13 @@ void Form::drawFunction () {
 	ImGui::End();
 }
 
+
+void start(moeka* edm, bool* flag)
+{
+	(*edm).start(flag);
+}
+
+
 void Form::drawInterviewPilot () {
 	// TODO : add stuff for decision table for pilot questions
 	ImGui::Begin("##", &open, flags | ImGuiWindowFlags_AlwaysVerticalScrollbar);
@@ -456,10 +463,14 @@ void Form::drawInterviewPilot () {
 				for (int a = 0; a < func->attributeCount; a++) {
 					ImGui::TableNextColumn();
 					for (int b = 0; b < func->kValues.at(a); b++) {
-						ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(a)).c_str(), &func->clause->data()[a], b);
+						// TODO: read this data into somewhere else so its useable
+						ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(a)).c_str(), &func->trueAttributes->data()[a], b);
 					}
 				}
 				ImGui::EndTable();
+
+				// TODO: delete when above is fixed
+				interview.pilotAnswers[5] = 1;
 			}
 		}
 		else {
@@ -569,10 +580,11 @@ void Form::drawInterviewPilot () {
 
 		std::vector<int> trueAttr(func->attributeCount, 0);
 
-		edm->initFromUI(attrNames, func->kValues, functionKV, staticInterChainOrder, trueAttr, chainJump, majority, topBottomOrBinarySearch);
+		edm->initFromUI(func->attributeCount, attrNames, func->kValues, functionKV, staticInterChainOrder, trueAttr, chainJump, majority, topBottomOrBinarySearch);
 
 		// now, need to start thread either in new functionor in drawInterview...
-
+		std::thread thr(start, edm, &startMoeka);
+		thr.detach();
 
 		/*func->initializeHanselChains();
 		interview.datapoints = func->hanselChains->hanselChainSet;
@@ -588,17 +600,9 @@ void Form::drawInterviewPilot () {
 	ImGui::End();
 }
 
-void Form::start(bool* flag)
-{
-	(*edm).start(flag);
-}
+
 
 void Form::drawInterview () {
-
-	// start moeka interview thread
-	//auto f = [this]() { edm->start(); };
-
-	//std::thread thr(start, startMoeka);
 
 	ImGui::Begin("##", &open, flags);
 	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .2f));
@@ -614,8 +618,21 @@ void Form::drawInterview () {
 	
 	//create hanselChainSet for function
 	// is this done every frame
-	auto& datapoint = interview.datapoints[interview.hanselChainIndex][interview.datapointIndex];
+	dvector* datapoint;
 
+	while (true)
+	{
+		if (!startMoeka)
+		{
+			datapoint = edm->currentDatapoint; // interview.datapoints[interview.hanselChainIndex][interview.datapointIndex];
+			break;
+		}
+		else
+		{
+			std::cout << "UI: waiting for moeka thread..." << std::endl;
+			Sleep(5000);
+		}
+	}
 	////
 
 	ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize("Input a class for this datapoint.").x * .5f);
@@ -623,16 +640,17 @@ void Form::drawInterview () {
 	ImGui::SetNextItemWidth(window.x * .2f);
 	ImGui::Separator();
 	ImGui::Text("Datapoint: ");
-	for (int a = 0; a < datapoint.size(); a++) {
+	for (int a = 0; a < datapoint->dataPoint.size(); a++) {
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(font->FontSize);
-		ImGui::Text(std::to_string(datapoint[a]).c_str());
+		ImGui::Text(std::to_string(datapoint->dataPoint.at(a)).c_str());
 	}
 	ImGui::Text("Target Value (Class): ");
-	for (int b = 0; b < interview.datapoint.size(); b++) {
+	for (int b = 0; b < func->targetAttributeCount; b++) {
 		ImGui::SameLine();
-		ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(b)).c_str(), &interview._class, b);
+		ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(b)).c_str(), &interview._class, b); // interview._class
 	}
+
 	ImGui::PopFont();
 	//
 	ImGui::Separator();
@@ -644,6 +662,11 @@ void Form::drawInterview () {
 	// below  dont do anything need to change 
 	if (ImGui::Button("Next##", buttonSize)) {
 		// add monotonic expansion
+		edm->currentClass = &interview._class;
+		startMoeka = true;
+
+		 // below obsolete
+		 /*
 		// increment intra chain
 		if (interview.datapointIndex < interview.datapoints[interview.hanselChainIndex].size() - 1)
 		{
@@ -660,7 +683,7 @@ void Form::drawInterview () {
 		{
 			action = state::PREP;
 			open = !open;
-		}
+		}*/
 	}
 
 	// temporarily disable

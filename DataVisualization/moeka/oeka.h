@@ -38,6 +38,10 @@ public:
 	bool* synchronizationFlag;
 
 
+	dvector* currentDatapoint;
+	int* currentClass;
+
+
 	/// @brief needs to be changed for whatever oracle is supposed to be used
 	std::string oraclePath = "";// "MonotoneDataGenerator/diabetesOracleKV.csv";
 	//kv3_7D_summation.csv //sum10D8T.csv
@@ -124,7 +128,7 @@ public:
 	/// @param majority 
 	/// @param top 
 	/// @return 
-	std::vector<int> initFromUI(std::vector<std::string> attributes, std::vector<int> kValues, int functionKV, int staticInterChainOrder,
+	std::vector<int> initFromUI(int attributeCount, std::vector<std::string> attributes, std::vector<int> kValues, int functionKV, int staticInterChainOrder,
 		std::vector<int> trueAttributes, bool chainJump, bool majority, bool topBottomOrBinarySearch);
 
 

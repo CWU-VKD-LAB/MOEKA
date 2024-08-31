@@ -9,6 +9,7 @@
 #include <sstream>
 #include <thread>
 #include "Function.h"
+#include "../moeka/dvector.h"
 #include "../DecisionTable.h"
 
 // weird bug if this isn't defined due to some file included in oeka.h
@@ -53,11 +54,11 @@ private:
 	Function* func = nullptr;
 	std::vector<Function*> functionList{};
 	void setNewFunc ();
-
-	bool* startMoeka = nullptr;
+	/// @brief flag for synchronization
+	bool startMoeka;
 
 	// function that calls moeka->start() with a boolean flag for synchronization
-	void start(bool* flag);
+	//void start(bool* flag);
 
 	//
 	ImFont* font = nullptr;

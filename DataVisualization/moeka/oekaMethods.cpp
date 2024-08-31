@@ -545,8 +545,12 @@ void moeka::binarySearch(int i, int l, int r)
 
 void moeka::staticOrderQuestionsFunc()
 {
+	std::cout << "Thread: hello from static order questions func. Number of chains: " << numChains << std::endl;
+
 	for (int i = 0; i < numChains; i++)
 	{
+		std::cout << "Thread: starting questions for hansel chain " << i << std::endl;
+
 		// start binary search
 		int chainSize = (int)hanselChainSet[i].size();
 
@@ -581,11 +585,15 @@ void moeka::staticOrderQuestionsFunc()
 				}
 			}
 
+			std::cout << "Thread: starting binary search." << std::endl;
+
 			binarySearch(i, l, r);
 		}
 		else
 		{
 			// non-binary method
+			std::cout << "Thread: starting sequential search." << std::endl;
+
 			if (top)
 			{
 				for (int j = chainSize - 1; j >= 0; j--)
@@ -1093,6 +1101,8 @@ void moeka::fixExpansions(int vector_class, int i, int j)
 
 bool moeka::questionFunc(int i, int j, int& vector_class)
 {
+	std::cout << "Hello from question func." << std::endl;
+
 	// updated order must go before actual question because its tracking the intention of the question, not whether it was asked.
 	if (!hanselChainSet[i][j].majorityFlag || !usedMajorityFlag || !hanselChainSet[i][j].visited || !hanselChainSet[i][j].updatedQueryOrder) // used, not useMajority flag because otherwise may expand twice.
 	{
@@ -1129,20 +1139,25 @@ bool moeka::questionFunc(int i, int j, int& vector_class)
 int moeka::askingOfQuestion(int i, int j)
 {
 	// syncrhonization here
+	std::cout << "Thread: beginning asking of question..." << std::endl;
 
 	if (synchronizationFlag)
 	{
+		std::cout << "Thread: checking synchronization flag..." << std::endl;
+
 		while (true)
 		{
 			// if true, then continue
 			if (*synchronizationFlag)
 			{
+				std::cout << "Thread: synchroniziation flag is true." << std::endl;
 				break;
 			}
 			// else wait until flag is turned true
 			else
 			{
-
+				std::cout << "Thread: checking synchronization flag... currently" << std::endl;
+				Sleep(1000);
 			}
 		}
 	}
@@ -1172,54 +1187,66 @@ int moeka::askingOfQuestion(int i, int j)
 		// if there is no oracle, then ask expert
 		if (hanselChainSet[i][j].oracle == -1)
 		{
-			if (synchronizationFlag)
-			{
-				// TODO: send data to UI
-			}
-
 			std::cout << "\nEnter the class for this data point:\n";
 
 			for (int k = 0; k < dimension; k++)
 			{
-				/*if (hanselChainSet[i][j].dataPoint[k])
-				{
-					std::cout << attributes[k] + "\t\t\t= true (1)" << std::endl;
-				}
-				else
-				{
-					std::cout << attributes[k] + "\t\t\t= false (0)" << std::endl;
-				}*/
-
-				// k-value here
-
 				std::cout << attribute_names[k].name + "\t\t\t= " << hanselChainSet[i][j].dataPoint[k] << std::endl;
 			}
 
-			// if function kv is not binary, the current vector's class is not -1 (unassigned), and there is a possibility that the class could be greater (class is less than highest value)
-			if (function_kv > 2) // this used to be here, but its also in questionFunc(): && hanselChainSet[i][j]._class > -1 && hanselChainSet[i][j]._class < function_kv - 1
+			if (synchronizationFlag)
 			{
-				// do something
-				if (!hanselChainSet[i][j].lessThan)
+				// TODO: send data to UI and edit below code to work with this in mind
+				std::cout << "Thread: sending data to supervisor..." << std::endl;
+				currentDatapoint = &hanselChainSet[i][j];
+
+				*synchronizationFlag = false;
+
+				while (true)
 				{
-					std::cout << "\nThe current class of this datapoint can be between " << hanselChainSet[i][j]._class << " and " << function_kv - 1
-						<< ".\nIt was already expanded, but the class can be a higher value according to the given ems k-value." << std::flush;
-					std::cout << "Enter Class (" << hanselChainSet[i][j]._class << " - " << function_kv - 1 << "): " << std::flush;
+					if (!*synchronizationFlag)
+					{
+						std::cout << "Thread: waiting for user to assign class..." << std::endl;
+						Sleep(1000);
+					}
+					else
+					{
+						std::cout << "Thread: user assigned class of " << *currentClass << std::endl;
+						break;
+					}
 				}
-				else
-				{
-					std::cout << "\nThe current class of this datapoint can be between 0 and " << hanselChainSet[i][j]._class
-						<< ".\nIt was already expanded, but the class can be a lower value according to the given ems k-value." << std::flush;
-					std::cout << "Enter Class (" << 0 << " - " << hanselChainSet[i][j]._class << "): " << std::flush;
-				}
+
+				vector_class = *currentClass;
 			}
 			else
 			{
-				std::cout << "Enter Class (0 - " << function_kv - 1 << "): " << std::flush;
-			}
 
-			std::cin >> vector_class;
-			std::cin.clear();
-			std::cin.ignore(1000, '\n');
+				// if function kv is not binary, the current vector's class is not -1 (unassigned), and there is a possibility that the class could be greater (class is less than highest value)
+				if (function_kv > 2) // this used to be here, but its also in questionFunc(): && hanselChainSet[i][j]._class > -1 && hanselChainSet[i][j]._class < function_kv - 1
+				{
+					// do something
+					if (!hanselChainSet[i][j].lessThan)
+					{
+						std::cout << "\nThe current class of this datapoint can be between " << hanselChainSet[i][j]._class << " and " << function_kv - 1
+							<< ".\nIt was already expanded, but the class can be a higher value according to the given ems k-value." << std::flush;
+						std::cout << "Enter Class (" << hanselChainSet[i][j]._class << " - " << function_kv - 1 << "): " << std::flush;
+					}
+					else
+					{
+						std::cout << "\nThe current class of this datapoint can be between 0 and " << hanselChainSet[i][j]._class
+							<< ".\nIt was already expanded, but the class can be a lower value according to the given ems k-value." << std::flush;
+						std::cout << "Enter Class (" << 0 << " - " << hanselChainSet[i][j]._class << "): " << std::flush;
+					}
+				}
+				else
+				{
+					std::cout << "Enter Class (0 - " << function_kv - 1 << "): " << std::flush;
+				}
+
+				std::cin >> vector_class;
+				std::cin.clear();
+				std::cin.ignore(1000, '\n');
+			}
 		}
 		// query oracle
 		else
@@ -1245,7 +1272,9 @@ int moeka::askingOfQuestion(int i, int j)
 	if (synchronizationFlag)
 	{
 		// set synchronization flag to false so that when it gets to the next question, it will not continue yet
-		*synchronizationFlag = false;
+		//*synchronizationFlag = false;
+
+		return currentDatapoint->_class;
 	}
 
 	return vector_class;
