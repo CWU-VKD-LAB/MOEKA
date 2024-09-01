@@ -9,6 +9,7 @@
 
 class CSVReader {
 public:
+	static std::vector<Function*> loadedFunctionHistory;
 	static void readCSV(std::vector<Function*>* container, std::string path);
 	static void saveToCSV(std::vector<Function*>* data, std::string path);
 };

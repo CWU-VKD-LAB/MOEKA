@@ -103,7 +103,6 @@ void Window::drawImGuiWindow(Texture& texture) {
     createOptions(texture);
     if (!Window::form.open) {
         createColorPicker();
-        createTooltip();
     }
     else {
         form.draw();
@@ -129,35 +128,23 @@ void cursorCallback(GLFWwindow* window, int button, int action, int mods) {
 void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods) {
     // cleanup later but fine in short term.
     if (key == GLFW_KEY_UP && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
-        for (auto a : Window::managedList) {
-            a->setTranslation(a->getX(), a->getY()-5);
-        }
+        Window::managedList[config::drawIndex]->setTranslation(Window::managedList[config::drawIndex]->getX(), Window::managedList[config::drawIndex]->getY() - 5);
     }
     if (key == GLFW_KEY_DOWN && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
-        for (auto a : Window::managedList) {
-            a->setTranslation(a->getX(), a->getY()+5);
-        }
+        Window::managedList[config::drawIndex]->setTranslation(Window::managedList[config::drawIndex]->getX(), Window::managedList[config::drawIndex]->getY() + 5);
     }
     if (key == GLFW_KEY_LEFT && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
-        for (auto a : Window::managedList) {
-            a->setTranslation(a->getX()-5, a->getY());
-        }
+        Window::managedList[config::drawIndex]->setTranslation(Window::managedList[config::drawIndex]->getX() - 5, Window::managedList[config::drawIndex]->getY());
     }
     if (key == GLFW_KEY_RIGHT && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
-        for (auto a : Window::managedList) {
-            a->setTranslation(a->getX()+5, a->getY());
-        }
+        Window::managedList[config::drawIndex]->setTranslation(Window::managedList[config::drawIndex]->getX() + 5, Window::managedList[config::drawIndex]->getY());
     }
     if (key == GLFW_KEY_KP_ADD && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
-        for (auto a : Window::managedList) {
-            a->setScale((float)(a->getScale() + .02));
-        }
+        Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScale() + .02f);
     }
     if (key == GLFW_KEY_KP_SUBTRACT && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
-        for (auto a : Window::managedList) {
-            if ((a->getScale() - .02) > 0.00001) {
-                a->setScale((float)(a->getScale() - .01));
-            }
+        if ((Window::managedList[config::drawIndex]->getScale() - .02) > 0.00001) {
+            Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScale() + .02f);
         }
     }
     if (key == GLFW_KEY_ESCAPE && (action == GLFW_PRESS || glfwGetKey(window, key))) {
@@ -237,11 +224,12 @@ void Window::createOptions (Texture& texture) {
     ImGui::SetWindowPos(ImVec2(0.0f, 0.0f));
     ImGui::End();
     
+    // bottom row of buttons
     ImGui::Begin("##formState", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-    ImGui::SetWindowSize(ImVec2(config::windowX * .4f, config::windowY * .05f));
+    ImGui::SetWindowSize(ImVec2(config::windowX * .5f, config::windowY * .05f));
     ImGui::SetWindowPos(ImVec2(0.0f, config::windowY * .95f));
     window = ImGui::GetWindowSize();
-    ImVec2 buttonSize{window.x * .3f, window.y * .6f};
+    ImVec2 buttonSize{window.x * .225f, window.y * .6f};
     if (ImGui::Button("Open Help##", buttonSize)) {
         form.current = state::INTRODUCTION;
         form.openWindow();
@@ -256,6 +244,31 @@ void Window::createOptions (Texture& texture) {
         form.current = state::COLOR;
         form.openWindow();
     }
+    ImGui::SameLine();
+    if (ImGui::Button("Compare Models", buttonSize)) {
+        form.current = state::COMPARE;
+        form.openWindow();
+    }
+    ImGui::End();
+
+    ImGui::Begin("##", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+    ImVec2 modelSelectWindow = {config::windowX * .2f, config::windowY * .06f};
+    ImGui::SetWindowSize(modelSelectWindow);
+    ImGui::SetWindowPos(ImVec2(config::windowX - modelSelectWindow.x, config::windowY - modelSelectWindow.y));
+    ImGui::Text((std::string("Selected Model: ") + std::to_string(config::drawIndex+1)).c_str());
+    ImGui::SetNextItemWidth(modelSelectWindow.x * .5f);
+    if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
+        if (config::drawIndex > 0) {
+            config::drawIndex--;
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
+        if (config::drawIndex < managedList.size()-1) {
+            config::drawIndex++;
+        }
+    }
+
     ImGui::End();
 }
 
@@ -272,27 +285,14 @@ void Window::createColorPicker () {
     }
 }
 
-// created when the mouse hovers a Shape
-void Window::createTooltip () {
-    if (Window::s != nullptr) {
-        //ImGui::BeginTooltip();
-        //// If we are hovering a Bar, we might want to know some specific information.
-        //if (dynamic_cast<Bar*>(Window::s)) {
-        //    //ImGui::Text(
-        //    //    std::string("Chain Number: ")
-        //    //    .append(std::to_string(static_cast<Bar*>(Window::s)->getChainNumber()))
-        //    //    .c_str()
-        //    //);
-        //}
-        //ImGui::EndTooltip();
-    }
-}
-
 // draws the members of the managedList
 void Window::draw () {
-    for (auto a : managedList) {
-        a->draw();
+    if (!managedList.empty()) {
+        managedList[config::drawIndex]->draw();
     }
+    //for (auto a : managedList) {
+    //    a->draw();
+    //}
 }
 
 void Window::addModelFromForm() {
@@ -339,48 +339,6 @@ void Window::buttonActions(int val) {
         break;
     }
     case (5): {
-        break;
-    }
-    case (6): {
-        break;
-    }
-    case (7): {
-        break;
-    }
-    case (8): {
-        break;
-    }
-    case (9): {
-        break;
-    }
-    case (10): {
-        break;
-    }
-    case (11): {
-        break;
-    }
-    case (12): {
-        break;
-    }
-    case (13): {
-        break;
-    }
-    case (14): {
-        break;
-    }
-    case (15): {
-        break;
-    }
-    case (16): {
-        break;
-    }
-    case (17): {
-        break;
-    }
-    case (18): {
-        break;
-    }
-    case (19): {
         break;
     }
     }

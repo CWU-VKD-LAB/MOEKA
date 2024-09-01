@@ -29,6 +29,7 @@ namespace config {
 	extern glm::mat4 proj; 
 	extern float windowX;
 	extern float windowY;
+	extern int drawIndex;
 	//
 
 	extern const char* instructions;

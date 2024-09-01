@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Bar.cpp" />
+    <ClCompile Include="UI\CompareForm.cpp" />
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="HanselChains.cpp" />
     <ClCompile Include="moeka\hierarchyDriver.cpp" />

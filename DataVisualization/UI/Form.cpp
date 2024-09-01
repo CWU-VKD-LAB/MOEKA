@@ -49,6 +49,9 @@ void Form::draw () {
 			case COLOR:
 				drawColor();
 				break;
+			case COMPARE:
+				drawCompare();
+				break;
 		}
 	}
 }
@@ -181,7 +184,7 @@ void Form::drawFunction () {
 	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .75f));
 	ImVec2 window = ImGui::GetWindowSize();
 	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .625f), window.y - (config::windowY * .625f)));
-
+	ImGui::SetCursorPosY(ImGui::GetStyle().WindowPadding.y);
 	//// header
 	// back button
 	
@@ -203,7 +206,7 @@ void Form::drawFunction () {
 	ImGui::Separator();
 
 	// value setting field
-	ImGui::BeginChild("##subwindow", ImVec2{ window.x * .95f, window.y * .61f }, ImGuiChildFlags_None);
+	ImGui::BeginChild("##subwindow", ImVec2{ window.x * .95f, window.y * .63f }, ImGuiChildFlags_None);
 	ImGui::SetNextItemWidth(100);
 	if (ImGui::BeginTable("##functiontable", func->attributeCount, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedSame | ImGuiTableFlags_BordersOuterV)) {
 		for (int a = 0; a < func->attributeCount; a++) {
@@ -375,6 +378,7 @@ void Form::drawFunction () {
 
 		// create a model for the hanselChains
 		addModel = true;
+		config::drawIndex++;
 	}
 
 	//

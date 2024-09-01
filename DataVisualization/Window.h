@@ -34,7 +34,6 @@ public:
 	static void createOptions (Texture& texture);
 	static void buttonActions (int val);
 	static void createColorPicker ();
-	static void createTooltip ();
 	Window();
 	void endImGui ();
 	void drawImGuiWindow(Texture& texture);

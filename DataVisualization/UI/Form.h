@@ -24,7 +24,8 @@ enum state {
 	INTERVIEW,
 	PILOT,
 	INTRODUCTION,
-	COLOR
+	COLOR,
+	COMPARE
 };
 
 struct Interview {
@@ -38,12 +39,18 @@ struct Interview {
 	DecisionTable<int> dt{};
 };
 
+struct Compare {
+	int indexOne = 0;
+	int indexTwo = 1;
+};
+
 class Form {
 private:
 	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
 
 	//
 	Interview interview{};
+	Compare compare{};
 	//
 
 	// moeka object (files need to be renamed)
@@ -87,9 +94,9 @@ public:
 	void drawInterviewPilot ();
 	void drawInterview ();
 	void drawIntro ();
-	void drawColor();
+	void drawColor ();
+	void drawCompare ();
 	void openWindow ();
-	void saveToCSV ();
 
 	Function* getFunc(void) { return func; }
 };

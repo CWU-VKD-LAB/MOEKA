@@ -1,5 +1,7 @@
 #include "FileReader.h"
 
+std::vector<Function*> CSVReader::loadedFunctionHistory{};
+
 void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 	// TODO update to support child functions
 	std::ifstream file(path);
@@ -98,6 +100,7 @@ void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 	file.close();
 	container->clear();
 	for (auto a : tempFuncList) {
+		loadedFunctionHistory.push_back(a);
 		container->push_back(a);
 	}
 }
