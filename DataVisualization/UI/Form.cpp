@@ -364,7 +364,7 @@ void Form::drawFunction () {
 	if (ImGui::Button("Finish", buttonSize)) {
 		statusMessage = "Pressed Finish Button";
 		// TODO save to file screen
-		saveToCSV();
+		CSVReader::saveToCSV(&functionList, "output.csv");
 		open = !open;
 
 		//create hanselChainSet for function
