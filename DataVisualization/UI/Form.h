@@ -12,6 +12,7 @@
 #include "../moeka/dvector.h"
 #include "../DecisionTable.h"
 #include "../FileReader.h"
+#include <filesystem>
 
 // weird bug if this isn't defined due to some file included in oeka.h
 #define NOMINMAX
@@ -25,7 +26,8 @@ enum state {
 	PILOT,
 	INTRODUCTION,
 	COLOR,
-	COMPARE
+	COMPARE,
+	LOAD
 };
 
 struct Interview {
@@ -56,6 +58,11 @@ private:
 	// moeka object (files need to be renamed)
 	moeka* edm;
 
+	// file reading
+	std::vector<std::string> files{};
+	int selectedFile = -1;
+	std::string basePath = "..\\DataVisualization\\models";
+
 
 	//
 	Function* func = nullptr;
@@ -79,7 +86,6 @@ private:
 	int colorPickerState = -1;
 	bool colorPickerOpen = false;
 	bool useGradient = false;
-	void drawFunctionSelect ();
 public:
 	int current = state::INTRODUCTION;
 
@@ -96,6 +102,7 @@ public:
 	void drawIntro ();
 	void drawColor ();
 	void drawCompare ();
+	void drawLoad ();
 	void openWindow ();
 
 	Function* getFunc(void) { return func; }

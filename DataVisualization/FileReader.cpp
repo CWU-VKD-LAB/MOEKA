@@ -5,6 +5,10 @@ std::vector<Function*> CSVReader::loadedFunctionHistory{};
 void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 	// TODO update to support child functions
 	std::ifstream file(path);
+	if (!file.is_open()) {
+		std::cout << "Failed to open file" << std::endl;
+		return;
+	}
 	std::string line;
 	std::string delimiter = ", ";
 	std::string token;
@@ -108,7 +112,7 @@ void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 // saves the contents of the functionList and its related clauses to a CSV file.
 void CSVReader::saveToCSV(std::vector<Function*>* data, std::string path) {
 	// todo: update to support child functions
-	std::ofstream file("output.csv");
+	std::ofstream file(path);
 	Function* f;
 
 	// for each function in memory

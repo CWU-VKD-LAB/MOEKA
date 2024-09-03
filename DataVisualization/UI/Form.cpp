@@ -12,8 +12,11 @@ Form::Form () {
 
 	// synchronization flag
 	startMoeka = true;
-	CSVReader::readCSV(&functionList, "output.csv");
-	func = functionList[0];
+
+	// load all files from the models folder
+	for (auto a : std::filesystem::directory_iterator(basePath)) {
+		files.push_back(a.path().string().erase(0, basePath.length() + 1));
+	}
 }
 
 Form::~Form () {
@@ -52,6 +55,9 @@ void Form::draw () {
 			case COMPARE:
 				drawCompare();
 				break;
+			case LOAD:
+				drawLoad();
+				break;
 		}
 	}
 }
@@ -81,10 +87,36 @@ void Form::drawPrep () {
 	ImGui::PushFont(font);
 	ImVec2 window = ImGui::GetWindowSize();
 
+	// set window size and position
+	ImGui::SetWindowSize(ImVec2(config::windowX * .6f, config::windowY * .5f));
+	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .4f), window.y - (config::windowY * .25f)));
+
 	// header
 	ImGui::InputText("##", func->functionName, 128);
 	ImGui::SameLine(window.x * .7575f);
-	drawFunctionSelect();
+	
+	ImGui::Text((currentFunction + " " + std::to_string(functionIndex + 1) + "/" + std::to_string(functionList.size())).c_str());
+	ImGui::SameLine();
+	if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
+		if (functionIndex > 0) {
+			functionIndex--;
+			func = functionList.at(functionIndex);
+			subfunctionIndex = 0;
+			clauseIndex = 0;
+			action = "Add Clause";
+		}
+	}
+	ImGui::SameLine();
+	if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
+		if (functionIndex < functionList.size() - 1) {
+			functionIndex++;
+			func = functionList.at(functionIndex);
+			subfunctionIndex = 0;
+			clauseIndex = 0;
+			action = "Add Clause";
+		}
+	}
+
 	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5f - (ImGui::CalcTextSize("Amount of Target Attributes: ").x * .5f));
 	ImGui::Text("Amount of Target Attributes: ");
 	ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .96f);
@@ -111,13 +143,16 @@ void Form::drawPrep () {
 	ImGui::EndChild();
 	//
 
-	
-
 	// create the bottom section that contains the enter button.
 	ImGui::Separator();
-	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .34f);
-	ImVec2 buttonSize{ ImGui::GetWindowSize().x * .2f, ImGui::GetWindowSize().y * .1f };
+	ImVec2 buttonSize{ ((ImGui::GetWindowSize().x * .5f) - ImGui::GetStyle().WindowPadding.x * 2 - ImGui::GetStyle().ItemSpacing.x) / 3, ImGui::GetWindowSize().y * .1f };
+	if (ImGui::Button("Load", buttonSize)) {
+		current = state::LOAD;
+		selectedFile = -1;
+	}
 
+	ImGui::SameLine();
+	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5);
 	// creates the skip button, if function list is empty however, disable it.
 	if (functionList.empty()) {
 		ImGui::BeginDisabled();
@@ -171,223 +206,51 @@ void Form::drawPrep () {
 		//
 	}
 	
-
-	// set window size and position
-	ImGui::SetWindowSize(ImVec2(config::windowX * .5f, config::windowY * .5f));
-	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .25f), window.y - (config::windowY * .25f)));
 	ImGui::End();
 }
 
-// draws the function screen where the user can input clauses and save to file.
-void Form::drawFunction () {
-	ImGui::Begin("##", &open, flags);
-	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .75f));
+void Form::drawLoad () {
+	ImGui::Begin("##", &open, flags | ImGuiWindowFlags_NoScrollbar);
+	ImGui::SetWindowSize(ImVec2{config::windowX * .5f, config::windowY * .3f});
 	ImVec2 window = ImGui::GetWindowSize();
-	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .625f), window.y - (config::windowY * .625f)));
-	ImGui::SetCursorPosY(ImGui::GetStyle().WindowPadding.y);
-	//// header
-	// back button
+	ImGui::SetWindowPos(ImVec2{ (config::windowX - window.x) * .5f, (config::windowY - window.y) * .5f} );
+	ImGui::SetCursorPos(ImVec2{ ImGui::GetStyle().WindowPadding.x, ImGui::GetStyle().WindowPadding.y });
+
+	ImVec2 textSize = ImGui::CalcTextSize("Load from which file?");
+	ImGui::Text("Load from which file?");
 	
-	if (ImGui::Button("Back", ImVec2{ window.x * .15f, window.y * .05f })) {
-		current = PREP;
-	}
-	ImGui::SameLine();
-	// create clause header
-	ImGui::SetCursorPosX(window.x * .4f - (ImGui::CalcTextSize("Create a Clause").x * .5f));
-	ImGui::PushFont(font);
-	ImGui::Text("Create a Clause");
-	ImGui::SameLine(window.x * .835f - ImGui::CalcTextSize(func->functionName).x);
-	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(50, 50, 255, 255));
-	ImGui::Text(func->functionName);
-	ImGui::PopStyleColor();
-	ImGui::SameLine(window.x * .835f);
-	drawFunctionSelect();
-
-	ImGui::Separator();
-
-	// value setting field
-	ImGui::BeginChild("##subwindow", ImVec2{ window.x * .95f, window.y * .63f }, ImGuiChildFlags_None);
-	ImGui::SetNextItemWidth(100);
-	if (ImGui::BeginTable("##functiontable", func->attributeCount, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedSame | ImGuiTableFlags_BordersOuterV)) {
-		for (int a = 0; a < func->attributeCount; a++) {
-			ImGui::TableSetupColumn(func->attributeNames.at(a), 160);
+	// files in folder
+	ImGui::BeginChild("##fileNames", ImVec2{window.x - (ImGui::GetStyle().WindowPadding.x * 2.0f), window.y * .7f}, ImGuiChildFlags_Border, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+	for (int a = 0; a < files.size(); a++) {
+		if (ImGui::Selectable(files[a].c_str(), selectedFile == a)) {
+			selectedFile = a;
 		}
-		ImGui::TableHeadersRow();
-		for (int a = 0; a < func->attributeCount; a++) {
-			ImGui::TableNextColumn();
-			for (int b = 0; b < func->kValues.at(a); b++) {
-				if (func->clause != nullptr) {
-					ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(a)).c_str(), &func->clause->data()[a], b);
-				}
-				
-			}
-		}
-		ImGui::EndTable();
 	}
 	
 	ImGui::EndChild();
-	ImGui::PopFont();
-	ImGui::Separator();
-	//
-	
-	float test = ImGui::GetCursorPos().y; // for buttons later
-	if (ImGui::BeginTable("##existing_clauses", (int)(func->subfunctionList[subfunctionIndex].size() + 1), ImGuiTableFlags_ScrollX | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV, ImVec2{ window.x * .67f, window.y * .13f })) {
-		for (int a = 0; a < func->subfunctionList[subfunctionIndex].size(); a++) {
-			ImGui::TableNextColumn();
-			ImGui::SetNextItemWidth(100);
-			ImGui::Text(std::string("Clause ").append(std::to_string(a + 1)).c_str());
-			ImGui::SameLine(85);
 
-			bool disabled = a == clauseIndex;
-			if (ImGui::Button(std::string("x##").append(std::to_string(a)).c_str(), ImVec2{ 15.0f, 15.0f })) {
-				func->subfunctionList[subfunctionIndex].erase(func->subfunctionList[subfunctionIndex].begin() + a);
-				statusMessage = std::string("Removed Clause ").append(std::to_string(a + 1));
-				action = "Add Clause";
-				if (disabled) {
-					if (clauseIndex > func->subfunctionList[subfunctionIndex].size()) {
-						clauseIndex--;
-					}
-					else {
-						clauseIndex = 0;
-					}
-					func->clause = func->subfunctionList[subfunctionIndex].at(clauseIndex);
-				}
-			}
-			// if we already have this clause loaded, disable the load button.
-			if (disabled) {
-				ImGui::BeginDisabled();
-			}
-			if (ImGui::Button(std::string("Load##").append(std::to_string(a)).c_str(), ImVec2{ 100, 38 })) {
-				func->clause = func->subfunctionList[subfunctionIndex].at(a);
-				statusMessage = std::string("Loaded Clause ").append(std::to_string(a + 1));
-				action = "Update Clause";
-				clauseIndex = a;
-			}
-			if (disabled) {
-				ImGui::EndDisabled();
-			}
-		}
-		ImGui::EndTable();
+	ImVec2 buttonSize{window.x * .2f, window.y * .3f - textSize.y - ImGui::GetStyle().WindowPadding.y * 2.0f - ImGui::GetStyle().ItemInnerSpacing.y * 2.0f };
+	ImGui::SetCursorPosX(window.x - buttonSize.x - ImGui::GetStyle().WindowPadding.x);
+	if (selectedFile == -1) {
+		ImGui::BeginDisabled();
 	}
-	
-
-	// functions table
-	if (ImGui::BeginTable("##subfunction", (int)(func->subfunctionList.size() + 1), ImGuiTableFlags_ScrollX | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV, ImVec2{ window.x * .67f, window.y * .13f })) {
-		for (int a = 0; a < func->subfunctionList.size(); a++) {
-			ImGui::TableNextColumn();
-			ImGui::SetNextItemWidth(100);
-			ImGui::Text(std::string("Sub-Func ").append(std::to_string(a + 1)).c_str());
-			ImGui::SameLine(85);
-			if (ImGui::Button(std::string("x##").append(std::to_string(a)).c_str(), ImVec2{ 15.0f, 15.0f })) {
-				func->subfunctionList.erase(func->subfunctionList.begin() + a);
-				statusMessage = std::string("Removed Sub ").append(std::to_string(a + 1));
-				if (subfunctionIndex >= func->subfunctionList.size()) {
-					subfunctionIndex--;
-				}
-			}
-			if (ImGui::Button(std::string("Load##").append(std::to_string(a)).c_str(), ImVec2{ 100, 38 })) {
-				statusMessage = std::string("Loaded Sub ").append(std::to_string(a + 1));
-				subfunctionIndex = a;
-			}
-		}
-		ImGui::EndTable();
-	}
-	
-
-	//// options
-	ImVec2 buttonSize{ window.x * .3f, window.y * .05f };
-
-	// 
-	float yPos = test;
-	float xPos = window.x * .99f - buttonSize.x;
-	float stride = 2.5f;
-	ImGui::SetCursorPosX(xPos);
-	ImGui::SetCursorPosY(yPos);
-	if (ImGui::Button("Add a sub function", buttonSize)) {
-		std::vector<std::vector<int>*> subfunction;
-		func->subfunctionList.insert(func->subfunctionList.end(), subfunction);
-		subfunctionIndex++;
-		statusMessage = "Added sub function";
-	}
-
-	// new parent function
-	ImGui::SetCursorPosX(xPos);
-	yPos += buttonSize.y + stride;
-	ImGui::SetCursorPosY(yPos);
-	if (ImGui::Button("Add a function", buttonSize)) {
-		setNewFunc();
-		functionIndex++;
-		current = PREP;
+	if (ImGui::Button("Load##", buttonSize)) {
+		CSVReader::readCSV(&functionList, (basePath + "\\" + files[selectedFile]).c_str());
+		func = functionList[0];
+		current = state::FUNCTION;
+		clauseIndex = 0;
 		subfunctionIndex = 0;
-		action = "Add Clause";
+		func->clause = func->subfunctionList[subfunctionIndex].at(0);
+	}
+	if (selectedFile == -1) {
+		ImGui::EndDisabled();
 	}
 
-	// status message. the random 0.00025f * window.y shifts it an extra little bit but is entirely optional. it just bothered me it was slightly off.
-	yPos += buttonSize.y + stride + window.y * 0.00025f;
-	if (!statusMessage.empty()) {
-		ImGui::PushFont(font);
-		ImVec2 shift = ImGui::CalcTextSize(statusMessage.c_str());
-		ImGui::SetCursorPosX(window.x * .99f - shift.x - (buttonSize.x - shift.x) * .5f);
-		ImGui::SetCursorPosY(yPos + shift.y * .25f);
-		ImGui::Text(statusMessage.c_str(), buttonSize);
-		ImGui::PopFont();
-	}
-
-	ImGui::SetCursorPosX(xPos);
-	yPos += (buttonSize.y + stride);
-	ImGui::SetCursorPosY(yPos);
-
-	// add clause button
-	if (ImGui::Button(action.c_str(), buttonSize)) {
-		if (action == "Add Clause") {
-			statusMessage = "Added Clause";
-			
-			if (func->subfunctionList.empty())
-			{
-				func->subfunctionList.push_back({});
-			}
-			func->subfunctionList[subfunctionIndex].insert(func->subfunctionList[subfunctionIndex].end(), func->clause);
-		}
-		else if (action == "Update Clause") {
-			statusMessage = "Updated Clause";
-		}
-
-		func->clause = new std::vector<int>{};
-		func->clause->resize(func->attributeCount);
-		std::fill(func->clause->begin(), func->clause->end(), 0);
-		action = "Add Clause";
-		// TODO check for dupes?
-	}
-	
-	// finish button
-	ImGui::SetCursorPosX(xPos);
-	yPos += buttonSize.y + stride;
-	ImGui::SetCursorPosY(yPos);
-
-	if (ImGui::Button("Finish", buttonSize)) {
-		statusMessage = "Pressed Finish Button";
-		// TODO save to file screen
-		CSVReader::saveToCSV(&functionList, "output.csv");
-		open = !open;
-
-		//create hanselChainSet for function
-		func->initializeHanselChains();
-
-		// organize them and assign classes such that we can visualize
-		func->setUpHanselChains();
-
-		// create a model for the hanselChains
-		addModel = true;
-		config::drawIndex++;
-	}
-
-	//
 	ImGui::End();
 }
 
 
-void start(moeka* edm, bool* flag)
-{
+void start(moeka* edm, bool* flag) {
 	(*edm).start(flag);
 }
 
@@ -410,12 +273,8 @@ void Form::drawInterviewPilot () {
 	for (int b = 0; b < config::pilotQuestions.size(); b++) {
 		question = config::pilotQuestions[b][0];
 
-		
-		//ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize(question.c_str()).x * .5f - (ImGui::CalcTextSize("(?)").x * .5f));
-		//
 		ImGui::TextDisabled("(?)");
-		if (ImGui::BeginItemTooltip())
-		{
+		if (ImGui::BeginItemTooltip()) {
 			ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
 			ImGui::TextUnformatted(config::pilotQuestionDescriptions[b].c_str());
 			ImGui::PopTextWrapPos();
@@ -515,8 +374,7 @@ void Form::drawInterviewPilot () {
 
 		std::vector<std::string> attrNames;
 
-		for (auto a : func->attributeNames)
-		{
+		for (auto a : func->attributeNames) {
 			attrNames.push_back(a);
 		}
 
@@ -539,45 +397,37 @@ void Form::drawInterviewPilot () {
 		// DT is useful for presentatation and explanation though
 		
 		// positioin of low unit
-		if (decisions[0] == 1)
-		{
+		if (decisions[0] == 1) {
 			staticInterChainOrder = 1; // SHCF
 			topBottomOrBinarySearch = 1; // bottom
 		}
-		else if (decisions[1] == 1)
-		{
+		else if (decisions[1] == 1) {
 			topBottomOrBinarySearch = 2; // binarySearch
 		}
-		else if (decisions[3] == 1)
-		{
+		else if (decisions[3] == 1) {
 			staticInterChainOrder = 2; // LHCF
 			topBottomOrBinarySearch = 0;
 		}
 		
 		// if not using binary search and user is confident, use chainJump
-		if (topBottomOrBinarySearch != 2 && decisions[2] == 1)
-		{
+		if (topBottomOrBinarySearch != 2 && decisions[2] == 1) {
 			chainJump = true;
 		}
 
-		if (decisions[4] == 1)
-		{
+		if (decisions[4] == 1) {
 			staticInterChainOrder = 1; // SHCF only
 		}
 
-		if (decisions[5] == 1)
-		{
+		if (decisions[5] == 1) {
 			staticInterChainOrder == 2; // LHCF only
 		}
 
 		// needs to be 0 since majority is absence of answer
-		if (decisions[6] == 0)
-		{
+		if (decisions[6] == 0) {
 			majority = true;
 		}
 
-		if (decisions[7] == 1)
-		{
+		if (decisions[7] == 1) {
 			staticInterChainOrder == 3; // LSO 
 		}
 
@@ -839,34 +689,8 @@ void Form::setNewFunc () {
 	//
 	std::fill(func->kValues.begin(), func->kValues.end(), 2);
 
-	if (func->subfunctionList.empty())
-	{
+	if (func->subfunctionList.empty()) {
 		func->subfunctionList.push_back({});
 	}
 
 }
-
-// this draws the 2 arrows for swapping between functions.
-void Form::drawFunctionSelect () {
-	ImGui::Text((currentFunction + " " + std::to_string(functionIndex + 1) + "/" + std::to_string(functionList.size())).c_str());
-	ImGui::SameLine();
-	if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
-		if (functionIndex > 0) {
-			functionIndex--;
-			func = functionList.at(functionIndex);
-			subfunctionIndex = 0;
-			action = "Add Clause";
-		}
-	}
-	ImGui::SameLine();
-	if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
-		if (functionIndex < functionList.size() - 1) {
-			functionIndex++;
-			func = functionList.at(functionIndex);
-			subfunctionIndex = 0;
-			action = "Add Clause";
-		}
-	}
-}
-
-

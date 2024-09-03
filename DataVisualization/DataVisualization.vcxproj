@@ -186,6 +186,7 @@
     <ClCompile Include="ImGui\imgui_widgets.cpp" />
     <ClCompile Include="tools\Util.cpp" />
     <ClCompile Include="UI\Function.cpp" />
+    <ClCompile Include="UI\FunctionForm.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
