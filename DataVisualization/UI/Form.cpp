@@ -192,7 +192,7 @@ void Form::drawPrep () {
 		}
 
 		//
-		interview.datapoints.resize(func->subfunctionList.size());
+		interview.datapoints.resize(func->siblingfunctionList.size());
 		for (int a = 0; a < interview.datapoints.size(); a++) {
 			std::vector<std::vector<int>>* category = new std::vector<std::vector<int>>;
 			category->resize(interview.datapoints.size());
@@ -240,7 +240,7 @@ void Form::drawLoad () {
 		current = state::FUNCTION;
 		clauseIndex = 0;
 		subfunctionIndex = 0;
-		func->clause = func->subfunctionList[subfunctionIndex].at(0);
+		func->clause = func->siblingfunctionList[subfunctionIndex].at(0);
 	}
 	if (selectedFile == -1) {
 		ImGui::EndDisabled();
@@ -332,7 +332,7 @@ void Form::drawInterviewPilot () {
 				ImGui::EndTable();
 
 				// TODO: delete when above is fixed
-				//interview.pilotAnswers[5] = 1;
+				interview.pilotAnswers[5] = 1;
 			}
 		}
 		else {
@@ -471,15 +471,27 @@ void Form::drawInterview () {
 	
 	//create hanselChainSet for function
 	// is this done every frame
-	dvector* datapoint;
+	dvector* datapoint = nullptr;
+
+	bool end = false;
 
 	while (true)
 	{
-		if (!startMoeka)
+		// continue interview UI thread
+		if (!startMoeka && edm-> currentDatapoint->_class == -1)
 		{
 			datapoint = edm->currentDatapoint; // interview.datapoints[interview.hanselChainIndex][interview.datapointIndex];
 			break;
 		}
+		// interview is done
+		else if (!startMoeka && edm->currentDatapoint->_class != -1)
+		{
+			action = state::PREP;
+			open = !open;
+			end = true;
+			break;
+		}
+		// wait for background thread to fetch next interview question
 		else
 		{
 			std::cout << "UI: waiting for moeka thread..." << std::endl;
@@ -488,81 +500,121 @@ void Form::drawInterview () {
 	}
 	////
 
-	ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize("Input a class for this datapoint.").x * .5f);
-	ImGui::Text("Input a target value (class) for the datapoint.");
-	ImGui::SetNextItemWidth(window.x * .2f);
-	ImGui::Separator();
-	ImGui::Text("Datapoint: ");
-	for (int a = 0; a < datapoint->dataPoint.size(); a++) {
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(font->FontSize);
-		ImGui::Text(std::to_string(datapoint->dataPoint.at(a)).c_str());
-	}
-	ImGui::Text("Target Value (Class): ");
-	for (int b = 0; b < func->targetAttributeCount; b++) {
-		ImGui::SameLine();
-		ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(b)).c_str(), &interview._class, b); // interview._class
-	}
-
-	ImGui::PopFont();
-	//
-	ImGui::Separator();
-	//
-	ImGui::SetCursorPosY(window.y * 0.75f);
-	ImVec2 buttonSize{ window.x * .2f, window.y * .2f };
-	ImGui::SetCursorPosX(window.x * .56f - buttonSize.x);
-
-	// below  dont do anything need to change 
-	if (ImGui::Button("Next##", buttonSize)) {
-		// add monotonic expansion
-		edm->currentClass = &interview._class;
-		startMoeka = true;
-
-		 // below obsolete
-		 /*
-		// increment intra chain
-		if (interview.datapointIndex < interview.datapoints[interview.hanselChainIndex].size() - 1)
-		{
-			interview.datapointIndex++;
+	if (!end)
+	{
+		ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize("Input a class for this datapoint.").x * .5f);
+		ImGui::Text("Input a target value (class) for the datapoint.");
+		ImGui::SetNextItemWidth(window.x * .2f);
+		ImGui::Separator();
+		ImGui::Text("Datapoint: ");
+		for (int a = 0; a < datapoint->dataPoint.size(); a++) {
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(font->FontSize);
+			ImGui::Text(std::to_string(datapoint->dataPoint.at(a)).c_str());
 		}
-		// incrememnt chain
-		else if (interview.hanselChainIndex < interview.datapoints.size() - 1)
-		{
-			interview.hanselChainIndex++;
-			interview.datapointIndex = 0;
+		ImGui::Text("Target Value (Class): ");
+		for (int b = 0; b < func->targetAttributeCount; b++) {
+			ImGui::SameLine();
+			ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(b)).c_str(), &interview._class, b); // interview._class
 		}
-		// else interview is done
-		else
-		{
-			action = state::PREP;
-			open = !open;
-		}*/
-	}
 
-	// temporarily disable
-	/*
-	ImGui::SameLine();
-	if (ImGui::Button("Add Datapoint##", buttonSize)) {
-		interview.datapoints[interview.categoryIndex][interview.datapointIndex].push_back(interview.dataPointValue);
+		ImGui::PopFont();
+		//
+		ImGui::Separator();
+		//
+		ImGui::SetCursorPosY(window.y * 0.75f);
+		ImVec2 buttonSize{ window.x * .2f, window.y * .2f };
+		ImGui::SetCursorPosX(window.x * .56f - buttonSize.x);
 
-		// debug
-		std::cout << "------------" << std::endl;
-		std::cout << "function" << std::endl;
-		for (auto a : interview.datapoints) {
-			std::cout << " categories" << std::endl;
-			for (auto b : a) {
-				std::cout << "  ----------\n  datapoints" << std::endl;
-				for (auto c : b) {
-					std::cout << "  " << c << std::endl;
+		// below  dont do anything need to change 
+		if (ImGui::Button("Next##", buttonSize)) {
+			// monotonic expansion
+			// assign class to currentDatapoint in moeka iva currentClass pointer
+			edm->currentClass = &interview._class;
+
+			// continue background thread
+			startMoeka = true;
+
+			// below obsolete
+			/*
+		   // increment intra chain
+		   if (interview.datapointIndex < interview.datapoints[interview.hanselChainIndex].size() - 1)
+		   {
+			   interview.datapointIndex++;
+		   }
+		   // incrememnt chain
+		   else if (interview.hanselChainIndex < interview.datapoints.size() - 1)
+		   {
+			   interview.hanselChainIndex++;
+			   interview.datapointIndex = 0;
+		   }
+		   // else interview is done
+		   else
+		   {
+			   action = state::PREP;
+			   open = !open;
+		   }*/
+		}
+
+		// temporarily disable
+		/*
+		ImGui::SameLine();
+		if (ImGui::Button("Add Datapoint##", buttonSize)) {
+			interview.datapoints[interview.categoryIndex][interview.datapointIndex].push_back(interview.dataPointValue);
+
+			// debug
+			std::cout << "------------" << std::endl;
+			std::cout << "function" << std::endl;
+			for (auto a : interview.datapoints) {
+				std::cout << " categories" << std::endl;
+				for (auto b : a) {
+					std::cout << "  ----------\n  datapoints" << std::endl;
+					for (auto c : b) {
+						std::cout << "  " << c << std::endl;
+					}
 				}
 			}
+			//
+		}*/
+		ImGui::SameLine();
+		if (ImGui::Button("Done##", buttonSize)) {
+			action = state::PREP;
+			open = !open;
 		}
-		//
-	}*/
-	ImGui::SameLine();
-	if (ImGui::Button("Done##", buttonSize)) {
-		action = state::PREP;
-		open = !open;
+	}
+	else
+	{
+		ImGui::PopFont();
+
+		// add model to model list
+		//create hanselChainSet for function
+		//func->initializeHanselChains();
+
+		// TODO: move to hansel chain class?
+		func->hanselChains = new HanselChains();
+		func->hanselChains->attributes = func->kValues;
+		func->hanselChains->dimension = func->attributeCount;
+		func->hanselChains->hanselChainContainsLowUnit.reserve(func->hanselChains->hanselChainSet.size());
+
+		std::vector<std::vector<std::vector<int>>> temp(edm->hanselChainSet.size()); 
+
+		// organize them and assign classes such that we can visualize
+		for (const auto hc : edm->hanselChainSet)
+		{
+			temp.push_back({});
+
+			for (auto e : hc) // copy by value
+			{
+				e.dataPoint.push_back(e._class);
+				temp[temp.size() - 1].push_back(e.dataPoint);
+			}
+		}
+
+		func->hanselChains->hanselChainSet = temp;
+
+		// create a model for the hanselChains
+		addModel = true;
+		config::drawIndex++;
 	}
 	//
 
@@ -689,8 +741,8 @@ void Form::setNewFunc () {
 	//
 	std::fill(func->kValues.begin(), func->kValues.end(), 2);
 
-	if (func->subfunctionList.empty()) {
-		func->subfunctionList.push_back({});
+	if (func->siblingfunctionList.empty()) {
+		func->siblingfunctionList.push_back({});
 	}
 
 }

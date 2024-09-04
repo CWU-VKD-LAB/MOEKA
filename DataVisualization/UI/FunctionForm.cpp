@@ -35,7 +35,7 @@ void Form::drawFunction() {
 			clauseIndex = 0;
 			action = "Add Clause";
 		}
-		func->clause = func->subfunctionList[subfunctionIndex].at(0);
+		func->clause = func->siblingfunctionList[subfunctionIndex].at(0);
 	}
 	ImGui::SameLine();
 	if (ImGui::ArrowButton("##righta", ImGuiDir_Right)) {
@@ -46,7 +46,7 @@ void Form::drawFunction() {
 			clauseIndex = 0;
 			action = "Add Clause";
 		}
-		func->clause = func->subfunctionList[subfunctionIndex].at(0);
+		func->clause = func->siblingfunctionList[subfunctionIndex].at(0);
 	}
 
 	ImGui::Separator();
@@ -78,8 +78,8 @@ void Form::drawFunction() {
 
 	// clause list
 	float test = ImGui::GetCursorPos().y; // for buttons later
-	if (ImGui::BeginTable("##existing_clauses", (int)(func->subfunctionList[subfunctionIndex].size() + 1), ImGuiTableFlags_ScrollX | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV, ImVec2{ window.x * .67f, window.y * .13f })) {
-		for (int a = 0; a < func->subfunctionList[subfunctionIndex].size(); a++) {
+	if (ImGui::BeginTable("##existing_clauses", (int)(func->siblingfunctionList[subfunctionIndex].size() + 1), ImGuiTableFlags_ScrollX | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV, ImVec2{ window.x * .67f, window.y * .13f })) {
+		for (int a = 0; a < func->siblingfunctionList[subfunctionIndex].size(); a++) {
 			ImGui::TableNextColumn();
 			ImGui::SetNextItemWidth(100);
 			ImGui::Text(std::string("Clause ").append(std::to_string(a + 1)).c_str());
@@ -87,17 +87,17 @@ void Form::drawFunction() {
 
 			bool disabled = a == clauseIndex;
 			if (ImGui::Button(std::string("x##").append(std::to_string(a)).c_str(), ImVec2{ 15.0f, 15.0f })) {
-				func->subfunctionList[subfunctionIndex].erase(func->subfunctionList[subfunctionIndex].begin() + a);
+				func->siblingfunctionList[subfunctionIndex].erase(func->siblingfunctionList[subfunctionIndex].begin() + a);
 				statusMessage = std::string("Removed Clause ").append(std::to_string(a + 1));
 				action = "Add Clause";
 				if (disabled) {
-					if (clauseIndex > func->subfunctionList[subfunctionIndex].size()) {
+					if (clauseIndex > func->siblingfunctionList[subfunctionIndex].size()) {
 						clauseIndex--;
 					}
 					else {
 						clauseIndex = 0;
 					}
-					func->clause = func->subfunctionList[subfunctionIndex].at(clauseIndex);
+					func->clause = func->siblingfunctionList[subfunctionIndex].at(clauseIndex);
 				}
 			}
 			// if we already have this clause loaded, disable the load button.
@@ -105,7 +105,7 @@ void Form::drawFunction() {
 				ImGui::BeginDisabled();
 			}
 			if (ImGui::Button(std::string("Load##").append(std::to_string(a)).c_str(), ImVec2{ 100, 38 })) {
-				func->clause = func->subfunctionList[subfunctionIndex].at(a);
+				func->clause = func->siblingfunctionList[subfunctionIndex].at(a);
 				statusMessage = std::string("Loaded Clause ").append(std::to_string(a + 1));
 				action = "Update Clause";
 				clauseIndex = a;
@@ -119,17 +119,17 @@ void Form::drawFunction() {
 
 
 	// sub functions list
-	if (ImGui::BeginTable("##subfunction", (int)(func->subfunctionList.size() + 1), ImGuiTableFlags_ScrollX | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV, ImVec2{ window.x * .67f, window.y * .13f })) {
-		for (int a = 0; a < func->subfunctionList.size(); a++) {
+	if (ImGui::BeginTable("##subfunction", (int)(func->siblingfunctionList.size() + 1), ImGuiTableFlags_ScrollX | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV, ImVec2{ window.x * .67f, window.y * .13f })) {
+		for (int a = 0; a < func->siblingfunctionList.size(); a++) {
 			bool disabled = a == subfunctionIndex;
 			ImGui::TableNextColumn();
 			ImGui::SetNextItemWidth(100);
 			ImGui::Text(std::string("Sub-Func ").append(std::to_string(a + 1)).c_str());
 			ImGui::SameLine(85);
 			if (ImGui::Button(std::string("x##").append(std::to_string(a)).c_str(), ImVec2{ 15.0f, 15.0f })) {
-				func->subfunctionList.erase(func->subfunctionList.begin() + a);
+				func->siblingfunctionList.erase(func->siblingfunctionList.begin() + a);
 				statusMessage = std::string("Removed Sub ").append(std::to_string(a + 1));
-				if (subfunctionIndex >= func->subfunctionList.size()) {
+				if (subfunctionIndex >= func->siblingfunctionList.size()) {
 					subfunctionIndex--;
 				}
 			}
@@ -157,18 +157,18 @@ void Form::drawFunction() {
 	float stride = 2.5f;
 	ImGui::SetCursorPosX(xPos);
 	ImGui::SetCursorPosY(yPos);
-	if (ImGui::Button("Add a sub function", buttonSize)) {
+	if (ImGui::Button("Add a sibling function", buttonSize)) {
 		std::vector<std::vector<int>*> subfunction;
-		func->subfunctionList.insert(func->subfunctionList.end(), subfunction);
+		func->siblingfunctionList.insert(func->siblingfunctionList.end(), subfunction);
 		subfunctionIndex++;
-		statusMessage = "Added sub function";
+		statusMessage = "Added sibling function";
 	}
 
 	// new parent function
 	ImGui::SetCursorPosX(xPos);
 	yPos += buttonSize.y + stride;
 	ImGui::SetCursorPosY(yPos);
-	if (ImGui::Button("Add a function", buttonSize)) {
+	if (ImGui::Button("Add a sub function", buttonSize)) {
 		setNewFunc();
 		functionIndex++;
 		current = PREP;
@@ -195,11 +195,11 @@ void Form::drawFunction() {
 		if (action == "Add Clause") {
 			statusMessage = "Added Clause";
 
-			if (func->subfunctionList.empty())
+			if (func->siblingfunctionList.empty())
 			{
-				func->subfunctionList.push_back({});
+				func->siblingfunctionList.push_back({});
 			}
-			func->subfunctionList[subfunctionIndex].insert(func->subfunctionList[subfunctionIndex].end(), func->clause);
+			func->siblingfunctionList[subfunctionIndex].insert(func->siblingfunctionList[subfunctionIndex].end(), func->clause);
 		}
 		else if (action == "Update Clause") {
 			statusMessage = "Updated Clause";

@@ -1101,7 +1101,7 @@ void moeka::fixExpansions(int vector_class, int i, int j)
 
 bool moeka::questionFunc(int i, int j, int& vector_class)
 {
-	std::cout << "Hello from question func." << std::endl;
+	std::cout << "Thread: within question func." << std::endl;
 
 	// updated order must go before actual question because its tracking the intention of the question, not whether it was asked.
 	if (!hanselChainSet[i][j].majorityFlag || !usedMajorityFlag || !hanselChainSet[i][j].visited || !hanselChainSet[i][j].updatedQueryOrder) // used, not useMajority flag because otherwise may expand twice.
@@ -1129,6 +1129,7 @@ bool moeka::questionFunc(int i, int j, int& vector_class)
 	}
 	else
 	{
+		std::cout << "Thread: question was expanded. " << std::endl;
 		vector_class = hanselChainSet[i][j]._class;
 	}
 
@@ -1269,13 +1270,13 @@ int moeka::askingOfQuestion(int i, int j)
 		hanselChainSet[i][j].weak = false;
 	}
 
-	if (synchronizationFlag)
+	/*if (synchronizationFlag)
 	{
 		// set synchronization flag to false so that when it gets to the next question, it will not continue yet
 		//*synchronizationFlag = false;
 
 		return currentDatapoint->_class;
-	}
+	}*/
 
 	return vector_class;
 }

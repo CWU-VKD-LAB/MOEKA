@@ -35,12 +35,15 @@ class moeka
 public:
 	// flags 
 
-	bool* synchronizationFlag;
+	bool* synchronizationFlag = nullptr;
 
 
-	dvector* currentDatapoint;
-	int* currentClass;
+	dvector* currentDatapoint = nullptr;
+	int* currentClass = nullptr;
 
+
+	/// @brief set of Hansel Chains
+	std::vector<std::vector<dvector>> hanselChainSet;
 
 	/// @brief needs to be changed for whatever oracle is supposed to be used
 	std::string oraclePath = "";// "MonotoneDataGenerator/diabetesOracleKV.csv";
@@ -174,9 +177,6 @@ private:
 
 	/// @brief of the real dataset, if applicable
 	std::vector<std::string> real_attributes;
-
-	/// @brief set of Hansel Chains
-	std::vector<std::vector<dvector>> hanselChainSet;
 
 
 	/// @brief check whether each Chain has been ordered when user is manually ordering them

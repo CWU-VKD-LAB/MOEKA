@@ -80,13 +80,13 @@ void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 		// everything below is either a clause or a subfunction.
 		if (line.find('#') != std::string::npos) {
 			std::vector<std::vector<int>*>* subfunction = new std::vector<std::vector<int>*>;
-			current->subfunctionList.push_back(*subfunction);
+			current->siblingfunctionList.push_back(*subfunction);
 			index++;
 			continue;
 		}
 
 		std::vector<int>* clause = new std::vector<int>;
-		current->subfunctionList[index].push_back(clause);
+		current->siblingfunctionList[index].push_back(clause);
 
 		std::stringstream ss(line);
 		std::string token;
@@ -136,11 +136,11 @@ void CSVReader::saveToCSV(std::vector<Function*>* data, std::string path) {
 		file << f->attributeCount << ", " << f->targetAttributeCount << ", " << std::endl;
 
 		// for each subfunction of the original function
-		for (int b = 0; b < f->subfunctionList.size(); b++) {
+		for (int b = 0; b < f->siblingfunctionList.size(); b++) {
 			file << "#sub" << b << std::endl;;
-			for (int c = 0; c < f->subfunctionList[b].size(); c++) {
-				for (int d = 0; d < f->subfunctionList[b][c]->size(); d++) {
-					int temp = f->subfunctionList[b][c]->at(d);
+			for (int c = 0; c < f->siblingfunctionList[b].size(); c++) {
+				for (int d = 0; d < f->siblingfunctionList[b][c]->size(); d++) {
+					int temp = f->siblingfunctionList[b][c]->at(d);
 					file << temp << ", ";
 				}
 				file << std::endl;

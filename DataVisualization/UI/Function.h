@@ -16,7 +16,9 @@ public:
 
 	std::vector<int>* clause = nullptr;
 	std::vector<int>* trueAttributes = nullptr;
-	std::vector<std::vector<std::vector<int>*>> subfunctionList{};
+	std::vector<std::vector<std::vector<int>*>> siblingfunctionList{};
+
+	std::vector<Function*> subfunctionList{};
 	
 	char* functionName;
 

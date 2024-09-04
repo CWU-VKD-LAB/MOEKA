@@ -605,6 +605,7 @@ void moeka::start()
 			break;
 		}
 	}
+
 }
 
 
@@ -617,6 +618,12 @@ void moeka::start(bool* flag)
 
 	// TODO: possible bug fixes with UI if real data is used and such
 	start();
+
+	std::cout << "Thread: moeka thread is ending." << std::endl;
+
+	*synchronizationFlag = false;
+
+	return;
 }
 
 
