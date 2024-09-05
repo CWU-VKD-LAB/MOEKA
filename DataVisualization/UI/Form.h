@@ -80,9 +80,11 @@ private:
 	std::string action = "Add Clause";
 	std::vector<std::string> functionNames{};
 	std::string currentFunction = "";
-	int clauseIndex = -1;
+	int clauseIndex = 0;
 	int functionIndex = 0;
-	int subfunctionIndex = 0;
+	int siblingFunctionIndex = 0;
+
+
 	int colorPickerState = -1;
 	bool colorPickerOpen = false;
 	bool useGradient = false;

@@ -101,7 +101,7 @@ void Form::drawPrep () {
 		if (functionIndex > 0) {
 			functionIndex--;
 			func = functionList.at(functionIndex);
-			subfunctionIndex = 0;
+			siblingFunctionIndex = 0;
 			clauseIndex = 0;
 			action = "Add Clause";
 		}
@@ -111,7 +111,7 @@ void Form::drawPrep () {
 		if (functionIndex < functionList.size() - 1) {
 			functionIndex++;
 			func = functionList.at(functionIndex);
-			subfunctionIndex = 0;
+			siblingFunctionIndex = 0;
 			clauseIndex = 0;
 			action = "Add Clause";
 		}
@@ -239,8 +239,8 @@ void Form::drawLoad () {
 		func = functionList[0];
 		current = state::FUNCTION;
 		clauseIndex = 0;
-		subfunctionIndex = 0;
-		func->clause = func->siblingfunctionList[subfunctionIndex].at(0);
+		siblingFunctionIndex = 0;
+		func->clause = func->siblingfunctionList[siblingFunctionIndex].at(0);
 	}
 	if (selectedFile == -1) {
 		ImGui::EndDisabled();

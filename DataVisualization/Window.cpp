@@ -251,19 +251,19 @@ void Window::createOptions (Texture& texture) {
     }
     ImGui::End();
 
-    ImGui::Begin("##", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+    ImGui::Begin("##modelswitch", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
     ImVec2 modelSelectWindow = {config::windowX * .2f, config::windowY * .06f};
     ImGui::SetWindowSize(modelSelectWindow);
     ImGui::SetWindowPos(ImVec2(config::windowX - modelSelectWindow.x, config::windowY - modelSelectWindow.y));
     ImGui::Text((std::string("Selected Model: ") + std::to_string(config::drawIndex+1)).c_str());
     ImGui::SetNextItemWidth(modelSelectWindow.x * .5f);
-    if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
+    if (ImGui::ArrowButton("##leftb", ImGuiDir_Left)) {
         if (config::drawIndex > 0) {
             config::drawIndex--;
         }
     }
     ImGui::SameLine();
-    if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
+    if (ImGui::ArrowButton("##rightb", ImGuiDir_Right)) {
         if (config::drawIndex < managedList.size()-1) {
             config::drawIndex++;
         }

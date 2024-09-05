@@ -86,7 +86,6 @@ void Function::applyFunctiontoChains()
 
 
 Function::~Function () {
-	delete(clause);
 	for (auto a : siblingfunctionList) {
 		//delete(a);
 	}

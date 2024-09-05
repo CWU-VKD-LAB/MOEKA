@@ -18,6 +18,7 @@ public:
 	std::vector<int>* trueAttributes = nullptr;
 	std::vector<std::vector<std::vector<int>*>> siblingfunctionList{};
 
+	Function* parent = nullptr;
 	std::vector<Function*> subfunctionList{};
 	
 	char* functionName;
