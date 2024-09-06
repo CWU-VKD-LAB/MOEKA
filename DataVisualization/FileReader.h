@@ -8,6 +8,8 @@
 
 
 class CSVReader {
+private:
+	static void saveFunction(std::ofstream& file, Function* func, int depth);
 public:
 	static std::vector<Function*> loadedFunctionHistory;
 	static void readCSV(std::vector<Function*>* container, std::string path);

@@ -117,35 +117,44 @@ void CSVReader::saveToCSV(std::vector<Function*>* data, std::string path) {
 
 	// for each function in memory
 	for (int a = 0; a < data->size(); a++) {
-		f = data->at(a);
-		// ## denotes to readFromCSV that this is a parent function.
-		file << "##" << f->functionName << std::endl;
-
-		// write down attribute names
-		for (int b = 0; b < f->attributeCount; b++) {
-			file << f->attributeNames[b] << ", ";
-		}
-		file << std::endl;
-
-		// write down range of kValues
-		for (int b = 0; b < f->attributeCount; b++) {
-			file << f->kValues[b] << ", ";
-		}
-		file << std::endl;
-
-		file << f->attributeCount << ", " << f->targetAttributeCount << ", " << std::endl;
-
-		// for each subfunction of the original function
-		for (int b = 0; b < f->siblingfunctionList.size(); b++) {
-			file << "#sub" << b << std::endl;;
-			for (int c = 0; c < f->siblingfunctionList[b].size(); c++) {
-				for (int d = 0; d < f->siblingfunctionList[b][c]->size(); d++) {
-					int temp = f->siblingfunctionList[b][c]->at(d);
-					file << temp << ", ";
-				}
-				file << std::endl;
-			}
-		}
+		saveFunction(file, data->at(a), 0);
 	}
 	file.close();
+}
+
+void CSVReader::saveFunction (std::ofstream &file, Function* func, int depth) {
+	for (int a = 0; a < depth+2; a++) {
+		file << "#";
+	}
+	file << func->functionName << std::endl;
+
+	// write down attribute names
+	for (int b = 0; b < func->attributeCount; b++) {
+		file << func->attributeNames[b] << ", ";
+	}
+	file << std::endl;
+
+	// write down range of kValues
+	for (int b = 0; b < func->attributeCount; b++) {
+		file << func->kValues[b] << ", ";
+	}
+	file << std::endl;
+
+	file << func->attributeCount << ", " << func->targetAttributeCount << ", " << std::endl;
+
+	// for each subfunction of the original function
+	for (int b = 0; b < func->siblingfunctionList.size(); b++) {
+		file << "#sub" << b << std::endl;;
+		for (int c = 0; c < func->siblingfunctionList[b].size(); c++) {
+			for (int d = 0; d < func->siblingfunctionList[b][c]->size(); d++) {
+				int temp = func->siblingfunctionList[b][c]->at(d);
+				file << temp << ", ";
+			}
+			file << std::endl;
+		}
+	}
+
+	for (auto a : func->subfunctionList) {
+		saveFunction(file, a, depth + 1);
+	}
 }

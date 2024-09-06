@@ -221,13 +221,12 @@ void Form::drawLoad () {
 	ImGui::SetWindowSize(ImVec2{config::windowX * .5f, config::windowY * .3f});
 	ImVec2 window = ImGui::GetWindowSize();
 	ImGui::SetWindowPos(ImVec2{ (config::windowX - window.x) * .5f, (config::windowY - window.y) * .5f} );
-	ImGui::SetCursorPos(ImVec2{ ImGui::GetStyle().WindowPadding.x, ImGui::GetStyle().WindowPadding.y });
 
 	ImVec2 textSize = ImGui::CalcTextSize("Load from which file?");
 	ImGui::Text("Load from which file?");
 	
 	// files in folder
-	ImGui::BeginChild("##fileNames", ImVec2{window.x - (ImGui::GetStyle().WindowPadding.x * 2.0f), window.y * .7f}, ImGuiChildFlags_Border, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+	ImGui::BeginChild("##fileNames", ImVec2{window.x - (ImGui::GetStyle().WindowPadding.x * 2.0f), window.y * .65f}, ImGuiChildFlags_Border, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 	for (int a = 0; a < files.size(); a++) {
 		if (ImGui::Selectable(files[a].c_str(), selectedFile == a)) {
 			selectedFile = a;
@@ -242,11 +241,14 @@ void Form::drawLoad () {
 		ImGui::BeginDisabled();
 	}
 	if (ImGui::Button("Load##", buttonSize)) {
+		functionList.clear();
 		CSVReader::readCSV(&functionList, (basePath + "\\" + files[selectedFile]).c_str());
 		func = functionList[0];
 		current = state::FUNCTION;
 		clauseIndex = 0;
 		siblingFunctionIndex = 0;
+		subfunctionIndex = 0;
+		functionIndex = 0;
 		func->clause = func->siblingfunctionList[siblingFunctionIndex].at(0);
 	}
 	if (selectedFile == -1) {
