@@ -24,6 +24,8 @@ void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 
 		// create a function if we have ##
 		if (line.find("##") != std::string::npos) {
+			int depth = (int)std::count(line.begin(), line.end(), '#') - 2;
+
 			index = -1;
 			char* name = new char[line.length()];
 			strcpy_s(name, line.length(), line.substr(2, line.length()).c_str());
@@ -72,8 +74,18 @@ void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 			line.erase(0, line.find(", ") + 2);
 			current->targetAttributeCount = stoi(line.substr(0, line.length() - 1));
 
-
-			tempFuncList.push_back(current);
+			if (depth != 0) {
+				Function* parent = tempFuncList.back();
+				while (depth > 1) {
+					parent = parent->subfunctionList.back();
+					depth--;
+				}
+				parent->subfunctionList.push_back(current);
+				current->parent = parent;
+			}
+			else {
+				tempFuncList.push_back(current);
+			}
 			continue;
 		}
 
@@ -113,7 +125,6 @@ void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 void CSVReader::saveToCSV(std::vector<Function*>* data, std::string path) {
 	// todo: update to support child functions
 	std::ofstream file(path);
-	Function* f;
 
 	// for each function in memory
 	for (int a = 0; a < data->size(); a++) {
