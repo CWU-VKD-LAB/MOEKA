@@ -67,7 +67,7 @@ private:
 	//
 	Function* func = nullptr;
 	std::vector<Function*> functionList{};
-	void setNewFunc ();
+	void setNewFunc (std::string = "");
 	/// @brief flag for synchronization
 	bool startMoeka;
 
@@ -81,8 +81,9 @@ private:
 	std::vector<std::string> functionNames{};
 	std::string currentFunction = "";
 	int clauseIndex = 0;
-	int functionIndex = 0;
+	int functionIndex = -1;
 	int siblingFunctionIndex = 0;
+	int subfunctionIndex = 0;
 
 
 	int colorPickerState = -1;

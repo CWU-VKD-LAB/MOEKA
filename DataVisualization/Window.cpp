@@ -245,7 +245,7 @@ void Window::createOptions (Texture& texture) {
         form.openWindow();
     }
     ImGui::SameLine();
-    if (ImGui::Button("Compare Models", buttonSize)) {
+    if (ImGui::Button("Compare Funcs", buttonSize)) {
         form.current = state::COMPARE;
         form.openWindow();
     }

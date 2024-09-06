@@ -92,10 +92,13 @@ void Form::drawPrep () {
 	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .4f), window.y - (config::windowY * .25f)));
 
 	// header
+	float positionY = ImGui::GetCursorPosY();
 	ImGui::InputText("##", func->functionName, 128);
-	ImGui::SameLine(window.x * .7575f);
+	ImGui::SameLine();
 	
-	ImGui::Text((currentFunction + " " + std::to_string(functionIndex + 1) + "/" + std::to_string(functionList.size())).c_str());
+	std::string tempText = currentFunction + " " + std::to_string(functionIndex + 1) + "/" + std::to_string(functionList.size());
+	ImGui::SetCursorPos(ImVec2{ImGui::GetWindowSize().x - ImGui::CalcTextSize(tempText.c_str()).x - font->FontSize * 2.0f - ImGui::GetStyle().ItemSpacing.x * 3.0f, positionY});
+	ImGui::Text(tempText.c_str());
 	ImGui::SameLine();
 	if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
 		if (functionIndex > 0) {
@@ -108,7 +111,7 @@ void Form::drawPrep () {
 	}
 	ImGui::SameLine();
 	if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
-		if (functionIndex < functionList.size() - 1) {
+		if (functionIndex < (int)(functionList.size() - 1) ) {
 			functionIndex++;
 			func = functionList.at(functionIndex);
 			siblingFunctionIndex = 0;
@@ -119,18 +122,18 @@ void Form::drawPrep () {
 
 	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5f - (ImGui::CalcTextSize("Amount of Target Attributes: ").x * .5f));
 	ImGui::Text("Amount of Target Attributes: ");
-	ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .96f);
+	ImGui::SetNextItemWidth(ImGui::GetWindowSize().x - ImGui::GetStyle().WindowPadding.x * 2.0f);
 	ImGui::SliderInt("##amtTargetSlider", &func->targetAttributeCount, 2, config::defaultAmount);
 	ImGui::Separator();
 
 	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5f - (ImGui::CalcTextSize("Amount of Attributes: ").x * .5f));
 	ImGui::Text("Amount of Attributes: ");
-	ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .96f);
+	ImGui::SetNextItemWidth(ImGui::GetWindowSize().x - ImGui::GetStyle().WindowPadding.x * 2.0f);
 	ImGui::SliderInt("##amtSlider", &func->attributeCount, 2, config::defaultAmount);
 	ImGui::Separator();
 
 	// create a subwindow that contains the attributes
-	ImGui::BeginChild("##", ImVec2{ ImGui::GetWindowSize().x * .95f, ImGui::GetWindowSize().y * .5f }, ImGuiChildFlags_None, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+	ImGui::BeginChild("##", ImVec2{ ImGui::GetWindowSize().x - ImGui::GetStyle().WindowPadding.x * 2.0f, ImGui::GetWindowSize().y * .5f }, ImGuiChildFlags_None, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 	for (int a = 0; a < func->attributeCount; a++) {
 		ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .28f);
 		ImGui::InputText(std::string("##Text").append(std::to_string(a)).c_str(), func->attributeNames.at(a), 128);
@@ -152,7 +155,7 @@ void Form::drawPrep () {
 	}
 
 	ImGui::SameLine();
-	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5);
+	ImGui::SetCursorPosX(ImGui::GetWindowSize().x - (buttonSize.x * 3.0f) - (ImGui::GetStyle().ItemSpacing.x * 2.0f) - ImGui::GetStyle().WindowPadding.x);
 	// creates the skip button, if function list is empty however, disable it.
 	if (functionList.empty()) {
 		ImGui::BeginDisabled();
@@ -172,10 +175,14 @@ void Form::drawPrep () {
 	ImGui::SameLine();
 	if (ImGui::Button("Function", buttonSize)) {		
 		current = FUNCTION;
-		std::vector<int>* temp = new std::vector<int>;
-		temp->resize(func->attributeCount);
-		std::fill(temp->begin(), temp->end(), 0);
-		func->clause = temp;
+		setNewFunc();
+		if (func->clause == nullptr) {
+			std::vector<int>* temp = new std::vector<int>;
+			temp->resize(func->attributeCount);
+			std::fill(temp->begin(), temp->end(), 0);
+			func->clause = temp;
+		}
+		functionIndex++;
 		if (std::count(functionList.begin(), functionList.end(), func) == 0) {
 			functionList.insert(functionList.end(), func);
 		}
@@ -724,9 +731,16 @@ void Form::drawColor () {
 }
 
 // when we click to add a new function, or open the program for the first time, this creates a function in memory.
-void Form::setNewFunc () {
+void Form::setNewFunc (std::string functionName) {
 	char* name = new char[128];
-	strcpy_s(name, 128, std::string("Function ").append(std::to_string(functionList.size() + 1)).c_str());
+	if (functionName.empty()) {
+		strcpy_s(name, 128, std::string("Function ").append(std::to_string(functionList.size() + 1)).c_str());
+	}
+	else {
+		// does not check if functionName can fit in buffer
+		strcpy_s(name, 128, functionName.c_str());
+	}
+	
 	func = new Function(name);
 	func->kValues.resize(config::defaultAmount); // TODO: needs to be the actual number of values
 	func->attributeNames.resize(config::defaultAmount);

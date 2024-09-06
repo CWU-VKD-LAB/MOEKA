@@ -10,7 +10,6 @@ void Form::drawFunction() {
 	ImGui::SetWindowPos(ImVec2(config::windowX * .5f - window.x * .5f, config::windowY * .5f - window.y * .5f));
 	//// header
 	// back button
-
 	if (ImGui::Button("Back", ImVec2{ window.x * .15f, 20.0f })) {
 		current = PREP;
 	}
@@ -25,21 +24,35 @@ void Form::drawFunction() {
 
 
 
-	std::string functionFraction = (std::to_string(functionIndex + 1) + "/" + std::to_string(functionList.size()));
+	std::string functionFraction;
+	if (func->parent == nullptr) {
+		functionFraction = (std::to_string(functionIndex + 1) + "/" + std::to_string(functionList.size()));
+	}
+	else {
+		functionFraction = (std::to_string(subfunctionIndex + 1) + "/" + std::to_string(func->parent->subfunctionList.size()));
+	}
 	ImGui::SetCursorPosX((window.x - ImGui::CalcTextSize(func->functionName).x) - (font->FontSize * 3.0f) - ImGui::CalcTextSize(functionFraction.c_str()).x - (ImGui::GetStyle().ItemSpacing.x * 4.0f) - ImGui::GetStyle().WindowPadding.x );
 	ImGui::Text(func->functionName);
 	ImGui::SameLine();
 	ImGui::Text(functionFraction.c_str());
 	ImGui::SameLine();
 	if (ImGui::ArrowButton("##lefta", ImGuiDir_Left)) {
-		if (functionIndex > 0) {
-			functionIndex--;
-			func = functionList.at(functionIndex);
+		if (func->parent == nullptr) {
+			if (functionIndex > 0) {
+				functionIndex--;
+				func = functionList.at(functionIndex);
+				siblingFunctionIndex = 0;
+				clauseIndex = 0;
+				action = "Add Clause";
+			}
+		}
+		else if (subfunctionIndex > 0) {
+			subfunctionIndex--;
+			func = func->parent->subfunctionList[subfunctionIndex];
 			siblingFunctionIndex = 0;
 			clauseIndex = 0;
 			action = "Add Clause";
 		}
-		func->clause = func->siblingfunctionList[siblingFunctionIndex].at(0);
 	}
 	ImGui::SameLine();
 	bool disable = func->parent == nullptr;
@@ -49,7 +62,7 @@ void Form::drawFunction() {
 	if (ImGui::ArrowButton("##up", ImGuiDir_Up)) {
 		func = func->parent;
 		siblingFunctionIndex = 0;
-		statusMessage = "Loaded predecessor function";
+		statusMessage = "Loaded predecessor";
 	}
 	if (disable) {
 		ImGui::EndDisabled();
@@ -62,14 +75,23 @@ void Form::drawFunction() {
 	}
 	ImGui::SameLine();
 	if (ImGui::ArrowButton("##righta", ImGuiDir_Right)) {
-		if (functionIndex < functionList.size() - 1) {
-			functionIndex++;
-			func = functionList.at(functionIndex);
+		if (func->parent == nullptr) {
+			if (functionIndex < (int)(functionList.size() - 1)) {
+				functionIndex++;
+				func = functionList.at(functionIndex);
+				siblingFunctionIndex = 0;
+				clauseIndex = 0;
+				action = "Add Clause";
+			}
+		}
+		else if (subfunctionIndex < (int)(func->parent->subfunctionList.size() - 1) ) {
+			subfunctionIndex++;
+			func = func->parent->subfunctionList[subfunctionIndex];
 			siblingFunctionIndex = 0;
 			clauseIndex = 0;
 			action = "Add Clause";
 		}
-		func->clause = func->siblingfunctionList[siblingFunctionIndex].at(0);
+		//func->clause = func->siblingfunctionList[siblingFunctionIndex].at(0);
 	}
 
 	
@@ -167,11 +189,15 @@ void Form::drawFunction() {
 				if (ImGui::Button(std::string("x##").append(std::to_string(a)).c_str(), ImVec2{ 15.0f, 15.0f })) {
 					func->subfunctionList.erase(func->subfunctionList.begin() + a);
 					statusMessage = std::string("Removed Sub ").append(std::to_string(a + 1));
+					if (subfunctionIndex >= func->subfunctionList.size()) {
+						subfunctionIndex--;
+					}
 				}
 				if (ImGui::Button(std::string("Load##").append(std::to_string(a)).c_str(), ImVec2{ 120.0f, 38.0f })) {
 					statusMessage = std::string("Loaded Sub ").append(std::to_string(a + 1));
 					func = func->subfunctionList[a];
 					siblingFunctionIndex = 0;
+					subfunctionIndex = a;
 				}
 			}
 			ImGui::EndTable();
@@ -216,9 +242,10 @@ void Form::drawFunction() {
 		if (ImGui::Button("Add a sub function", buttonSize)) {
 			// create a new function and set the old one as the new ones parent, and put the child function in the parents list.
 			Function* parent = func;
-			setNewFunc();
+			setNewFunc("Sub Func " + std::to_string(parent->subfunctionList.size()+1));
 			func->parent = parent;
 			parent->subfunctionList.push_back(func);
+			subfunctionIndex = parent->subfunctionList.size()-1;
 
 			// set a clause so the table isn't empty when sub function is loaded.
 			func->clause = new std::vector<int>{};
@@ -258,8 +285,6 @@ void Form::drawFunction() {
 		// create a model for the hanselChains
 		addModel = true;
 		config::drawIndex++;
-
-
 
 		//files.clear();
 		//for (auto a : std::filesystem::directory_iterator(basePath)) {
