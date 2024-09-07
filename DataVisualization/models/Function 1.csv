@@ -3,28 +3,39 @@ Attribute 1, Attribute 2,
 2, 2, 
 2, 2, 
 #sub0
-1, 1, 
-0, 0, 
-0, 0, 
-#sub1
-1, 1, 
-###Sub Func 1
+###Function 1-1
 Attribute 1, Attribute 2, 
 2, 2, 
 2, 2, 
 #sub0
-1, 1, 
 0, 0, 
-####Sub Func 1
+0, 0, 
+####Function 1-1-1
 Attribute 1, Attribute 2, 
 2, 2, 
 2, 2, 
 #sub0
-0, 1, 
-##Function 2
-Attribute 1, Attribute 2, Attribute 3, 
-4, 4, 4, 
-3, 2, 
+####Function 1-1-2
+Attribute 1, Attribute 2, 
+2, 2, 
+2, 2, 
 #sub0
-3, 3, 3, 
-2, 2, 2, 
+0, 0, 
+0, 0, 
+0, 0, 
+###Function 1-2
+Attribute 1, Attribute 2, 
+2, 2, 
+2, 2, 
+#sub0
+0, 0, 
+0, 0, 
+0, 0, 
+0, 0, 
+####Function 1-2-1
+Attribute 1, Attribute 2, 
+2, 2, 
+2, 2, 
+#sub0
+0, 0, 
+0, 0, 

@@ -1,5 +1,7 @@
 #include "Form.h"
 
+std::vector<Function*> Form::functionList{};
+
 Form::Form () {
 	interview.dt.readData("test.csv");
 	setNewFunc();
@@ -249,7 +251,9 @@ void Form::drawLoad () {
 		siblingFunctionIndex = 0;
 		subfunctionIndex = 0;
 		functionIndex = 0;
-		func->clause = func->siblingfunctionList[siblingFunctionIndex].at(0);
+		if (func->siblingfunctionList[siblingFunctionIndex].size() != 0) {
+			func->clause = func->siblingfunctionList[siblingFunctionIndex].at(0);
+		}
 	}
 	if (selectedFile == -1) {
 		ImGui::EndDisabled();

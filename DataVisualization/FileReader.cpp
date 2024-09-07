@@ -28,7 +28,7 @@ void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 
 			index = -1;
 			char* name = new char[line.length()];
-			strcpy_s(name, line.length(), line.substr(2, line.length()).c_str());
+			strcpy_s(name, line.length(), line.substr(2+depth, line.length()).c_str());
 			current = new Function(name);
 
 			// read attribute info
@@ -89,7 +89,7 @@ void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 			continue;
 		}
 
-		// everything below is either a clause or a subfunction.
+		// everything below is either a clause or a siblingfunction.
 		if (line.find('#') != std::string::npos) {
 			std::vector<std::vector<int>*>* subfunction = new std::vector<std::vector<int>*>;
 			current->siblingfunctionList.push_back(*subfunction);

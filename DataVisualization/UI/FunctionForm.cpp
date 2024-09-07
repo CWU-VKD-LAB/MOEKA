@@ -242,7 +242,7 @@ void Form::drawFunction() {
 		if (ImGui::Button("Add a sub function", buttonSize)) {
 			// create a new function and set the old one as the new ones parent, and put the child function in the parents list.
 			Function* parent = func;
-			setNewFunc("Sub Func " + std::to_string(parent->subfunctionList.size()+1));
+			setNewFunc(std::string(parent->functionName) + "-" + std::to_string(parent->subfunctionList.size()+1));
 			func->parent = parent;
 			parent->subfunctionList.push_back(func);
 			subfunctionIndex = parent->subfunctionList.size()-1;

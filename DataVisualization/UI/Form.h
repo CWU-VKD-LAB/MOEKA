@@ -66,7 +66,7 @@ private:
 
 	//
 	Function* func = nullptr;
-	std::vector<Function*> functionList{};
+	
 	void setNewFunc (std::string = "");
 	/// @brief flag for synchronization
 	bool startMoeka;
@@ -91,7 +91,7 @@ private:
 	bool useGradient = false;
 public:
 	int current = state::INTRODUCTION;
-
+	static std::vector<Function*> functionList;
 	/// @brief add a new model to be drawn by the window
 	bool addModel = false;
 	bool open = true;

@@ -181,6 +181,10 @@ void frameBufferCallback(GLFWwindow* window, int width, int height) {
 // creates the table of buttons by sampling a texture
 void Window::createOptions (Texture& texture) {
     ImGui::Begin("Options", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+    float optionWidth = config::buttonSize * config::options.size() + (config::options.size() - 1) * ImGui::GetStyle().ItemSpacing.x + (2.0f * ImGui::GetStyle().WindowPadding.x);
+    ImGui::SetWindowSize(ImVec2(optionWidth, config::buttonSize + (2.0f * ImGui::GetStyle().WindowPadding.y)));
+    ImGui::SetWindowPos(ImVec2{0.0f, 0.0f});
+    ImGui::SetCursorPos(ImVec2{ImGui::GetStyle().WindowPadding.x, ImGui::GetStyle().WindowPadding.y });
     // create options table
     texture.bind();
     int numOfElements = std::min((int)round(config::windowX / 32.0f), (int)config::options.size());
@@ -190,7 +194,9 @@ void Window::createOptions (Texture& texture) {
     for (int item = 0; item < config::options.size(); item++) {
         x = item % 5;
         y = item / 5;
-        ImGui::SameLine();
+        if (item != 0) {
+            ImGui::SameLine();
+        }
 
         ImVec2 size = ImVec2(config::buttonSize, config::buttonSize);   // Size of the image we want to make visible
 
@@ -218,11 +224,21 @@ void Window::createOptions (Texture& texture) {
         ImGui::PopID();
 
     }
-
-
-    ImGui::SetWindowSize(ImVec2(config::windowX, config::buttonSize*2));
-    ImGui::SetWindowPos(ImVec2(0.0f, 0.0f));
     ImGui::End();
+
+
+
+    ImGui::Begin("FunctionView", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+    
+    ImGui::SetWindowSize(ImVec2{config::windowX - optionWidth, ImGui::GetFont()->FontSize * 10.0f});
+    ImGui::SetWindowPos(ImVec2{optionWidth, 0});
+    for (auto a : Form::functionList) {
+        tree(a);
+    }
+
+    ImGui::End();
+
+
     
     // bottom row of buttons
     ImGui::Begin("##formState", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
@@ -270,6 +286,17 @@ void Window::createOptions (Texture& texture) {
     }
 
     ImGui::End();
+}
+
+void Window::tree (Function* function) {
+    if (ImGui::TreeNode(function->functionName) ) {
+        // todo function math form and linguistic form here or after for loop
+        ImGui::SetNextItemOpen(true);
+        for (auto a : function->subfunctionList) {
+            tree(a);
+        }
+        ImGui::TreePop();
+    }
 }
 
 // when you click, it checks if we are focusing on a shape, if we are, create the color picker window.

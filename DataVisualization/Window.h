@@ -22,6 +22,7 @@ private:
 	void initGLFW ();
 	void initGLEW ();
 	void initImGui ();
+	static void tree(Function* function);
 	ImGuiWindowFlags flags = 0;
 	ImFont* font = nullptr;
 public:
