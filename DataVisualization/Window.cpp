@@ -1,5 +1,6 @@
 #include "Window.h"
 
+
 #define NOMINMAX
 
 std::vector<Drawable*> Window::managedList{};
@@ -86,6 +87,7 @@ void Window::initImGui () {
 }
 
 void Window::endImGui () {
+    ImGui::ClearWindowSettings("FunctionView");
     // end the ImGui context
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -228,13 +230,20 @@ void Window::createOptions (Texture& texture) {
 
 
 
-    ImGui::Begin("FunctionView", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-    
-    ImGui::SetWindowSize(ImVec2{config::windowX - optionWidth, ImGui::GetFont()->FontSize * 10.0f});
+    ImGui::Begin("FunctionView", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+    ImGui::SetWindowSize(ImVec2{ config::windowX - optionWidth, config::buttonSize + (2.0f * ImGui::GetStyle().WindowPadding.y) }, ImGuiCond_Once);
+    //ImGui::SetWindowSize(ImVec2{config::windowX - optionWidth, ImGui::GetWindowSize().y}, ImGuiCond_);
     ImGui::SetWindowPos(ImVec2{optionWidth, 0});
-    for (auto a : Form::functionList) {
-        tree(a);
+    if (!Form::functionList.empty()) {
+        for (auto a : Form::functionList) {
+            tree(a);
+        }
     }
+    else {
+        ImGui::SetNextItemWidth(config::windowX - optionWidth - ImGui::GetStyle().WindowPadding.x);
+        ImGui::TextWrapped("There are no currently loaded functions. Please Open the prep window to create or load functions to view them in this window.");
+    }
+    
 
     ImGui::End();
 
@@ -289,9 +298,65 @@ void Window::createOptions (Texture& texture) {
 }
 
 void Window::tree (Function* function) {
-    if (ImGui::TreeNode(function->functionName) ) {
-        // todo function math form and linguistic form here or after for loop
-        ImGui::SetNextItemOpen(true);
+    if (ImGui::TreeNode(("##" + std::string(function->functionName)).c_str(), function->functionName)) {
+        ImGui::SetNextItemOpen(false, ImGuiCond_Once);
+        // Math representation of the function.
+        ImGui::SameLine();
+        if (ImGui::Button("Math##", ImVec2{ ImGui::CalcTextSize("Math").x * 1.0f, ImGui::GetFontSize() * 1.0f })) {
+            ImGui::OpenPopup("Math Version");
+        }
+        ImGui::SetNextWindowSize(ImVec2{config::windowX * .2f, config::windowY * .2f});
+        if (ImGui::BeginPopup("Math Version", ImGuiWindowFlags_AlwaysAutoResize)) {
+            if (!function->siblingfunctionList.empty()) {
+                for (auto a : function->siblingfunctionList) {
+                    for (auto b : a) {
+                        //clause
+                        for (auto c : *b) {
+                            
+                        }
+                    }
+                }
+                ImGui::TextWrapped("");
+            }
+            else {
+                ImGui::Text("Function does not have its own clauses.");
+            }
+            ImGui::EndPopup();
+        }
+        ImGui::SameLine();
+
+        
+        // English representation of the function.
+        ImGui::SameLine();
+        if (ImGui::Button("English##", ImVec2{ ImGui::CalcTextSize("English").x * 1.0f, ImGui::GetFontSize() * 1.0f })) {
+            ImGui::OpenPopup("English Version");
+        }
+        if (ImGui::BeginPopup("English Version")) {
+            
+            ImGui::EndPopup();
+        }
+
+        if (!function->siblingfunctionList.empty()) {
+            int siblingIndex = 1;
+            for (auto a : function->siblingfunctionList) {
+                if (ImGui::TreeNode((std::string("Sibling k = ") + std::to_string(siblingIndex) + "##").c_str())) {
+                    for (auto b : a) {
+                        std::stringstream ss;
+                        for (int c = 0; c < b->size(); c++) {
+                            ss << std::to_string(b->at(c));
+                            if (c + 1 != b->size()) {
+                                ss << ", ";
+                            }
+                        }
+                        ImGui::Text(ss.str().c_str());
+                    }
+                    ImGui::TreePop();
+                    siblingIndex++;
+                }
+            }
+        }
+        
+        
         for (auto a : function->subfunctionList) {
             tree(a);
         }
@@ -317,9 +382,6 @@ void Window::draw () {
     if (!managedList.empty()) {
         managedList[config::drawIndex]->draw();
     }
-    //for (auto a : managedList) {
-    //    a->draw();
-    //}
 }
 
 void Window::addModelFromForm() {
