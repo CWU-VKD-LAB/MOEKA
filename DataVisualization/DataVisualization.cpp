@@ -68,18 +68,9 @@ void init () {
 
 /*
 * 
-* better automatic function names
-*   function 1
-*       -> function 1 - 1
-*           -> function 1 - 1 - 1
-*       -> function 1 - 2
 * 
-* Tree graph for functions
-*   -> [toggle] mathematical form/linguistic form
-*       -> ...
-*           -> ...
 * 
-*/
+*/ 
 
 
 

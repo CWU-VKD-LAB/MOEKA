@@ -4,12 +4,6 @@
 void Model::addColumn (std::vector<int>* values) {
 	Section* column = recursiveCreateSections(values);
 
-	////int elements = (int)ceil((double)values.size() / config::compressBarAmount);
-	//
-	//// maybe make recursive method in disk to replace this?
-	//for (int a = 0; a < values->size(); a++) {
-	//	column->addChild(new Bar());
-	//}
 	// which side to set this to be drawn on
 	int side = 0;
 	// every other insertion should see side be negative

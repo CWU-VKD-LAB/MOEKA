@@ -24,8 +24,10 @@ private:
 	void initGLEW ();
 	void initImGui ();
 	static void tree(Function* function);
+	static void treeDescription (Function* function);
 	ImGuiWindowFlags flags = 0;
-	ImFont* font = nullptr;
+	inline static ImFont* font = nullptr;
+	inline static ImFont* monoFont = nullptr;
 public:
 	static Form form;
 	static Drawable* s;

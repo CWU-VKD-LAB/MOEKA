@@ -30,7 +30,7 @@ Window::Window () {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glViewport(0, 0, config::windowX, config::windowY);
+    glViewport(0, 0, (GLsizei)config::windowX, (GLsizei)config::windowY);
     //
 
     // init glew
@@ -82,6 +82,7 @@ void Window::initImGui () {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
     font = io.Fonts->AddFontFromFileTTF("resources/fonts/ProggyClean.ttf", 13.0f);
+    monoFont = io.Fonts->AddFontFromFileTTF("resources/fonts/JetBrainsMono-Medium.ttf", config::windowY / 42.0f);
     ImGuiStyle& style = ImGui::GetStyle();
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 }
@@ -172,8 +173,8 @@ void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
 
 void windowResizeCallback (GLFWwindow* window, int width, int height) {
     float scale = std::min(config::windowX/width, config::windowY/height);
-    config::windowX = width;
-    config::windowY = height;
+    config::windowX = (float)width;
+    config::windowY = (float)height;
 }
 
 void frameBufferCallback(GLFWwindow* window, int width, int height) {
@@ -238,6 +239,9 @@ void Window::createOptions (Texture& texture) {
         for (auto a : Form::functionList) {
             tree(a);
         }
+        if (Form::comparisonFunction != nullptr) {
+            tree(Form::comparisonFunction);
+        }
     }
     else {
         ImGui::SetNextItemWidth(config::windowX - optionWidth - ImGui::GetStyle().WindowPadding.x);
@@ -262,6 +266,7 @@ void Window::createOptions (Texture& texture) {
     ImGui::SameLine();
     if (ImGui::Button("Open Prep##", buttonSize)) {
         form.current = state::PREP;
+        form.setNewFunc();
         form.openWindow();
     }
     ImGui::SameLine();
@@ -297,44 +302,125 @@ void Window::createOptions (Texture& texture) {
     ImGui::End();
 }
 
+void Window::treeDescription (Function* function) {
+    //ImGui::SameLine();
+    
+    if (ImGui::Button("Math##", ImVec2{ ImGui::CalcTextSize("Math").x * 1.0f, ImGui::GetFontSize() * 1.0f })) {
+        //std::cout << "asdf" << std::endl;
+        ImGui::OpenPopup("Math Version");
+    }
+    ImGui::PushFont(monoFont);
+    if (ImGui::BeginPopup("Math Version", ImGuiWindowFlags_AlwaysAutoResize)) {
+        if (!function->siblingfunctionList.empty()) {
+            std::vector<std::string> full{};
+
+            // sibling func
+            for (int a = 0; a < function->siblingfunctionList.size(); a++) {
+                // clause
+                for (int b = 0; b < function->siblingfunctionList[a].size(); b++) {
+                    std::vector<std::string> functionDef{};
+                    // individual values
+                    std::vector<std::string> clause{};
+                    for (int c = 0; c < function->siblingfunctionList[a][b]->size(); c++) {
+                        if (function->siblingfunctionList[a][b]->at(c) != 0) {
+                            clause.push_back( function->attributeNames[c] + std::string(" >= ") + std::to_string( function->siblingfunctionList[a][b]->at(c) ) );
+                        }
+                    }
+                    for (int c = 0; c < clause.size(); c++) {
+                        //ss << clause[c];
+                        functionDef.push_back(clause[c]);
+                        if (c + 1 < clause.size()) {
+                            functionDef.push_back(" AND ");
+                        }
+                    }
+                    if (!functionDef.empty()) {
+                        std::ostringstream imploded;
+                        std::copy(functionDef.begin(), functionDef.end(), std::ostream_iterator<std::string>(imploded));
+                        full.push_back(imploded.str());
+                    }
+                }
+                
+            }
+            
+            std::string fullString = "";
+            for (int a = 0; a < full.size(); a++) {
+                fullString += full[a];
+                if ((a+1) < full.size()) {
+                    fullString+= "\nOR\n";
+                }
+            }
+            
+            ImGui::Text(fullString.c_str());
+        }
+        else {
+            ImGui::Text("Function does not have its own clauses.");
+        }
+        ImGui::EndPopup();
+    }
+    ImGui::PopFont();
+
+
+    // English representation of the function.
+    ImGui::SameLine();
+    if (ImGui::Button( (std::string("English##") + std::string(function->functionName)).c_str(), ImVec2{ ImGui::CalcTextSize("English").x * 1.0f, ImGui::GetFontSize() * 1.0f })) {
+        ImGui::OpenPopup("English Version");
+    }
+    ImGui::PushFont(monoFont);
+    if (ImGui::BeginPopup("English Version")) {
+        if (!function->siblingfunctionList.empty()) {
+            std::vector<std::string> full{};
+
+            // sibling func
+            for (int a = 0; a < function->siblingfunctionList.size(); a++) {
+                // clause
+                for (int b = 0; b < function->siblingfunctionList[a].size(); b++) {
+                    std::vector<std::string> functionDef{};
+                    // individual values
+                    std::vector<std::string> clause{};
+                    for (int c = 0; c < function->siblingfunctionList[a][b]->size(); c++) {
+                        if (function->siblingfunctionList[a][b]->at(c) != 0) {
+                            clause.push_back("If " + std::string(function->attributeNames[c]) + " is " + std::to_string(function->siblingfunctionList[a][b]->at(c)));
+                        }
+                    }
+                    for (int c = 0; c < clause.size(); c++) {
+                        //ss << clause[c];
+                        functionDef.push_back(clause[c]);
+                        if ((long)c + 1 < clause.size()) {
+                            functionDef.push_back(" AND ");
+                        }
+                    }
+                    if (!functionDef.empty()) {
+                        std::ostringstream imploded;
+                        std::copy(functionDef.begin(), functionDef.end(), std::ostream_iterator<std::string>(imploded));
+                        full.push_back(imploded.str());
+                    }
+                }
+
+            }
+
+            std::string fullString = "";
+            for (int a = 0; a < full.size(); a++) {
+                fullString += full[a];
+                if ((a + 1) < full.size()) {
+                    fullString += "\nOR\n";
+                }
+            }
+
+            ImGui::Text(fullString.c_str());
+        }
+        else {
+            ImGui::Text("Function does not have its own clauses.");
+        }
+        ImGui::EndPopup();
+    }
+    ImGui::PopFont();
+}
+
 void Window::tree (Function* function) {
     if (ImGui::TreeNode(("##" + std::string(function->functionName)).c_str(), function->functionName)) {
         ImGui::SetNextItemOpen(false, ImGuiCond_Once);
         // Math representation of the function.
-        ImGui::SameLine();
-        if (ImGui::Button("Math##", ImVec2{ ImGui::CalcTextSize("Math").x * 1.0f, ImGui::GetFontSize() * 1.0f })) {
-            ImGui::OpenPopup("Math Version");
-        }
-        ImGui::SetNextWindowSize(ImVec2{config::windowX * .2f, config::windowY * .2f});
-        if (ImGui::BeginPopup("Math Version", ImGuiWindowFlags_AlwaysAutoResize)) {
-            if (!function->siblingfunctionList.empty()) {
-                for (auto a : function->siblingfunctionList) {
-                    for (auto b : a) {
-                        //clause
-                        for (auto c : *b) {
-                            
-                        }
-                    }
-                }
-                ImGui::TextWrapped("");
-            }
-            else {
-                ImGui::Text("Function does not have its own clauses.");
-            }
-            ImGui::EndPopup();
-        }
-        ImGui::SameLine();
-
-        
-        // English representation of the function.
-        ImGui::SameLine();
-        if (ImGui::Button("English##", ImVec2{ ImGui::CalcTextSize("English").x * 1.0f, ImGui::GetFontSize() * 1.0f })) {
-            ImGui::OpenPopup("English Version");
-        }
-        if (ImGui::BeginPopup("English Version")) {
-            
-            ImGui::EndPopup();
-        }
+        treeDescription(function);
 
         if (!function->siblingfunctionList.empty()) {
             int siblingIndex = 1;
@@ -344,7 +430,7 @@ void Window::tree (Function* function) {
                         std::stringstream ss;
                         for (int c = 0; c < b->size(); c++) {
                             ss << std::to_string(b->at(c));
-                            if (c + 1 != b->size()) {
+                            if ((int)c + 1 != b->size()) {
                                 ss << ", ";
                             }
                         }

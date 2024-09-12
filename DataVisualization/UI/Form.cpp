@@ -1,6 +1,7 @@
 #include "Form.h"
 
 std::vector<Function*> Form::functionList{};
+Function* Form::comparisonFunction = nullptr;
 
 Form::Form () {
 	interview.dt.readData("test.csv");
@@ -175,9 +176,8 @@ void Form::drawPrep () {
 	}
 
 	ImGui::SameLine();
-	if (ImGui::Button("Function", buttonSize)) {		
+	if (ImGui::Button("Add Function", buttonSize)) {		
 		current = FUNCTION;
-		setNewFunc();
 		if (func->clause == nullptr) {
 			std::vector<int>* temp = new std::vector<int>;
 			temp->resize(func->attributeCount);
@@ -188,6 +188,7 @@ void Form::drawPrep () {
 		if (std::count(functionList.begin(), functionList.end(), func) == 0) {
 			functionList.insert(functionList.end(), func);
 		}
+		func->subfunctionList.resize(func->attributeCount);
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Interview", buttonSize)) {		
@@ -391,7 +392,6 @@ void Form::drawInterviewPilot () {
 			attrNames.push_back(a);
 		}
 
-		// TODO: need slider for kn+1
 		int functionKV = 2; 
 
 		int staticInterChainOrder = 1; // 0 default, 1 SHCF, 2 LHCF, 3 LSO

@@ -184,6 +184,10 @@ void Form::drawFunction() {
 			for (int a = 0; a < func->subfunctionList.size(); a++) {
 				ImGui::TableNextColumn();
 				ImGui::SetNextItemWidth(100);
+				bool disabled = func->subfunctionList[a] == NULL;
+				if (disabled) {
+					ImGui::BeginDisabled();
+				}
 				ImGui::Text(std::string("Sub-Func ").append(std::to_string(a + 1)).c_str());
 				ImGui::SameLine(105);
 				if (ImGui::Button(std::string("x##").append(std::to_string(a)).c_str(), ImVec2{ 15.0f, 15.0f })) {
@@ -198,6 +202,10 @@ void Form::drawFunction() {
 					func = func->subfunctionList[a];
 					siblingFunctionIndex = 0;
 					subfunctionIndex = a;
+				}
+				if (disabled) {
+					ImGui::SetItemTooltip("Sub function not defined!");
+					ImGui::EndDisabled();
 				}
 			}
 			ImGui::EndTable();
@@ -229,7 +237,6 @@ void Form::drawFunction() {
 			func->clause->resize(func->attributeCount);
 			std::fill(func->clause->begin(), func->clause->end(), 0);
 			action = "Add Clause";
-			// TODO check for dupes?
 		}
 
 		if (ImGui::Button("Add a sibling function", buttonSize)) {
@@ -285,11 +292,7 @@ void Form::drawFunction() {
 		// create a model for the hanselChains
 		addModel = true;
 		config::drawIndex++;
-
-		//files.clear();
-		//for (auto a : std::filesystem::directory_iterator(basePath)) {
-		//	files.push_back(a.path().string().erase(0, basePath.length() + 1));
-		//}
+		
 	}
 
 	//

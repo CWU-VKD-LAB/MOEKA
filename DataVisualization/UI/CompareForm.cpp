@@ -59,12 +59,83 @@ void Form::drawCompare() {
 	ImGui::SetCursorPosY(window.y * 0.75f - ImGui::GetStyle().WindowPadding.y);
 	ImGui::Separator();
 	ImGui::SetCursorPosX(window.x * .7f - ImGui::GetStyle().WindowPadding.x);
-	bool disabled = compare.indexOne != compare.indexTwo;
+	bool disabled = compare.indexOne == compare.indexTwo || functionList.size() < 2;
 	if (disabled) {
 		ImGui::BeginDisabled();
 	}
 	if (ImGui::Button("Compare", ImVec2{window.x * .3f, window.y * .23f})) {
-		// some comparison done here.
+		Function* funcOne = functionList[compare.indexOne];
+		Function* funcTwo = functionList[compare.indexTwo];
+
+		bool same = true;
+		same = funcOne->attributeCount == funcTwo->attributeCount && same;
+		same = funcOne->siblingfunctionList.size() == funcTwo->siblingfunctionList.size() && same;
+		same = funcOne->subfunctionList.size() == funcTwo->subfunctionList.size() && same;
+		if (same) {
+			for (int a = 0; a < funcOne->kValues.size(); a++) {
+				same = funcOne->kValues[a] == funcTwo->kValues[a] && same;
+			}
+			for (int b = 0; b < funcOne->subfunctionList.size(); b++) {
+				same = (funcOne->siblingfunctionList[b].size() == funcTwo->siblingfunctionList[b].size()) && same;
+				if (same) {
+					for (int c = 0; c < funcOne->siblingfunctionList[b].size(); c++) {
+						same = (funcOne->siblingfunctionList[b][c]->size() == funcTwo->siblingfunctionList[b][c]->size()) && same;
+					}
+				}
+				
+			}
+		}
+		if (same) {
+			// free previous comparison function if it existed previously.
+			if (comparisonFunction != nullptr) {
+				delete(comparisonFunction);
+			}
+
+			// create new comparison function
+			char* name = new char[128];
+			strcpy_s(name, 128, (funcOne->functionName + std::string(" Compare ") + funcTwo->functionName).c_str());
+			comparisonFunction = new Function(name);
+
+			for (auto a : funcOne->kValues) {
+				comparisonFunction->kValues.push_back(a);
+			}
+
+			for (auto a : funcOne->attributeNames) {
+				comparisonFunction->attributeNames.push_back(a);
+			}
+
+			comparisonFunction->attributeCount = funcOne->attributeCount;
+			comparisonFunction->targetAttributeCount = funcOne->targetAttributeCount;
+			
+			
+
+			for (int a = 0; a < funcOne->siblingfunctionList.size(); a++) {
+				std::vector<std::vector<int>*>* sibling = new std::vector<std::vector<int>*>;
+				for (int b = 0; b < funcOne->siblingfunctionList[a].size(); b++) {
+					std::vector<int>* datapoint = new std::vector<int>;
+					for (int c = 0; c < funcOne->siblingfunctionList[a][b]->size(); c++) {
+						datapoint->push_back((1 - funcOne->siblingfunctionList[a][b]->at(c) == funcTwo->siblingfunctionList[a][b]->at(c)) );
+					}
+					sibling->push_back(datapoint);
+				}
+				comparisonFunction->siblingfunctionList.push_back(*sibling);
+			}
+			comparisonFunction->clause = comparisonFunction->siblingfunctionList[0][0];
+			//functionList.push_back(comparisonFunction);
+
+			open = !open;
+
+			////create hanselChainSet for function
+			//result->initializeHanselChains();
+
+			//// organize them and assign classes such that we can visualize
+			//result->setUpHanselChains();
+
+			// create a model for the hanselChains
+			//addModel = true;
+			//config::drawIndex++;
+
+		}
 	}
 	if (disabled) {
 		ImGui::EndDisabled();
