@@ -36,6 +36,18 @@ void Form::drawFunction() {
 	ImGui::SameLine();
 	ImGui::Text(functionFraction.c_str());
 	ImGui::SameLine();
+	bool disable = false;
+	if (func->parent != nullptr) {
+		if (subfunctionIndex - 1 == -1) {
+			disable = true;
+		}
+		else if (subfunctionIndex - 1 > 0) {
+			disable = func->parent->subfunctionList[(size_t)subfunctionIndex - 1] == nullptr;
+		}
+	}
+	if (disable) {
+		ImGui::BeginDisabled();
+	}
 	if (ImGui::ArrowButton("##lefta", ImGuiDir_Left)) {
 		if (func->parent == nullptr) {
 			if (functionIndex > 0) {
@@ -54,8 +66,11 @@ void Form::drawFunction() {
 			action = "Add Clause";
 		}
 	}
+	if (disable) {
+		ImGui::EndDisabled();
+	}
 	ImGui::SameLine();
-	bool disable = func->parent == nullptr;
+	disable = func->parent == nullptr;
 	if (disable) {
 		ImGui::BeginDisabled();
 	}
@@ -74,9 +89,23 @@ void Form::drawFunction() {
 		ImGui::EndTooltip();
 	}
 	ImGui::SameLine();
+
+
+	disable = false;
+	if (func->parent != nullptr) {
+		if ((size_t)subfunctionIndex + 1 == func->parent->subfunctionList.size()) {
+			disable = true;
+		}
+		if ((size_t)subfunctionIndex + 1 < func->parent->subfunctionList.size()) {
+			disable = func->parent->subfunctionList[(size_t)subfunctionIndex + 1] == nullptr;
+		}
+	}
+	if (disable) {
+		ImGui::BeginDisabled();
+	}
 	if (ImGui::ArrowButton("##righta", ImGuiDir_Right)) {
 		if (func->parent == nullptr) {
-			if (functionIndex < (int)(functionList.size() - 1)) {
+			if (functionIndex < (int)(functionList.size() - 1) ) {
 				functionIndex++;
 				func = functionList.at(functionIndex);
 				siblingFunctionIndex = 0;
@@ -84,7 +113,7 @@ void Form::drawFunction() {
 				action = "Add Clause";
 			}
 		}
-		else if (subfunctionIndex < (int)(func->parent->subfunctionList.size() - 1) ) {
+		else if (subfunctionIndex < (int)(func->parent->subfunctionList.size() - 1)) {
 			subfunctionIndex++;
 			func = func->parent->subfunctionList[subfunctionIndex];
 			siblingFunctionIndex = 0;
@@ -92,6 +121,9 @@ void Form::drawFunction() {
 			action = "Add Clause";
 		}
 		//func->clause = func->siblingfunctionList[siblingFunctionIndex].at(0);
+	}
+	if (disable) {
+		ImGui::EndDisabled();
 	}
 
 	
@@ -247,20 +279,34 @@ void Form::drawFunction() {
 		}
 
 		if (ImGui::Button("Add a sub function", buttonSize)) {
-			// create a new function and set the old one as the new ones parent, and put the child function in the parents list.
-			Function* parent = func;
-			setNewFunc(std::string(parent->functionName) + "-" + std::to_string(parent->subfunctionList.size()+1));
-			func->parent = parent;
-			parent->subfunctionList.push_back(func);
-			subfunctionIndex = parent->subfunctionList.size()-1;
+			ImGui::OpenPopup("selectSubFunc");
+		}
+		ImGui::SetNextWindowSize(ImVec2{ window.x * .5f, window.y * .5f });
+		ImGui::SetNextWindowPos(ImVec2{ window.x * .75f, window.y * .75f });
+		if (ImGui::BeginPopup ("selectSubFunc") ) {
+			ImGui::BeginChild("##", ImVec2{ window.x * .5f - ImGui::GetStyle().WindowPadding.x * 2, window.y * .45f - ImGui::GetStyle().WindowPadding.y * 3}, ImGuiChildFlags_Border, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+			
+			for (int a = 0; a < func->attributeCount; a++) {
+				if (ImGui::Selectable(func->attributeNames[a], a == subfunctionIndex)) {
+					subfunctionIndex = a;
+				}
+			}
+			ImGui::EndChild();
 
-			// set a clause so the table isn't empty when sub function is loaded.
-			func->clause = new std::vector<int>{};
-			func->clause->resize(func->attributeCount);
-			std::fill(func->clause->begin(), func->clause->end(), 0);
-			siblingFunctionIndex = 0;
-			statusMessage = "Added Sub Function";
-			action = "Add Clause";
+			if (ImGui::Button("Select", ImVec2{window.x * .1f, window.y * .05f})) {
+				Function* parent = func;
+				setNewFunc(std::string(parent->functionName) + "-" + std::to_string(subfunctionIndex+1));
+				func->parent = parent;
+				parent->subfunctionList[subfunctionIndex] = func;
+
+				func->clause = new std::vector<int>{};
+				func->clause->resize(func->attributeCount);
+				std::fill(func->clause->begin(), func->clause->end(), 0);
+				statusMessage = "Added Sub Function";
+				action = "Add Clause";
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
 		}
 
 		if (!statusMessage.empty()) {

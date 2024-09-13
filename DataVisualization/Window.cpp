@@ -191,7 +191,7 @@ void Window::createOptions (Texture& texture) {
     // create options table
     texture.bind();
     int numOfElements = std::min((int)round(config::windowX / 32.0f), (int)config::options.size());
-    ImVec2 window = ImGui::GetWindowSize();
+    ImVec2 windoww = ImGui::GetWindowSize();
 
     int x, y;
     for (int item = 0; item < config::options.size(); item++) {
@@ -229,7 +229,18 @@ void Window::createOptions (Texture& texture) {
     }
     ImGui::End();
 
-
+    if (Window::s != nullptr && !drawColorPicker) {
+        ImGui::Begin("##", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+        double x, y;
+        glfwGetCursorPos(window, &x, &y);
+        ImGui::SetWindowPos(ImVec2{(float)x, (float)y});
+        ImGui::SetWindowSize(ImVec2{150.0f, 100.0f});
+        // put bar information here!
+        ImGui::Text( (std::string("Class Value: ") + std::to_string(reinterpret_cast<Bar*>(Window::s)->classVal)).c_str() );
+        //
+        ImGui::End();
+    }
+    
 
     ImGui::Begin("FunctionView", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
     ImGui::SetWindowSize(ImVec2{ config::windowX - optionWidth, config::buttonSize + (2.0f * ImGui::GetStyle().WindowPadding.y) }, ImGuiCond_Once);
@@ -257,8 +268,8 @@ void Window::createOptions (Texture& texture) {
     ImGui::Begin("##formState", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
     ImGui::SetWindowSize(ImVec2(config::windowX * .5f, config::windowY * .05f));
     ImGui::SetWindowPos(ImVec2(0.0f, config::windowY * .95f));
-    window = ImGui::GetWindowSize();
-    ImVec2 buttonSize{window.x * .225f, window.y * .6f};
+    windoww = ImGui::GetWindowSize();
+    ImVec2 buttonSize{windoww.x * .225f, windoww.y * .6f};
     if (ImGui::Button("Open Help##", buttonSize)) {
         form.current = state::INTRODUCTION;
         form.openWindow();
@@ -349,7 +360,9 @@ void Window::treeDescription (Function* function) {
                     fullString+= "\nOR\n";
                 }
             }
-            
+            if (fullString == "") {
+                fullString = "There were no loaded Clauses.";
+            }
             ImGui::Text(fullString.c_str());
         }
         else {
@@ -405,7 +418,9 @@ void Window::treeDescription (Function* function) {
                     fullString += "\nOR\n";
                 }
             }
-
+            if (fullString == "") {
+                fullString = "There were no loaded Clauses.";
+            }
             ImGui::Text(fullString.c_str());
         }
         else {
@@ -417,6 +432,9 @@ void Window::treeDescription (Function* function) {
 }
 
 void Window::tree (Function* function) {
+    if (function == nullptr) {
+        return;
+    }
     if (ImGui::TreeNode(("##" + std::string(function->functionName)).c_str(), function->functionName)) {
         ImGui::SetNextItemOpen(false, ImGuiCond_Once);
         // Math representation of the function.
@@ -495,26 +513,26 @@ void Window::addModelFromForm() {
 // when a button is pressed, it calls this function with a "val" equal to which button in the window is pressed.
 void Window::buttonActions(int val) {
     switch (val) {
-    case (0): {
-        std::cout << "beep" << std::endl;
-        break;
-    }
-    case (1): {
-        std::cout << "boop" << std::endl;
-        break;
-    }
-    case (2): {
-        std::cout << "bop" << std::endl;
-        break;
-    }
-    case (3): {
-        break;
-    }
-    case (4): {
-        break;
-    }
-    case (5): {
-        break;
-    }
+        case (0): {
+            std::cout << "beep" << std::endl;
+            break;
+        }
+        case (1): {
+            std::cout << "boop" << std::endl;
+            break;
+        }
+        case (2): {
+            std::cout << "bop" << std::endl;
+            break;
+        }
+        case (3): {
+            break;
+        }
+        case (4): {
+            break;
+        }
+        case (5): {
+            break;
+        }
     }
 }

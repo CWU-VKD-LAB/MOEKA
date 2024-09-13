@@ -153,7 +153,7 @@ void CSVReader::saveFunction (std::ofstream &file, Function* func, int depth) {
 
 	// for each subfunction of the original function
 	for (int b = 0; b < func->siblingfunctionList.size(); b++) {
-		file << "#sub" << b << std::endl;;
+		file << "#sib" << b << std::endl;;
 		for (int c = 0; c < func->siblingfunctionList[b].size(); c++) {
 			for (int d = 0; d < func->siblingfunctionList[b][c]->size(); d++) {
 				int temp = func->siblingfunctionList[b][c]->at(d);

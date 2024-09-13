@@ -6,5 +6,6 @@ private:
 	int chainNumber = 0;
 public:
 	Bar (int classValue = 0);
+	int classVal = 0;
 	int inline getChainNumber () {return chainNumber;};
 };

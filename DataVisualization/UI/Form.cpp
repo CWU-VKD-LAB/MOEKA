@@ -176,7 +176,7 @@ void Form::drawPrep () {
 	}
 
 	ImGui::SameLine();
-	if (ImGui::Button("Add Function", buttonSize)) {		
+	if (ImGui::Button("Add Func", buttonSize)) {		
 		current = FUNCTION;
 		if (func->clause == nullptr) {
 			std::vector<int>* temp = new std::vector<int>;
@@ -184,7 +184,7 @@ void Form::drawPrep () {
 			std::fill(temp->begin(), temp->end(), 0);
 			func->clause = temp;
 		}
-		functionIndex++;
+		functionIndex = functionList.size();
 		if (std::count(functionList.begin(), functionList.end(), func) == 0) {
 			functionList.insert(functionList.end(), func);
 		}

@@ -34,7 +34,7 @@ public:
 	static Drawable* focus;
 	static bool drawColorPicker;
 	static std::vector<Drawable*> managedList;
-	GLFWwindow* window;
+	inline static GLFWwindow* window;
 	static void createOptions (Texture& texture);
 	static void buttonActions (int val);
 	static void createColorPicker ();
