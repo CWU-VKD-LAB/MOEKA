@@ -44,6 +44,7 @@ struct Interview {
 struct Compare {
 	int indexOne = 0;
 	int indexTwo = 1;
+	std::vector<std::vector<int>>* comparisons = nullptr;
 };
 
 class Form {
@@ -110,4 +111,6 @@ public:
 	void setNewFunc(std::string = "");
 
 	Function* getFunc(void) { return func; }
+
+	Compare getCompare(void ) { return compare; }
 };
