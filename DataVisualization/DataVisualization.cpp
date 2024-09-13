@@ -51,7 +51,12 @@ void init () {
 
         if (w.form.addModel)
         {
-            w.addModelFromForm();
+            w.addModelFromFunctionForm();
+        }
+
+        if (w.form.getCompare().comparisons)
+        {
+            w.addModelFromCompareForm();
         }
 
         w.draw();

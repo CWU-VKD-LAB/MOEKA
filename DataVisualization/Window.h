@@ -43,7 +43,9 @@ public:
 	void drawImGuiWindow(Texture& texture);
 	void draw ();
 
-	void addModelFromForm();
+	void addModelFromFunctionForm();
+
+	void addModelFromCompareForm();
 
 	static void addToRender (Drawable* obj) {
 		Window::managedList.insert(Window::managedList.end(), obj);

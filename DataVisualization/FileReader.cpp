@@ -164,6 +164,9 @@ void CSVReader::saveFunction (std::ofstream &file, Function* func, int depth) {
 	}
 
 	for (auto a : func->subfunctionList) {
-		saveFunction(file, a, depth + 1);
+		if (a)
+		{
+			saveFunction(file, a, depth + 1);
+		}
 	}
 }

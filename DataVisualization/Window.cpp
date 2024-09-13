@@ -432,39 +432,39 @@ void Window::treeDescription (Function* function) {
 }
 
 void Window::tree (Function* function) {
-    if (function == nullptr) {
-        return;
-    }
-    if (ImGui::TreeNode(("##" + std::string(function->functionName)).c_str(), function->functionName)) {
-        ImGui::SetNextItemOpen(false, ImGuiCond_Once);
-        // Math representation of the function.
-        treeDescription(function);
+    if (function)
+    {
+        if (ImGui::TreeNode(("##" + std::string(function->functionName)).c_str(), function->functionName)) {
+            ImGui::SetNextItemOpen(false, ImGuiCond_Once);
+            // Math representation of the function.
+            treeDescription(function);
 
-        if (!function->siblingfunctionList.empty()) {
-            int siblingIndex = 1;
-            for (auto a : function->siblingfunctionList) {
-                if (ImGui::TreeNode((std::string("Sibling k = ") + std::to_string(siblingIndex) + "##").c_str())) {
-                    for (auto b : a) {
-                        std::stringstream ss;
-                        for (int c = 0; c < b->size(); c++) {
-                            ss << std::to_string(b->at(c));
-                            if ((int)c + 1 != b->size()) {
-                                ss << ", ";
+            if (!function->siblingfunctionList.empty()) {
+                int siblingIndex = 1;
+                for (auto a : function->siblingfunctionList) {
+                    if (ImGui::TreeNode((std::string("Sibling k = ") + std::to_string(siblingIndex) + "##").c_str())) {
+                        for (auto b : a) {
+                            std::stringstream ss;
+                            for (int c = 0; c < b->size(); c++) {
+                                ss << std::to_string(b->at(c));
+                                if ((int)c + 1 != b->size()) {
+                                    ss << ", ";
+                                }
                             }
+                            ImGui::Text(ss.str().c_str());
                         }
-                        ImGui::Text(ss.str().c_str());
+                        ImGui::TreePop();
+                        siblingIndex++;
                     }
-                    ImGui::TreePop();
-                    siblingIndex++;
                 }
             }
+
+
+            for (auto a : function->subfunctionList) {
+                tree(a);
+            }
+            ImGui::TreePop();
         }
-        
-        
-        for (auto a : function->subfunctionList) {
-            tree(a);
-        }
-        ImGui::TreePop();
     }
 }
 
@@ -488,8 +488,8 @@ void Window::draw () {
     }
 }
 
-void Window::addModelFromForm() {
-    const auto classIndex = this->form.getFunc()->hanselChains->dimension - 1;
+void Window::addModelFromFunctionForm() {
+    const auto classIndex = this->form.getFunc()->hanselChains->dimension;
     Model* m = new Model();
 
     for (const auto& chain : this->form.getFunc()->hanselChains->hanselChainSet)
@@ -507,6 +507,19 @@ void Window::addModelFromForm() {
     m->fitToScreen();
     this->addToRender(m);
     this->form.addModel = !this->form.addModel;
+}
+
+void Window::addModelFromCompareForm()
+{
+    Model* m = new Model();
+
+    for (auto c : *form.getCompare().comparisons)
+    {
+        m->addColumn(&c);
+    }
+
+    m->fitToScreen();
+    this->addToRender(m);
 }
 
 

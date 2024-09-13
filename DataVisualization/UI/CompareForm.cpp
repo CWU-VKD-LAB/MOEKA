@@ -71,14 +71,21 @@ void Form::drawCompare() {
 		same = funcOne->attributeCount == funcTwo->attributeCount && same;
 		same = funcOne->siblingfunctionList.size() == funcTwo->siblingfunctionList.size() && same;
 		same = funcOne->subfunctionList.size() == funcTwo->subfunctionList.size() && same;
+
 		if (same) {
 			for (int a = 0; a < funcOne->kValues.size(); a++) {
 				same = funcOne->kValues[a] == funcTwo->kValues[a] && same;
 			}
-			for (int b = 0; b < funcOne->subfunctionList.size(); b++) {
+
+			for (int b = 0; b < funcOne->subfunctionList.size(); b++) 
+			{
+				// TODO: bug here most likely b is too large for one func one or two
 				same = (funcOne->siblingfunctionList[b].size() == funcTwo->siblingfunctionList[b].size()) && same;
-				if (same) {
-					for (int c = 0; c < funcOne->siblingfunctionList[b].size(); c++) {
+
+				if (same) 
+				{
+					for (int c = 0; c < funcOne->siblingfunctionList[b].size(); c++) 
+					{
 						same = (funcOne->siblingfunctionList[b][c]->size() == funcTwo->siblingfunctionList[b][c]->size()) && same;
 					}
 				}
@@ -91,7 +98,33 @@ void Form::drawCompare() {
 				delete(comparisonFunction);
 			}
 
+			// i believe we can directly insert into the model list instead of creating a function...
+			std::vector<std::vector<int>> comparisons;
+
+			for (int a = 0; a < funcOne->siblingfunctionList.size(); a++) 
+			{
+				//std::vector<std::vector<int>*>* sibling = new std::vector<std::vector<int>*>;
+
+				for (int b = 0; b < funcOne->siblingfunctionList[a].size(); b++) 
+				{
+					std::vector<int> datapoint;
+
+					for (int c = 0; c < funcOne->siblingfunctionList[a][b]->size(); c++) 
+					{
+						datapoint.push_back((1 - funcOne->siblingfunctionList[a][b]->at(c) == funcTwo->siblingfunctionList[a][b]->at(c)));
+					}
+
+					comparisons.push_back(datapoint);
+				}
+
+				//comparisonFunction->siblingfunctionList.push_back(*sibling);
+			}
+
+			// now add model directly to model list
+			compare.comparisons = &comparisons;
+
 			// create new comparison function
+			/*
 			char* name = new char[128];
 			strcpy_s(name, 128, (funcOne->functionName + std::string(" Compare ") + funcTwo->functionName).c_str());
 			comparisonFunction = new Function(name);
@@ -119,7 +152,7 @@ void Form::drawCompare() {
 					sibling->push_back(datapoint);
 				}
 				comparisonFunction->siblingfunctionList.push_back(*sibling);
-			}
+			}*/
 			comparisonFunction->clause = comparisonFunction->siblingfunctionList[0][0];
 			//functionList.push_back(comparisonFunction);
 
