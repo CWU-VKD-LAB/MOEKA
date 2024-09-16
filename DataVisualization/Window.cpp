@@ -76,7 +76,7 @@ void Window::initImGui () {
     // create the ImGui context and set some settings
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
+    io = ImGui::GetIO();
     flags |= ImGuiWindowFlags_NoMove;
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -110,6 +110,7 @@ void Window::drawImGuiWindow(Texture& texture) {
     else {
         form.draw();
     }
+
     ImGui::PopFont();
 
     // render and update
@@ -151,12 +152,18 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
         }
     }
     if (key == GLFW_KEY_ESCAPE && (action == GLFW_PRESS || glfwGetKey(window, key))) {
+        if (Window::form.current == state::FUNCTION && Window::form.open) {
+            Window::form.functionList.pop_back();
+        }
+        
         Window::form.open = !Window::form.open;
         // prob better in the actual form class, but sets it so if the user presses escape while the form is open on the intro screen, it goes to the prep screen rather than
         // the intro screen again when the window is opened.
         if (Window::form.current == state::INTRODUCTION) {
             Window::form.current = state::FUNCTION;
         }
+
+        
     }
 }
 
@@ -229,22 +236,23 @@ void Window::createOptions (Texture& texture) {
     }
     ImGui::End();
 
-    if (Window::s != nullptr && !drawColorPicker) {
-        ImGui::Begin("##", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+    
+    if (Window::s != nullptr && !drawColorPicker && !form.open) {
+        ImGui::Begin("##", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoFocusOnAppearing);
         double x, y;
         glfwGetCursorPos(window, &x, &y);
-        ImGui::SetWindowPos(ImVec2{(float)x, (float)y});
-        ImGui::SetWindowSize(ImVec2{150.0f, 100.0f});
+        ImGui::SetWindowPos(ImVec2{ (float)x, (float)y });
+        ImGui::SetWindowSize(ImVec2{ 150.0f, 100.0f });
         // put bar information here!
-        ImGui::Text( (std::string("Class Value: ") + std::to_string(reinterpret_cast<Bar*>(Window::s)->classVal)).c_str() );
+        ImGui::Text((std::string("Class Value: ") + std::to_string(reinterpret_cast<Bar*>(Window::s)->classVal)).c_str());
         //
         ImGui::End();
     }
-    
+
+
 
     ImGui::Begin("FunctionView", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
     ImGui::SetWindowSize(ImVec2{ config::windowX - optionWidth, config::buttonSize + (2.0f * ImGui::GetStyle().WindowPadding.y) }, ImGuiCond_Once);
-    //ImGui::SetWindowSize(ImVec2{config::windowX - optionWidth, ImGui::GetWindowSize().y}, ImGuiCond_);
     ImGui::SetWindowPos(ImVec2{optionWidth, 0});
     if (!Form::functionList.empty()) {
         for (auto a : Form::functionList) {

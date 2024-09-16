@@ -189,6 +189,11 @@ void Form::drawPrep () {
 			functionList.insert(functionList.end(), func);
 		}
 		func->subfunctionList.resize(func->attributeCount);
+		func->siblingfunctionList.resize(func->targetAttributeCount - 1);
+		for (int a = 0; a < func->targetAttributeCount-1; a++) {
+			std::vector<std::vector<int>*>* temp = new std::vector<std::vector<int>*>;
+			func->siblingfunctionList[a] = *temp;
+		}
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Interview", buttonSize)) {		
@@ -760,7 +765,6 @@ void Form::setNewFunc (std::string functionName) {
 	}
 	//
 	std::fill(func->kValues.begin(), func->kValues.end(), 2);
-
 	if (func->siblingfunctionList.empty()) {
 		func->siblingfunctionList.push_back({});
 	}

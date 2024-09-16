@@ -3,7 +3,7 @@
 
 // draws the function screen where the user can input clauses and save to file.
 void Form::drawFunction() {
-	ImGui::Begin("##", &open, flags);
+	ImGui::Begin("##", nullptr, flags);
 	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .75f));
 	ImVec2 window = ImGui::GetWindowSize();
 	ImVec2 border = ImGui::GetStyle().WindowPadding;
@@ -12,6 +12,9 @@ void Form::drawFunction() {
 	// back button
 	if (ImGui::Button("Back", ImVec2{ window.x * .15f, 20.0f })) {
 		current = PREP;
+		while (func->parent) {
+			func = func->parent;
+		}
 	}
 	ImGui::SameLine();
 	// create clause header
@@ -271,6 +274,9 @@ void Form::drawFunction() {
 			action = "Add Clause";
 		}
 
+
+
+
 		if (ImGui::Button("Add a sibling function", buttonSize)) {
 			std::vector<std::vector<int>*> subfunction;
 			func->siblingfunctionList.insert(func->siblingfunctionList.end(), subfunction);
@@ -278,8 +284,23 @@ void Form::drawFunction() {
 			statusMessage = "Added sibling function";
 		}
 
+
+
+		disable = true;
+		for (auto a : func->subfunctionList) {
+			if (a == nullptr) {
+				disable = false;
+				break;
+			}
+		}
+		if (disable) {
+			ImGui::BeginDisabled();
+		}
 		if (ImGui::Button("Add a sub function", buttonSize)) {
 			ImGui::OpenPopup("selectSubFunc");
+		}
+		if (disable) {
+			ImGui::EndDisabled();
 		}
 		ImGui::SetNextWindowSize(ImVec2{ window.x * .5f, window.y * .5f });
 		ImGui::SetNextWindowPos(ImVec2{ window.x * .75f, window.y * .75f });
@@ -287,9 +308,12 @@ void Form::drawFunction() {
 			ImGui::BeginChild("##", ImVec2{ window.x * .5f - ImGui::GetStyle().WindowPadding.x * 2, window.y * .45f - ImGui::GetStyle().WindowPadding.y * 3}, ImGuiChildFlags_Border, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 			
 			for (int a = 0; a < func->attributeCount; a++) {
-				if (ImGui::Selectable(func->attributeNames[a], a == subfunctionIndex)) {
-					subfunctionIndex = a;
+				if (func->subfunctionList[a] == nullptr) {
+					if (ImGui::Selectable(func->attributeNames[a], a == subfunctionIndex)) {
+						subfunctionIndex = a;
+					}
 				}
+				
 			}
 			ImGui::EndChild();
 
@@ -298,6 +322,13 @@ void Form::drawFunction() {
 				setNewFunc(std::string(parent->functionName) + "-" + std::to_string(subfunctionIndex+1));
 				func->parent = parent;
 				parent->subfunctionList[subfunctionIndex] = func;
+
+				func->subfunctionList.resize(parent->attributeCount);
+				func->siblingfunctionList.resize(func->targetAttributeCount - 1);
+				for (int a = 0; a < func->targetAttributeCount-1; a++) {
+					std::vector<std::vector<int>*>* temp = new std::vector<std::vector<int>*>;
+					func->siblingfunctionList[a] = *temp;
+				}
 
 				func->clause = new std::vector<int>{};
 				func->clause->resize(func->attributeCount);
@@ -323,6 +354,18 @@ void Form::drawFunction() {
 
 
 	ImGui::SetCursorPos(ImVec2{window.x - buttonSize.x - border.x, window.y - buttonSize.y - border.y});
+
+	bool disabled = true;
+	for (auto a : func->siblingfunctionList) {
+		if (a.size() != 0) {
+			disabled = false;
+			break;
+		}
+	}
+	
+	if (disabled) {
+		ImGui::BeginDisabled();
+	}
 	if (ImGui::Button("Finish", buttonSize)) {
 		statusMessage = "Pressed Finish Button";
 		// TODO save to file screen
@@ -339,6 +382,9 @@ void Form::drawFunction() {
 		addModel = true;
 		config::drawIndex++;
 		
+	}
+	if (disabled) {
+		ImGui::EndDisabled();
 	}
 
 	//

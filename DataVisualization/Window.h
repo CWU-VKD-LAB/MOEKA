@@ -28,6 +28,7 @@ private:
 	ImGuiWindowFlags flags = 0;
 	inline static ImFont* font = nullptr;
 	inline static ImFont* monoFont = nullptr;
+	inline static ImGuiIO io;
 public:
 	static Form form;
 	static Drawable* s;
