@@ -1508,7 +1508,6 @@
     </None>
     <None Include="imgui.ini" />
     <None Include="test.csv" />
-    <None Include="..\..\..\..\Desktop\Help Document.docx" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="resources\fonts\JetBrainsMono-Medium.ttf" />
