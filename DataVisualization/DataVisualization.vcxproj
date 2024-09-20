@@ -513,6 +513,7 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\..\Desktop\Help Document.docx" />
     <None Include="glm\glm\detail\func_common.inl" />
     <None Include="glm\glm\detail\func_common_simd.inl" />
     <None Include="glm\glm\detail\func_exponential.inl" />
