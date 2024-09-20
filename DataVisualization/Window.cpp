@@ -144,11 +144,11 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
         Window::managedList[config::drawIndex]->setTranslation(Window::managedList[config::drawIndex]->getX() + 5, Window::managedList[config::drawIndex]->getY());
     }
     if (key == GLFW_KEY_KP_ADD && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
-        Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScale() + .02f);
+        Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX() + .02f, Window::managedList[config::drawIndex]->getScaleY() + .02f);
     }
     if (key == GLFW_KEY_KP_SUBTRACT && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
-        if ((Window::managedList[config::drawIndex]->getScale() - .02) > 0.00001) {
-            Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScale() + .02f);
+        if ((Window::managedList[config::drawIndex]->getScaleX() - .02) > 0.00001 && (Window::managedList[config::drawIndex]->getScaleY() - .02) > 0.00001) {
+            Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX() - .02f, Window::managedList[config::drawIndex]->getScaleY() - .02f);
         }
     }
     if (key == GLFW_KEY_ESCAPE && (action == GLFW_PRESS || glfwGetKey(window, key))) {
@@ -249,8 +249,57 @@ void Window::createOptions (Texture& texture) {
         ImGui::End();
     }
 
+    ImGui::Begin("ScaleWindow", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+    ImGui::SetWindowSize(ImVec2{ (config::windowX * .3f) , config::windowY * .06f });
+    ImGui::SetWindowPos(ImVec2{ config::windowX * .5f, config::windowY - (config::windowY * .06f) });
+    if (Window::managedList.empty() || Window::managedList[config::drawIndex] == nullptr) {
+        ImGui::Text("No loaded models to scale.");
+    }
+    else {
+        ImGui::PushItemFlag(ImGuiItemFlags_ButtonRepeat, true);
+        ImGui::Text("Scale X");
+        ImGui::SameLine();
+        if (ImGui::ArrowButton("##leftScaleX", ImGuiDir_Left)) {
+            if (0.1 < (Window::managedList[config::drawIndex]->getScaleX() - Window::scaleBy.y)) {
+                Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX() - Window::scaleBy.x, Window::managedList[config::drawIndex]->getScaleY());
+            }
+        }
+        ImGui::SameLine(0.0f);
+        if (ImGui::ArrowButton("##rightScaleX", ImGuiDir_Right)) {
+            Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX() + Window::scaleBy.x, Window::managedList[config::drawIndex]->getScaleY());
+        }
+        ImGui::PopItemFlag();
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - ImGui::GetStyle().WindowPadding.x - ImGui::CalcTextSize("Inc. X").x);
+        ImGui::InputFloat("Inc. X", &Window::scaleBy.x, 0.01f, 1.0f, "%.3f");
+        ImGui::SetItemTooltip("Increases how fast scaling by X is");
+
+        ImGui::PushItemFlag(ImGuiItemFlags_ButtonRepeat, true);
+        ImGui::Text("Scale Y");
+        ImGui::SameLine();
+        if (ImGui::ArrowButton("##leftScaleX", ImGuiDir_Left)) {
+            if (0.1 < (Window::managedList[config::drawIndex]->getScaleY() - Window::scaleBy.y)) {
+                Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX(), Window::managedList[config::drawIndex]->getScaleY() - Window::scaleBy.y);
+            }
+            
+        }
+        ImGui::SameLine(0.0f);
+        if (ImGui::ArrowButton("##rightScaleX", ImGuiDir_Right)) {
+            Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX(), Window::managedList[config::drawIndex]->getScaleY() + Window::scaleBy.y);
+        }
+        ImGui::PopItemFlag();
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - ImGui::GetStyle().WindowPadding.x - ImGui::CalcTextSize("Inc. Y").x);
+        ImGui::InputFloat("Inc. Y", &Window::scaleBy.y, 0.01f, 1.0f, "%.3f");
+        ImGui::SetItemTooltip("Increases how fast scaling by Y is");
+
+    }
+    
+    
+    ImGui::End();
 
 
+    ImGui::SetNextWindowSizeConstraints(ImVec2{ config::windowX - optionWidth, config::buttonSize + (2.0f * ImGui::GetStyle().WindowPadding.y) }, ImVec2{config::windowX, config::windowY});
     ImGui::Begin("FunctionView", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
     ImGui::SetWindowSize(ImVec2{ config::windowX - optionWidth, config::buttonSize + (2.0f * ImGui::GetStyle().WindowPadding.y) }, ImGuiCond_Once);
     ImGui::SetWindowPos(ImVec2{optionWidth, 0});
@@ -274,10 +323,10 @@ void Window::createOptions (Texture& texture) {
     
     // bottom row of buttons
     ImGui::Begin("##formState", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-    ImGui::SetWindowSize(ImVec2(config::windowX * .5f, config::windowY * .05f));
-    ImGui::SetWindowPos(ImVec2(0.0f, config::windowY * .95f));
+    ImGui::SetWindowSize(ImVec2(config::windowX * .5f, config::windowY * .06f));
+    ImGui::SetWindowPos(ImVec2(0.0f, config::windowY * .94));
     windoww = ImGui::GetWindowSize();
-    ImVec2 buttonSize{windoww.x * .225f, windoww.y * .6f};
+    ImVec2 buttonSize{windoww.x * .25f - ImGui::GetStyle().ItemSpacing.x - (ImGui::GetStyle().WindowPadding.x * .25f), windoww.y - (ImGui::GetStyle().WindowPadding.y * 2.0f)};
     if (ImGui::Button("Open Help##", buttonSize)) {
         form.current = state::INTRODUCTION;
         form.openWindow();

@@ -62,7 +62,7 @@ void Shape::resize (float width, float height) {
     }
     calculateBounds();
     setTranslation(config::windowX / 2, config::windowY / 2);
-    setScale(1);
+    setScale(1, 1);
     shader->setUniformMat4f("projMatrix", config::proj);
 }
 
@@ -108,17 +108,37 @@ void Shape::setTranslation(float dx, float dy) {
     shader->setUniformMat4f("posMatrix", translateMatrix);
 };
 
-void Shape::setScale(float scale) {
-    totalScale = scale;
-    scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
+void Shape::setScale(float scaleX, float scaleY) {
+    totalScaleX = scaleX;
+    totalScaleY = scaleY;
+    scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scaleX, scaleY, 1));
     shader->use();
     shader->setUniformMat4f("scaleMatrix", scaleMatrix);
-    scaleBounds(totalScale);
+    scaleBounds(totalScaleX, totalScaleY);
 }
-void Shape::scaleBounds(float scale) {
+
+void Shape::setScaleX(float scale) {
+    totalScaleX = scale;
+    scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(totalScaleX, totalScaleY, 1));
+    shader->use();
+    shader->setUniformMat4f("scaleMatrix", scaleMatrix);
+    scaleBounds(totalScaleX, totalScaleY);
+}
+
+void Shape::setScaleY(float scale) {
+    totalScaleY = scale;
+    scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(totalScaleX, totalScaleY, 1));
+    shader->use();
+    shader->setUniformMat4f("scaleMatrix", scaleMatrix);
+    scaleBounds(totalScaleX, totalScaleY);
+}
+
+
+
+void Shape::scaleBounds(float scaleX, float scaleY) {
     calculateBounds();
-    minBoundsX = originalMinBoundsX * (scale);
-    maxBoundsX = originalMaxBoundsX * (scale);
-    minBoundsY = originalMinBoundsY * (scale);
-    maxBoundsY = originalMaxBoundsY * (scale);
+    minBoundsX = originalMinBoundsX * (scaleX);
+    maxBoundsX = originalMaxBoundsX * (scaleX);
+    minBoundsY = originalMinBoundsY * (scaleY);
+    maxBoundsY = originalMaxBoundsY * (scaleY);
 }

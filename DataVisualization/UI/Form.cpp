@@ -218,6 +218,7 @@ void Form::drawPrep () {
 			}
 			interview.datapoints[a] = *category;
 		}
+		func->trueAttributes = new std::vector<int>(func->attributeCount);
 		//
 	}
 	

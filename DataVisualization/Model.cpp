@@ -105,14 +105,34 @@ void Model::setTranslation (float dx, float dy) {
 	}
 }
 
-void Model::setScale (float scale) {
-	totalScale = scale;
-	scaleBounds(scale);
+void Model::setScale (float scaleX, float scaleY) {
+	totalScaleX = scaleX;
+	totalScaleY = scaleY;
+	scaleBounds(totalScaleX, totalScaleY);
 
 	for (auto a : list) {
-		a->setScale(scale);
+		a->setScale(scaleX, scaleY);
 	}
+	setTranslation(getX(), getY());
+}
 
+void Model::setScaleX (float scale) {
+	totalScaleX = scale;
+	scaleBounds(totalScaleX, totalScaleY);
+
+	for (auto a : list) {
+		a->setScale(totalScaleX, totalScaleY);
+	}
+	setTranslation(getX(), getY());
+}
+
+void Model::setScaleY(float scale) {
+	totalScaleY = scale;
+	scaleBounds(totalScaleX, totalScaleY);
+
+	for (auto a : list) {
+		a->setScale(totalScaleX, totalScaleY);
+	}
 	setTranslation(getX(), getY());
 }
 
@@ -129,6 +149,6 @@ void Model::fitToScreen () {
 	float ratioX = config::windowX / largestWidth;
 	float ratioY = config::windowY / largestHeight;
 
-	setScale(std::min(ratioX, ratioY));
+	setScale(ratioX * .25f, ratioY * .5f);
 	setTranslation(config::windowX / 2.0f, config::windowY / 2.0f);
 }

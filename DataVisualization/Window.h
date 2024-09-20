@@ -29,6 +29,7 @@ private:
 	inline static ImFont* font = nullptr;
 	inline static ImFont* monoFont = nullptr;
 	inline static ImGuiIO io;
+	inline static ImVec2 scaleBy{.2f, .2f};
 public:
 	static Form form;
 	static Drawable* s;

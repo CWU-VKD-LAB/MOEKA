@@ -18,13 +18,15 @@ protected:
 	//
 	void bind();
 	void calculateBounds() override;
-	void scaleBounds(float value) override;
+	void scaleBounds(float scaleX, float scaleY) override;
 	void resize(float width, float height);
 public:
 	Shape (float width, float height);
 	~Shape ();
 	void draw () override;
 	//
-	void setScale (float scale);
+	void setScale (float scaleX, float scaleY);
+	void setScaleX(float scale);
+	void setScaleY(float scale);
 	void setTranslation (float dx, float dy);
 };

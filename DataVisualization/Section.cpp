@@ -44,8 +44,8 @@ void Section::addChild (Drawable* child) {
 		color->w += temp->getA();
 
 		if (a != 0) {
-			width+=paddingX*totalScale;
-			height+=paddingY*totalScale;
+			width+=paddingX*totalScaleX;
+			height+=paddingY*totalScaleY;
 		}
 
 		width += temp->getWidth();
@@ -93,25 +93,54 @@ void Section::setTranslation (float dx, float dy) {
 		// we calculate the translation by using its current x/y, the stride x/y, half this objects width/height, and half the child drawables width/height.
 		temp->setTranslation(strideX + x - (getWidth() * 0.5f) + (temp->getWidth() * 0.5f), strideY + y - (getHeight() * 0.5f) + (temp->getHeight() * 0.5f));
 		if (horizontal) {
-			strideX += temp->getWidth()+(paddingX*totalScale);
+			strideX += temp->getWidth()+(paddingX*totalScaleX);
 		}
 		else {
-			strideY += temp->getHeight()+(paddingY*totalScale);
+			strideY += temp->getHeight()+(paddingY*totalScaleY);
 
 		}
 	}
 }
 
 // sets the scale of this object, and the scale of its children.
-void Section::setScale (float scale) {
-	totalScale = scale;
-	scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
+void Section::setScale (float scaleX, float scaleY) {
+	totalScaleX = scaleX;
+	totalScaleY = scaleY;
+	scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scaleX, scaleY, 1));
 	shader->use();
 	shader->setUniformMat4f("scaleMatrix", scaleMatrix);
-	scaleBounds(scale);
+	scaleBounds(scaleX, scaleY);
 
 	for (auto a : managedList) {
-		a->setScale(scale);
+		a->setScale(scaleX, scaleY);
+		compress = a->getWidth() <= config::compressValue;
+	}
+	setTranslation(getX(), getY());
+}
+
+void Section::setScaleX(float scale) {
+	totalScaleX = scale;
+	scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(totalScaleX, totalScaleY, 1));
+	shader->use();
+	shader->setUniformMat4f("scaleMatrix", scaleMatrix);
+	scaleBounds(totalScaleX, totalScaleY);
+
+	for (auto a : managedList) {
+		a->setScale(totalScaleX, totalScaleY);
+		compress = a->getWidth() <= config::compressValue;
+	}
+	setTranslation(getX(), getY());
+}
+
+void Section::setScaleY(float scale) {
+	totalScaleY = scale;
+	scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(totalScaleX, totalScaleY, 1));
+	shader->use();
+	shader->setUniformMat4f("scaleMatrix", scaleMatrix);
+	scaleBounds(totalScaleX, totalScaleY);
+
+	for (auto a : managedList) {
+		a->setScale(totalScaleX, totalScaleY);
 		compress = a->getWidth() <= config::compressValue;
 	}
 	setTranslation(getX(), getY());

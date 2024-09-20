@@ -9,7 +9,8 @@
 class Drawable {
 protected:
 	float x = 0.0f, y = 0.0f;
-	float totalScale = 1;
+	float totalScaleX = 1;
+	float totalScaleY = 1;
 	ImVec4* color = &config::defaultColor;
 
 	//
@@ -27,17 +28,20 @@ public:
 	// getters for overall position/scale
 	virtual float getX () {return x;};
 	virtual float getY () {return y;};
-	virtual float getScale () {return totalScale;};
+	virtual float getScaleX () { return totalScaleX; };
+	virtual float getScaleY () { return totalScaleY; };
 
 	// transformations
-	virtual void setScale (float scale) {};
+	virtual void setScale (float scaleX, float scaleY) {};
+	virtual void setScaleX(float scale) {};
+	virtual void setScaleY(float scale) {};
 	virtual void setTranslation (float dx, float dy) {};
 
 	// getters/setters for attributes
 	virtual float getWidth () {return maxBoundsX-minBoundsX;};
 	virtual float getHeight () {return maxBoundsY-minBoundsY;};
 	virtual void calculateBounds () {};
-	virtual void scaleBounds (float value) {};
+	virtual void scaleBounds (float scaleX, float scaleY) {};
 	virtual void setColor (float r, float g, float b, float a) {
 		color->x = r;
 		color->y = g;

@@ -17,6 +17,8 @@ public:
 	void draw ();
 	Drawable* selected (GLFWwindow* window);
 	void setTranslation(float dx, float dy) override;
-	void setScale(float scale) override;
+	void setScale(float scaleX, float scaleY) override;
+	void setScaleX(float scale) override;
+	void setScaleY(float scale) override;
 	void fitToScreen();
 };
