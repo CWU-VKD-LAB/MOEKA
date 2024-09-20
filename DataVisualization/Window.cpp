@@ -353,7 +353,7 @@ void Window::createOptions (Texture& texture) {
     ImVec2 modelSelectWindow = {config::windowX * .2f, config::windowY * .06f};
     ImGui::SetWindowSize(modelSelectWindow);
     ImGui::SetWindowPos(ImVec2(config::windowX - modelSelectWindow.x, config::windowY - modelSelectWindow.y));
-    ImGui::Text((std::string("Selected Model: ") + std::to_string(config::drawIndex+1)).c_str());
+    ImGui::Text((std::string("Selected Model: ") + std::to_string(config::drawIndex+1) + "/" + std::to_string(managedList.size())).c_str());
     ImGui::SetNextItemWidth(modelSelectWindow.x * .5f);
     if (ImGui::ArrowButton("##leftb", ImGuiDir_Left)) {
         if (config::drawIndex > 0) {

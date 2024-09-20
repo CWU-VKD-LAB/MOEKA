@@ -77,7 +77,7 @@ void Form::drawCompare() {
 				same = funcOne->kValues[a] == funcTwo->kValues[a] && same;
 			}
 
-			for (int b = 0; b < funcOne->subfunctionList.size(); b++) 
+			for (int b = 0; b < funcOne->targetAttributeCount - 1; b++) 
 			{
 				// TODO: bug here most likely b is too large for one func one or two
 				same = (funcOne->siblingfunctionList[b].size() == funcTwo->siblingfunctionList[b].size()) && same;
