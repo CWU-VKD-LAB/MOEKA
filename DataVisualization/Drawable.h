@@ -23,6 +23,7 @@ protected:
 	glm::mat4 translateMatrix;
 	glm::mat4 scaleMatrix;
 public:
+	bool isBar = false;
 	virtual void draw () {};
 
 	// getters for overall position/scale

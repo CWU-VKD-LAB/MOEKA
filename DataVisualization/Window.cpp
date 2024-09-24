@@ -228,6 +228,7 @@ void Window::createOptions (Texture& texture) {
         }
         if (ImGui::IsItemHovered()) {
             ImGui::BeginTooltip();
+            ImGui::Text("Currently non-functional");
             ImGui::Text(config::options.at(item).c_str());
             ImGui::EndTooltip();
         }
@@ -530,7 +531,10 @@ void Window::createColorPicker () {
     if (Window::drawColorPicker && Window::focus != nullptr) {
         // create color picker
         ImGui::Begin("Color Picker", &Window::drawColorPicker);
-
+        if (Window::focus->isBar) {
+            ImGui::Checkbox("Use individual color?", &static_cast<Bar*>(static_cast<Shape*>(Window::focus))->useIndividualColor );
+        }
+        //ImGui::Checkbox("##", );
         if (Window::focus != nullptr) {
             ImGui::ColorPicker4("Shape Color", (float*)Window::focus->getColor(), NULL);
         }
