@@ -61,6 +61,9 @@ void Form::draw () {
 			case LOAD:
 				drawLoad();
 				break;
+			case CONSTRAINT:
+				drawContraint();
+				break;
 		}
 	}
 }
@@ -197,7 +200,8 @@ void Form::drawPrep () {
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Interview", buttonSize)) {		
-		current = PILOT;
+		current = CONSTRAINT;
+		constraint.answers.resize(func->attributeCount);
 		std::vector<int>* temp = new std::vector<int>;
 		temp->resize(func->attributeCount);
 		std::fill(temp->begin(), temp->end(), 0);
@@ -222,6 +226,67 @@ void Form::drawPrep () {
 		//
 	}
 	
+	ImGui::End();
+}
+
+void Form::drawContraint () {
+	ImGui::Begin("##con", &open, flags);
+	ImGui::SetWindowSize(ImVec2{config::windowX * .75f, config::windowY * .5f});
+	ImVec2 window = ImGui::GetWindowSize();
+	ImGui::SetWindowPos(ImVec2{ (config::windowX - window.x) * .5f, (config::windowY - window.y) * .5f });
+
+	//
+	ImGui::PushFont(font);
+	if (ImGui::BeginChild("##child", ImVec2{window.x - (ImGui::GetStyle().WindowPadding.x * 2), window.y * .8f})) {
+		ImGui::SetNextWindowSize(ImVec2{ window.x * .5f, window.y * .5f });
+		ImGui::BeginGroup();
+		for (int a = 0; a < func->attributeCount; a++) {
+			std::string t = func->attributeNames[a];
+			if (a != 0) {
+				t = "\n" + t;
+			}
+			ImGui::Text( t.c_str() );
+			ImGui::Text("Cause");
+			for (int b = 0; b < func->kValues[a]; b++) {
+				ImGui::RadioButton(("##aa" + std::to_string(a * func->attributeCount + b)).c_str(), &constraint.answers[a], b + 1);
+				if (b != func->kValues[a] - 1) {
+					ImGui::SameLine();
+				}
+			}
+		}
+		ImGui::EndGroup();
+		//
+
+		//
+		ImGui::SameLine(window.x * .5f);
+		ImGui::SetNextWindowSize(ImVec2{ window.x * .5f, window.y * .5f });
+		ImGui::BeginGroup();
+		for (int a = 0; a < func->attributeCount; a++) {
+			std::string t = "\n";
+			if (a != 0) {
+				t = "\n" + t;
+			}
+			ImGui::Text(t.c_str());
+			ImGui::Text("Effect");
+			for (int b = 0; b < func->kValues[a]; b++) {
+				ImGui::RadioButton(("##bb" + std::to_string(a * func->attributeCount + b)).c_str(), &constraint.answers[a], -(b + 1));
+				if (b != func->kValues[a] - 1) {
+					ImGui::SameLine();
+				}
+			}
+		}
+		ImGui::EndGroup();
+		ImGui::EndChild();
+	}
+	ImGui::PopFont();
+	//
+	
+	ImGui::Separator();
+	ImGui::SetCursorPos(ImVec2{window.x - (window.x * .2f + ImGui::GetStyle().WindowPadding.x), window.y - (ImGui::GetStyle().WindowPadding.y) - (window.y * .1f) });
+	if (ImGui::Button("Continue", ImVec2{window.x * .2f, window.y * .1f}) ) {
+		current = PILOT;
+		std::cout << "Pressed" << std::endl;
+	}
 	ImGui::End();
 }
 

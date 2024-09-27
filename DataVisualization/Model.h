@@ -7,7 +7,7 @@
 class Model : public Drawable {
 	std::vector<Section*> list{};
 	float stride = 0;
-	float padding = 0.0f;
+	float padding = 1.0f;
 public:
 	Model();
 	~Model();

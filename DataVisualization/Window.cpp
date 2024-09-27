@@ -170,6 +170,10 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
 // function that is called when the cursor moves
 void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
     Window::s = nullptr;
+    float size = config::buttonSize + (2.0f * ImGui::GetStyle().WindowPadding.y);
+    if (ypos <= size || ypos >= config::windowX * .94f) {
+        return;
+    }
     for (auto a : Window::managedList) {
         Window::s = a->selected(window);
         if (Window::s != nullptr) {
@@ -261,24 +265,21 @@ void Window::createOptions (Texture& texture) {
         ImGui::Text("Scale X");
         ImGui::SameLine();
         if (ImGui::ArrowButton("##leftScaleX", ImGuiDir_Left)) {
+            std::cout << Window::managedList[config::drawIndex]->getScaleX() << std::endl;
             if (0.1 < (Window::managedList[config::drawIndex]->getScaleX() - Window::scaleBy.y)) {
                 Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX() - Window::scaleBy.x, Window::managedList[config::drawIndex]->getScaleY());
             }
         }
         ImGui::SameLine(0.0f);
         if (ImGui::ArrowButton("##rightScaleX", ImGuiDir_Right)) {
+            std::cout << Window::managedList[config::drawIndex]->getScaleX() << std::endl;
             Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX() + Window::scaleBy.x, Window::managedList[config::drawIndex]->getScaleY());
         }
-        ImGui::PopItemFlag();
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - ImGui::GetStyle().WindowPadding.x - ImGui::CalcTextSize("Inc. X").x);
-        ImGui::InputFloat("Inc. X", &Window::scaleBy.x, 0.01f, 1.0f, "%.3f");
-        ImGui::SetItemTooltip("Increases how fast scaling by X is");
 
-        ImGui::PushItemFlag(ImGuiItemFlags_ButtonRepeat, true);
         ImGui::Text("Scale Y");
         ImGui::SameLine();
         if (ImGui::ArrowButton("##leftScaleX", ImGuiDir_Left)) {
+            std::cout << Window::managedList[config::drawIndex]->getScaleX() << std::endl;
             if (0.1 < (Window::managedList[config::drawIndex]->getScaleY() - Window::scaleBy.y)) {
                 Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX(), Window::managedList[config::drawIndex]->getScaleY() - Window::scaleBy.y);
             }
@@ -286,13 +287,11 @@ void Window::createOptions (Texture& texture) {
         }
         ImGui::SameLine(0.0f);
         if (ImGui::ArrowButton("##rightScaleX", ImGuiDir_Right)) {
+            std::cout << Window::managedList[config::drawIndex]->getScaleX() << std::endl;
             Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX(), Window::managedList[config::drawIndex]->getScaleY() + Window::scaleBy.y);
         }
         ImGui::PopItemFlag();
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - ImGui::GetStyle().WindowPadding.x - ImGui::CalcTextSize("Inc. Y").x);
-        ImGui::InputFloat("Inc. Y", &Window::scaleBy.y, 0.01f, 1.0f, "%.3f");
-        ImGui::SetItemTooltip("Increases how fast scaling by Y is");
 
     }
     

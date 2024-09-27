@@ -138,17 +138,26 @@ void Model::setScaleY(float scale) {
 
 // finds a scaling that will fit the model to the screen.
 void Model::fitToScreen () {
-	float largestWidth = 0.0f;
+	float width = 0.0f;
 	float largestHeight = 0.0f;
 
 	for (auto a : list) {
-		largestWidth = std::max(largestWidth, a->getWidth());
-		largestHeight = std::max(largestHeight, a->getHeight());
+		float totalHeight = 0;
+		float w = 0;
+		for (auto b : a->managedList) {
+			totalHeight += b->getHeight();
+			w = std::max(b->getWidth(), w);
+		}
+		width += w;
+		
+		largestHeight = std::max(largestHeight, totalHeight);
 	}
 
-	float ratioX = config::windowX / largestWidth;
+	float ratioX = config::windowX / width;
 	float ratioY = config::windowY / largestHeight;
 
-	setScale(ratioX * .25f, ratioY * .5f);
+	setScale(ratioX, ratioY);
 	setTranslation(config::windowX / 2.0f, config::windowY / 2.0f);
+	totalScaleX = 1;
+	totalScaleY = 1;
 }

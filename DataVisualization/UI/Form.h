@@ -27,7 +27,8 @@ enum state {
 	INTRODUCTION,
 	COLOR,
 	COMPARE,
-	LOAD
+	LOAD,
+	CONSTRAINT
 };
 
 struct Interview {
@@ -47,6 +48,10 @@ struct Compare {
 	std::vector<std::vector<int>>* comparisons = nullptr;
 };
 
+struct Constraint {
+	std::vector<int> answers{};
+};
+
 class Form {
 private:
 	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
@@ -54,6 +59,7 @@ private:
 	//
 	Interview interview{};
 	Compare compare{};
+	Constraint constraint{};
 	//
 
 	// moeka object (files need to be renamed)
@@ -107,6 +113,7 @@ public:
 	void drawColor ();
 	void drawCompare ();
 	void drawLoad ();
+	void drawContraint ();
 	void openWindow ();
 	void setNewFunc(std::string = "");
 
