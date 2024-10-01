@@ -68,6 +68,7 @@ void Form::draw () {
 	}
 }
 
+/// creates a window that pops up when we load into the program that shows the keybinds and an option to open up the help document.
 void Form::drawIntro () {
 	ImGui::Begin("Instructions", nullptr, flags);
 	ImGui::PushFont(font);
@@ -76,17 +77,23 @@ void Form::drawIntro () {
 	ImVec2 window = ImGui::GetWindowSize();
 	ImGui::SetWindowSize(ImVec2(ImGui::CalcTextSize(config::instructions).x * 1.04f, config::windowY * .2f) );
 	ImGui::SetWindowPos( ImVec2(config::windowX * .5f - window.x * .5f, config::windowY * .5f - window.y * .5f) );
+	ImVec2 size{ImGui::CalcTextSize("Open Help Document").x, ImGui::GetFontSize()};
+	ImGui::SetCursorPos(ImVec2{window.x * .5f - size.x * .5f, ImGui::GetCursorPosY() - ImGui::GetFontSize()});
+	if (ImGui::Button("Open Help Document", size)) {
+		std::filesystem::path p = std::filesystem::current_path() / "../HelpDocument.docx";
 
-	ImGui::SetCursorPosX(window.x * .5f - window.x * .15);
+		std::cout << ShellExecuteA(NULL, "open", p.string().c_str(), NULL, NULL, SW_SHOWNORMAL) << std::endl;
+	}
+	ImGui::SetCursorPos(ImVec2{window.x * .5f - window.x * .15f, window.y - (window.y * .2f) - ImGui::GetStyle().WindowPadding.x});
 	if (ImGui::Button("OK##", ImVec2(window.x * .3f, window.y *.2f))) {
 		open = false;
 		current = PREP;
 	}
-	
 	ImGui::PopFont();
 	ImGui::End();
 }
 
+/// Prep window for before we go to the function screen or interview screen.
 void Form::drawPrep () {
 	// create the window with a slider at the top
 	ImGui::Begin("Prep Window", &open, flags);
@@ -102,6 +109,7 @@ void Form::drawPrep () {
 	ImGui::InputText("##", func->functionName, 128);
 	ImGui::SameLine();
 	
+	// function swap
 	std::string tempText = currentFunction + " " + std::to_string(functionIndex + 1) + "/" + std::to_string(functionList.size());
 	ImGui::SetCursorPos(ImVec2{ImGui::GetWindowSize().x - ImGui::CalcTextSize(tempText.c_str()).x - font->FontSize * 2.0f - ImGui::GetStyle().ItemSpacing.x * 3.0f, positionY});
 	ImGui::Text(tempText.c_str());
@@ -126,12 +134,14 @@ void Form::drawPrep () {
 		}
 	}
 
+	// target attributes
 	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5f - (ImGui::CalcTextSize("Amount of Target Attributes: ").x * .5f));
 	ImGui::Text("Amount of Target Attributes: ");
 	ImGui::SetNextItemWidth(ImGui::GetWindowSize().x - ImGui::GetStyle().WindowPadding.x * 2.0f);
 	ImGui::SliderInt("##amtTargetSlider", &func->targetAttributeCount, 2, config::defaultAmount);
 	ImGui::Separator();
 
+	// amount of attributes
 	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5f - (ImGui::CalcTextSize("Amount of Attributes: ").x * .5f));
 	ImGui::Text("Amount of Attributes: ");
 	ImGui::SetNextItemWidth(ImGui::GetWindowSize().x - ImGui::GetStyle().WindowPadding.x * 2.0f);

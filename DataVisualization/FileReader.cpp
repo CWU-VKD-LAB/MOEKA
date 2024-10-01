@@ -2,6 +2,7 @@
 
 std::vector<Function*> CSVReader::loadedFunctionHistory{};
 
+// TODO update to properly populate sub function information and list sizes.
 void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {

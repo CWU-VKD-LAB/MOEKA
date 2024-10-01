@@ -174,20 +174,27 @@ void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
     if (ypos <= size || ypos >= config::windowX * .94f) {
         return;
     }
+    if (config::drawIndex < 0) {
+        return;
+    }
+    Window::s = Window::managedList.at(config::drawIndex)->selected(window);
+    /*
     for (auto a : Window::managedList) {
         Window::s = a->selected(window);
         if (Window::s != nullptr) {
             break;
         }
     }
+    */
 }
 
+// when window resizes, change the windowX/Y for the ui
 void windowResizeCallback (GLFWwindow* window, int width, int height) {
-    float scale = std::min(config::windowX/width, config::windowY/height);
     config::windowX = (float)width;
     config::windowY = (float)height;
 }
 
+// updates the viewport so transformations stay consistent when window changes size
 void frameBufferCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
@@ -242,6 +249,7 @@ void Window::createOptions (Texture& texture) {
     ImGui::End();
 
     
+    /// Draws the tooltip when hovering a drawable under certain conditions
     if (Window::s != nullptr && !drawColorPicker && !form.open) {
         ImGui::Begin("##", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoFocusOnAppearing);
         double x, y;
@@ -254,13 +262,16 @@ void Window::createOptions (Texture& texture) {
         ImGui::End();
     }
 
+    /// Draws the window scale widget
     ImGui::Begin("ScaleWindow", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
     ImGui::SetWindowSize(ImVec2{ (config::windowX * .3f) , config::windowY * .06f });
     ImGui::SetWindowPos(ImVec2{ config::windowX * .5f, config::windowY - (config::windowY * .06f) });
+    // if the model list is empty, inform the user and end early.
     if (Window::managedList.empty() || Window::managedList[config::drawIndex] == nullptr) {
         ImGui::Text("No loaded models to scale.");
     }
     else {
+        // horizontal stretching
         ImGui::PushItemFlag(ImGuiItemFlags_ButtonRepeat, true);
         ImGui::Text("Scale X");
         ImGui::SameLine();
@@ -275,7 +286,7 @@ void Window::createOptions (Texture& texture) {
             std::cout << Window::managedList[config::drawIndex]->getScaleX() << std::endl;
             Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX() + Window::scaleBy.x, Window::managedList[config::drawIndex]->getScaleY());
         }
-
+        // vertical stretching
         ImGui::Text("Scale Y");
         ImGui::SameLine();
         if (ImGui::ArrowButton("##leftScaleX", ImGuiDir_Left)) {
@@ -294,11 +305,9 @@ void Window::createOptions (Texture& texture) {
         ImGui::SameLine();
 
     }
-    
-    
     ImGui::End();
 
-
+    /// creates the adjustable function window, where we see a tree view of the currently loaded function.
     ImGui::SetNextWindowSizeConstraints(ImVec2{ config::windowX - optionWidth, config::buttonSize + (2.0f * ImGui::GetStyle().WindowPadding.y) }, ImVec2{config::windowX, config::windowY});
     ImGui::Begin("FunctionView", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
     ImGui::SetWindowSize(ImVec2{ config::windowX - optionWidth, config::buttonSize + (2.0f * ImGui::GetStyle().WindowPadding.y) }, ImGuiCond_Once);
@@ -372,7 +381,22 @@ void Window::createOptions (Texture& texture) {
 
 void Window::treeDescription (Function* function) {
     //ImGui::SameLine();
-    
+    if (ImGui::Button("Visualize", ImVec2{ ImGui::CalcTextSize("Visualize").x * 1.0f, ImGui::GetFontSize() * 1.0f })) {
+        form.functionList.push_back(function);
+        if (function->parent != nullptr) {
+            //auto val = std::find(function->parent->subfunctionList.begin(), function->parent->subfunctionList.end(), function);
+            //int intVal = val - function->parent->subfunctionList.begin();
+            //const char* name = (std::string(function->parent->functionName) + std::to_string(intVal).c_str() );
+            //function->functionName = std::string("asdf").c_str();
+        }
+        function->initializeHanselChains();
+
+        // organize them and assign classes such that we can visualize
+        function->setUpHanselChains();
+
+        // create a model for the hanselChains
+        form.addModel = true;
+    }
     if (ImGui::Button("Math##", ImVec2{ ImGui::CalcTextSize("Math").x * 1.0f, ImGui::GetFontSize() * 1.0f })) {
         //std::cout << "asdf" << std::endl;
         ImGui::OpenPopup("Math Version");

@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Window.h"
+#include "windows.h"
 #include "Render/Texture.h"
 
 
@@ -39,6 +40,7 @@ void init () {
     Window w{};
     Texture texture{ "../resources/icons.png" };
     window = w.window;
+    
 
     
 
