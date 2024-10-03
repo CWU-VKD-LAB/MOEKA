@@ -380,22 +380,25 @@ void Window::createOptions (Texture& texture) {
 }
 
 void Window::treeDescription (Function* function) {
-    //ImGui::SameLine();
-    if (ImGui::Button("Visualize", ImVec2{ ImGui::CalcTextSize("Visualize").x * 1.0f, ImGui::GetFontSize() * 1.0f })) {
-        form.functionList.push_back(function);
-        if (function->parent != nullptr) {
-            //auto val = std::find(function->parent->subfunctionList.begin(), function->parent->subfunctionList.end(), function);
-            //int intVal = val - function->parent->subfunctionList.begin();
-            //const char* name = (std::string(function->parent->functionName) + std::to_string(intVal).c_str() );
-            //function->functionName = std::string("asdf").c_str();
+    if ( (function->parent != nullptr)) {
+        bool disabled = std::count(form.functionList.begin(), form.functionList.end(), function) != 0;
+        if (disabled) {
+            ImGui::BeginDisabled();
         }
-        function->initializeHanselChains();
+        if (ImGui::Button("Visualize", ImVec2{ ImGui::CalcTextSize("Visualize").x * 1.0f, ImGui::GetFontSize() * 1.0f })) {
+            form.functionList.push_back(function);
+            function->initializeHanselChains();
 
-        // organize them and assign classes such that we can visualize
-        function->setUpHanselChains();
+            // organize them and assign classes such that we can visualize
+            function->setUpHanselChains();
 
-        // create a model for the hanselChains
-        form.addModel = true;
+            // create a model for the hanselChains
+            form.addModel = true;
+            
+        }
+        if (disabled) {
+            ImGui::EndDisabled();
+        }
     }
     if (ImGui::Button("Math##", ImVec2{ ImGui::CalcTextSize("Math").x * 1.0f, ImGui::GetFontSize() * 1.0f })) {
         //std::cout << "asdf" << std::endl;

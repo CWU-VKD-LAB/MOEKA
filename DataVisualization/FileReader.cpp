@@ -116,6 +116,7 @@ void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 	file.close();
 	container->clear();
 	for (auto a : tempFuncList) {
+		a->clause = a->siblingfunctionList[0][0];
 		loadedFunctionHistory.push_back(a);
 		container->push_back(a);
 	}

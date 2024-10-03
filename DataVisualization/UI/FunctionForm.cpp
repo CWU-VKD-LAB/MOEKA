@@ -362,6 +362,9 @@ void Form::drawFunction() {
 			break;
 		}
 	}
+	if (func->parent != nullptr) {
+		disabled = true;
+	}
 	
 	if (disabled) {
 		ImGui::BeginDisabled();
