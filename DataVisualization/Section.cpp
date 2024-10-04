@@ -1,9 +1,11 @@
 #include "Section.h"
 
+// set a default color for the section after we call Shape's constructor
 Section::Section (): Shape (0, 0) {
 	color = new ImVec4{ .5, .5, .5, 1 };
 }
 
+// destructor for the section. if we have managed children, or customized colors, delete them
 Section::~Section () {
 	for (auto a : managedList) {
 		delete(a);
@@ -59,7 +61,7 @@ void Section::addChild (Drawable* child) {
 	color->z /= (float)managedList.size();
 	color->w /= (float)managedList.size();
 
-
+	// if this section lays out its children horizontally, scale to make sense horizontally, and visa versa
 	if (horizontal) {
 		resize(width, maxHeight);
 	}
@@ -85,6 +87,7 @@ void Section::setTranslation (float dx, float dy) {
 	strideY = 0;
 	Drawable* temp;
 
+	// for each child, set its position in this container.
 	for (int a = 0; a < managedList.size(); a++) {
 		temp = managedList.at(a);
 		if (temp == nullptr) {
@@ -148,6 +151,8 @@ void Section::setScaleY(float scale) {
 
 // draws this object and its children.
 void Section::draw () {
+	// if we are compressing this section, then we need to make sure we have the average color of its children, and have
+	// open GL draw that color in the shape of this section.
 	if (compress) {
 		color->x = 0;
 		color->y = 0;
