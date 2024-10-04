@@ -5,6 +5,8 @@ Shape::Shape (float width, float height) {
     resize(width, height);
 }
 
+// resize a shape and set up its vertices. this is meant to be called when the shape is created and if the shape meaningfully changes beyond a
+// scale or a translation.
 void Shape::resize (float width, float height) {
     float x = width / 2.0f;
     float y = height / 2.0f;
@@ -38,7 +40,7 @@ void Shape::resize (float width, float height) {
     vb = new VertexBuffer{ 1, &positions };     // holds our points
     ib = new IndexBuffer{ 1, &indices };        // allow for reuse of points
 
-    // set the layout
+    // set the layout. this is for telling OpenGL how our memory is laid out in the buffers.
     VertexLayout vl{};
     vl.setNumOfFloats(2);
     va->addBuffer(*vb, vl);
@@ -60,6 +62,7 @@ void Shape::resize (float width, float height) {
         if (tempx < originalMinBoundsX) originalMinBoundsX = tempx;
         if (tempy < originalMinBoundsY) originalMinBoundsY = tempy;
     }
+    // recalculate our bounds, and set the default translation to the middle of the screen with a default scaling.
     calculateBounds();
     setTranslation(config::windowX / 2, config::windowY / 2);
     setScale(1, 1);
@@ -74,10 +77,13 @@ Shape::~Shape () {
     delete(shader);
 }
 
+// tells OpenGL to draw our shape by binding the relevant information into the state machine and then calling glDrawElements.
 void Shape::draw () {
     bind();
     GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 }
+
+// calculate the bounds of a shape on the CPU rather than the GPU for purposes of layout and mouse clicking.
 void Shape::calculateBounds() {
     float tempx, tempy;
     for (int a = 0; a < positions.size(); a += 2) {
@@ -89,6 +95,8 @@ void Shape::calculateBounds() {
         if (tempy < minBoundsY) minBoundsY = tempy;
     }
 }
+
+// bind this shapes buffers and shaders into the state machine and set the shapes color in the shader to its instance color.
 void Shape::bind() {
     va->bind();
     vb->bind();
@@ -108,6 +116,7 @@ void Shape::setTranslation(float dx, float dy) {
     shader->setUniformMat4f("posMatrix", translateMatrix);
 };
 
+// sets both the scaleX and scaleY
 void Shape::setScale(float scaleX, float scaleY) {
     totalScaleX = scaleX;
     totalScaleY = scaleY;
@@ -117,6 +126,7 @@ void Shape::setScale(float scaleX, float scaleY) {
     scaleBounds(totalScaleX, totalScaleY);
 }
 
+// sets only the scaleX
 void Shape::setScaleX(float scale) {
     totalScaleX = scale;
     scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(totalScaleX, totalScaleY, 1));
@@ -125,6 +135,7 @@ void Shape::setScaleX(float scale) {
     scaleBounds(totalScaleX, totalScaleY);
 }
 
+// sets only the scaleY
 void Shape::setScaleY(float scale) {
     totalScaleY = scale;
     scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(totalScaleX, totalScaleY, 1));
@@ -133,8 +144,7 @@ void Shape::setScaleY(float scale) {
     scaleBounds(totalScaleX, totalScaleY);
 }
 
-
-
+// scales the bounds on the CPU side of things for layouts and mouse clicking
 void Shape::scaleBounds(float scaleX, float scaleY) {
     calculateBounds();
     minBoundsX = originalMinBoundsX * (scaleX);

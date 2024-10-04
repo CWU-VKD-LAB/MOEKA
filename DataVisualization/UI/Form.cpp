@@ -3,6 +3,8 @@
 std::vector<Function*> Form::functionList{};
 Function* Form::comparisonFunction = nullptr;
 
+// creates a form object, that acts as a root for all the form screens. a list of the managed screens is under the 
+// 'state' enumeration in form.h 
 Form::Form () {
 	interview.dt.readData("test.csv");
 	setNewFunc();
@@ -22,6 +24,7 @@ Form::Form () {
 	}
 }
 
+// destructor for the form, deleting heap allocated variables.
 Form::~Form () {
 	for (auto a : functionList) {
 		delete(a);

@@ -379,6 +379,7 @@ void Window::createOptions (Texture& texture) {
     ImGui::End();
 }
 
+// creates the description of a function (its visualization, math, and english buttons)
 void Window::treeDescription (Function* function) {
     if ( (function->parent != nullptr)) {
         bool disabled = std::count(form.functionList.begin(), form.functionList.end(), function) != 0;
@@ -495,6 +496,7 @@ void Window::treeDescription (Function* function) {
 
             }
 
+            // we need a new string so we can properly insert the "OR" statements
             std::string fullString = "";
             for (int a = 0; a < full.size(); a++) {
                 fullString += full[a];
@@ -515,6 +517,7 @@ void Window::treeDescription (Function* function) {
     ImGui::PopFont();
 }
 
+// recursive function to display each function and its sub functions into the tree view.
 void Window::tree (Function* function) {
     if (function)
     {
@@ -522,7 +525,7 @@ void Window::tree (Function* function) {
             ImGui::SetNextItemOpen(false, ImGuiCond_Once);
             // Math representation of the function.
             treeDescription(function);
-
+            // if the sibling function list is not empty, create different nodes for them, and store their clauses underneath them.
             if (!function->siblingfunctionList.empty()) {
                 int siblingIndex = 1;
                 for (auto a : function->siblingfunctionList) {
@@ -575,6 +578,7 @@ void Window::draw () {
     }
 }
 
+// adds model from the function form when the user presses 'Finish' 
 void Window::addModelFromFunctionForm() {
     const auto classIndex = this->form.getFunc()->hanselChains->dimension;
     Model* m = new Model();
@@ -596,6 +600,7 @@ void Window::addModelFromFunctionForm() {
     this->form.addModel = !this->form.addModel;
 }
 
+// adds a model from the comparison form when the user picks two valid functions to compare against each other.
 void Window::addModelFromCompareForm()
 {
     Model* m = new Model();

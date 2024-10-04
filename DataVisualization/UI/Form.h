@@ -31,6 +31,7 @@ enum state {
 	CONSTRAINT
 };
 
+// variables directly related to the interview screen.
 struct Interview {
 	int datapointIndex = 0;
 	int hanselChainIndex = 0;
@@ -42,12 +43,14 @@ struct Interview {
 	DecisionTable<int> dt{};
 };
 
+// variables directly related to the comparison screen.
 struct Compare {
 	int indexOne = 0;
 	int indexTwo = 1;
 	std::vector<std::vector<int>>* comparisons = nullptr;
 };
 
+// constraint screen variables.
 struct Constraint {
 	std::vector<int> answers{};
 };
@@ -71,7 +74,7 @@ private:
 	std::string basePath = "..\\DataVisualization\\models";
 
 
-	//
+	// what function the program is currently looking at specifically.
 	Function* func = nullptr;
 
 	/// @brief flag for synchronization
@@ -80,7 +83,7 @@ private:
 	// function that calls moeka->start() with a boolean flag for synchronization
 	//void start(bool* flag);
 
-	//
+	// function screen variables.
 	ImFont* font = nullptr;
 	std::string statusMessage = "";
 	std::string action = "Add Clause";
@@ -91,7 +94,7 @@ private:
 	int siblingFunctionIndex = 0;
 	int subfunctionIndex = 0;
 
-
+	// color picker variables
 	int colorPickerState = -1;
 	bool colorPickerOpen = false;
 	bool useGradient = false;
