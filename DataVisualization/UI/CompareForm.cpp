@@ -123,6 +123,8 @@ void Form::drawCompare() {
 			// now add model directly to model list
 			compare.comparisons = comparisons;
 
+			// TODO remove commented out code?
+			// 
 			// create new comparison function
 			/*
 			char* name = new char[128];

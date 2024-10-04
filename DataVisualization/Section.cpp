@@ -172,13 +172,14 @@ void Section::draw () {
 	}
 }
 
+// 
 Drawable* Section::selected (GLFWwindow* window) {
 	// use BVH-esque techniques to find the hovered shape without checking too many shapes.
 	double cx, cy;
 	glfwGetCursorPos(window, &cx, &cy);
 
 
-	// cx and cy will be in ranged of 0-600 from 0,0 on the top right to 600, 600, on the bottom right
+	// cx and cy will be in ranged of 0-600 from 0,0 on the top left to 600, 600, on the bottom right
 	// check if cursor is in the bounds of this manager.
 	double tempx = (double)getWidth() / 2.0f;
 	double tempy = (double)getHeight() / 2.0f;
