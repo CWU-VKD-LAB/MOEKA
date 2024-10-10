@@ -37,6 +37,7 @@ Form::~Form () {
 	}
 }
 
+// base for drawing the form, which form screen it renders is dependent on the 'current' 
 void Form::draw () {
 	if (open) {
 		switch (current) {
@@ -191,6 +192,7 @@ void Form::drawPrep () {
 		ImGui::EndDisabled();
 	}
 
+	// add function button
 	ImGui::SameLine();
 	if (ImGui::Button("Add Func", buttonSize)) {		
 		current = FUNCTION;
