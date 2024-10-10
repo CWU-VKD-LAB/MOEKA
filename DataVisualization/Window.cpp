@@ -177,7 +177,10 @@ void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
     if (config::drawIndex < 0) {
         return;
     }
-    Window::s = Window::managedList.at(config::drawIndex)->selected(window);
+    if (Window::managedList.size() != 0) {
+        Window::s = Window::managedList.at(config::drawIndex)->selected(window);
+    }
+    
     /*
     for (auto a : Window::managedList) {
         Window::s = a->selected(window);
