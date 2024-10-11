@@ -542,6 +542,7 @@ void Window::createColorPicker () {
     }
 }
 
+
 // draws the members of the managedList
 void Window::draw () {
     if (!managedList.empty()) {
@@ -549,6 +550,8 @@ void Window::draw () {
     }
 }
 
+
+// TODO: reverse classes vector and add information to bar for the tooltip
 void Window::addModelFromFunctionForm() {
     const auto classIndex = this->form.getFunc()->hanselChains->dimension;
     Model* m = new Model();
@@ -561,6 +564,7 @@ void Window::addModelFromFunctionForm() {
         {
             classes.push_back(e[classIndex]);
         }
+
 
         m->addColumn(&classes);
     }

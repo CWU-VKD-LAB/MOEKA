@@ -11,7 +11,7 @@ Form::Form () {
 	font = io.Fonts->AddFontFromFileTTF("resources/fonts/JetBrainsMono-Medium.ttf", config::windowY / 42.0f);
 	interview.pilotAnswers.resize(config::pilotQuestions.size());
 	std::fill(interview.pilotAnswers.begin(), interview.pilotAnswers.end(), 0);
-	func->trueAttributes = new std::vector<int>(func->attributeCount);
+	func->trueAttributes = new std::vector<int>(func->attributeCount, -1);
 
 	// synchronization flag
 	startMoeka = true;
@@ -351,8 +351,8 @@ void Form::drawInterviewPilot () {
 				}
 				ImGui::EndTable();
 
-				// TODO: delete when above is fixed
-				interview.pilotAnswers[5] = 1;
+				// need to make sure hardcoded index is always correct...
+				interview.pilotAnswers[6] = 1;
 			}
 		}
 		else {
@@ -406,7 +406,7 @@ void Form::drawInterviewPilot () {
 		// TODO: user needs to select lowest acceptable datapoint from UI, then that is sent into moeka object init function
 		bool majority = -1;
 
-		bool topBottomOrBinarySearch = -1;
+		int topBottomOrBinarySearch = -1;
 
 		// TODO: implement this in decision table instead of hardcode? save last line of DT and getDecision should return above variables instead?
 		// its just kind of weird to have DT when these if statements are needed anyway 
@@ -450,17 +450,12 @@ void Form::drawInterviewPilot () {
 			staticInterChainOrder == 3; // LSO 
 		}
 
-		std::vector<int> trueAttr(func->attributeCount, 0);
-
-		edm->initFromUI(func->attributeCount, attrNames, func->kValues, functionKV, staticInterChainOrder, trueAttr, chainJump, majority, topBottomOrBinarySearch);
+		edm->initFromUI(func->attributeCount, attrNames, func->kValues, functionKV, staticInterChainOrder, *(func->trueAttributes), 
+			chainJump, majority, topBottomOrBinarySearch);
 
 		// now, need to start thread either in new functionor in drawInterview...
 		std::thread thr(start, edm, &startMoeka);
 		thr.detach();
-
-		/*func->initializeHanselChains();
-		interview.datapoints = func->hanselChains->hanselChainSet;
-		interview.datapoint.resize(func->clause->size());*/
 
 		current = state::INTERVIEW;
 	}
@@ -514,7 +509,7 @@ void Form::drawInterview () {
 		else
 		{
 			std::cout << "UI: waiting for moeka thread..." << std::endl;
-			Sleep(5000);
+			Sleep(200);
 		}
 	}
 	////
@@ -536,6 +531,10 @@ void Form::drawInterview () {
 			ImGui::SameLine();
 			ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(b)).c_str(), &interview._class, b); // interview._class
 		}
+
+		int c = -1;
+		ImGui::SameLine();
+		ImGui::RadioButton("N/A##N/A", &interview._class, c); // interview._class
 
 		ImGui::PopFont();
 		//

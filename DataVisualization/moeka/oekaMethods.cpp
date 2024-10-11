@@ -242,7 +242,7 @@ void moeka::askMajorityFlag()
 		usedMajorityFlag = true;
 		int foundTrueMajority = 0;
 
-		std::cout << "Roughly how many majority vectors will result in a value of true? (Enter 0 if that is unknown)." << std::endl;
+		std::cout << "Roughly how many majority vectors will result in a positive value? (Enter 0 if that is unknown)." << std::endl;
 		std::cin >> trueMajority;
 
 		// assign order to majority vectors
@@ -657,7 +657,7 @@ void moeka::chainJumpOrderQuestionsFunc()
 
 			for (int j = (int)hanselChainSet[i].size() - 1; j >= 0; j--)
 			{
-				int vector_class;
+				int vector_class = -1;
 
 				if (questionFunc(i, j, vector_class))
 				{
@@ -680,7 +680,7 @@ void moeka::chainJumpOrderQuestionsFunc()
 		{
 			for (int j = (int)hanselChainSet[i].size() - 2; j >= 0; j--)
 			{
-				int vector_class;
+				int vector_class = -1;
 
 				if (questionFunc(i, j, vector_class))
 				{
@@ -703,7 +703,7 @@ void moeka::chainJumpOrderQuestionsFunc()
 
 			for (int j = 0; j < (int)hanselChainSet[i].size(); j++)
 			{
-				int vector_class;
+				int vector_class = -1;
 
 				if (questionFunc(i, j, vector_class))
 				{
@@ -726,7 +726,7 @@ void moeka::chainJumpOrderQuestionsFunc()
 		{
 			for (int j = 1; j < (int)hanselChainSet[i].size(); j++)
 			{
-				int vector_class;
+				int vector_class = -1;
 
 				if (questionFunc(i, j, vector_class))
 				{
@@ -734,6 +734,61 @@ void moeka::chainJumpOrderQuestionsFunc()
 				}
 
 				checkExpansions(vector_class, i, j);
+			}
+		}
+	}
+}
+
+
+void moeka::expandKnownLowUnits()
+{
+	// if low units are known, then expand here
+	// boolean only implementation
+	// TODO: user can enter known low units through console or through UI
+	// TODO: k-value implementation
+	for (auto& lowUnit : knownLowUnits)
+	{
+		for (int i = 0; i < numChains; i++)
+		{
+			for (int j = 0; j < (int)hanselChainSet[i].size(); j++)
+			{
+				if (lowUnit == hanselChainSet[i][j].dataPoint)
+				{
+					int vector_class = 1;
+
+					hanselChainSet[i][j]._class = vector_class;
+
+					hanselChainSet[i][j].asked = true;
+					hanselChainSet[i][j].confirmed = true;
+					numConfirmedInChains[i]++;
+					hanselChainSet[i][j].visited = true;
+
+					if (hanselChainSet[i][j]._class == 0 || hanselChainSet[i][j]._class == function_kv - 1)
+					{
+						hanselChainSet[i][j].weak = false;
+					}
+
+					checkExpansions(vector_class, i, j);
+
+					if (j > 0)
+					{
+						int k = j - 1;
+						vector_class = 0;
+
+						hanselChainSet[i][k]._class = vector_class;
+						hanselChainSet[i][k].asked = true;
+						hanselChainSet[i][k].confirmed = true;
+						numConfirmedInChains[i]++;
+						hanselChainSet[i][k].visited = true;
+
+						if (hanselChainSet[i][k]._class == 0 || hanselChainSet[i][k]._class == function_kv - 1)
+						{
+							hanselChainSet[i][k].weak = false;
+						}
+
+						checkExpansions(vector_class, i, j - 1);
+					}
+				}
 			}
 		}
 	}
@@ -1158,7 +1213,7 @@ int moeka::askingOfQuestion(int i, int j)
 			else
 			{
 				std::cout << "Thread: checking synchronization flag... currently" << std::endl;
-				Sleep(1000);
+				Sleep(100);
 			}
 		}
 	}
@@ -1180,10 +1235,30 @@ int moeka::askingOfQuestion(int i, int j)
 		}
 	}
 
+	// vector must be greater than the minimum acceptable datapoint in order to be considered.
+	if (minimumAcceptableDatapoint.size() == dimension)
+	{
+		for (int k = 0; k < dimension; k++)
+		{
+			if (minimumAcceptableDatapoint[k] > hanselChainSet[i][j].dataPoint[k])
+			{
+				ask = false;
+				vector_class = 0;
+				break;
+			}
+		}
+	}
+
 	if (ask)
 	{
 		orderOfAskingSummary.push_back(i);
 		orderOfAskingSummary.push_back(j);
+
+		if (webOracle != "")
+		{
+
+		}
+
 
 		// if there is no oracle, then ask expert
 		if (hanselChainSet[i][j].oracle == -1)
@@ -1208,7 +1283,7 @@ int moeka::askingOfQuestion(int i, int j)
 					if (!*synchronizationFlag)
 					{
 						std::cout << "Thread: waiting for user to assign class..." << std::endl;
-						Sleep(1000);
+						Sleep(100);
 					}
 					else
 					{
