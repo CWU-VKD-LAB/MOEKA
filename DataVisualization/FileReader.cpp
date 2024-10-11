@@ -2,6 +2,7 @@
 
 std::vector<Function*> CSVReader::loadedFunctionHistory{};
 
+// TODO update to properly populate sub function information and list sizes.
 void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
@@ -72,7 +73,10 @@ void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 			current->attributeCount = stoi(line.substr(0, line.find(", ")));
 			line.erase(0, line.find(", ") + 2);
 			current->targetAttributeCount = stoi(line.substr(0, line.length() - 1));
+			current->siblingfunctionList.resize((size_t)current->attributeCount-1);
 
+			// depending on the depth value (calculated by the number of #'s - 2) go to the last function in the list.
+			// TODO add parsing to figure out the position in the subfunction list rather than the back for cases where the a nth function is defined, but functions[!n] are not.
 			if (depth != 0) {
 				Function* parent = tempFuncList.back();
 				while (depth > 1) {
@@ -91,8 +95,8 @@ void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 		// everything below is either a clause or a siblingfunction.
 		if (line.find('#') != std::string::npos) {
 			std::vector<std::vector<int>*>* subfunction = new std::vector<std::vector<int>*>;
-			current->siblingfunctionList.push_back(*subfunction);
 			index++;
+			current->siblingfunctionList[index] = *subfunction;
 			continue;
 		}
 
@@ -115,6 +119,7 @@ void CSVReader::readCSV(std::vector<Function*>* container, std::string path) {
 	file.close();
 	container->clear();
 	for (auto a : tempFuncList) {
+		a->clause = a->siblingfunctionList[0][0];
 		loadedFunctionHistory.push_back(a);
 		container->push_back(a);
 	}

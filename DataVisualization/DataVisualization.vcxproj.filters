@@ -1508,9 +1508,13 @@
     </None>
     <None Include="imgui.ini" />
     <None Include="test.csv" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="resources\fonts\JetBrainsMono-Medium.ttf" />
     <Font Include="resources\fonts\ProggyClean.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="known bugs.txt" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,7 @@
 #include "Form.h"
 
+// draws the compare screen, where we can select two functions, test if they're comparable, then create a model that compares the two
+// where the differences are shown as class values.
 void Form::drawCompare() {
 	ImGui::Begin("Compare Functions", &open, flags);
 	ImVec2 window{ config::windowX * .75f, config::windowY * .175f };
@@ -56,6 +58,7 @@ void Form::drawCompare() {
 		ImGui::TextDisabled("There are not enough loaded functions to compare.");
 	}
 
+	// bottom row 
 	ImGui::SetCursorPosY(window.y * 0.75f - ImGui::GetStyle().WindowPadding.y);
 	ImGui::Separator();
 	ImGui::SetCursorPosX(window.x * .7f - ImGui::GetStyle().WindowPadding.x);
@@ -123,6 +126,8 @@ void Form::drawCompare() {
 			// now add model directly to model list
 			compare.comparisons = comparisons;
 
+			// TODO remove commented out code?
+			// 
 			// create new comparison function
 			/*
 			char* name = new char[128];

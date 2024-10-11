@@ -513,6 +513,7 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="glm\glm\detail\func_common.inl" />
     <None Include="glm\glm\detail\func_common_simd.inl" />
     <None Include="glm\glm\detail\func_exponential.inl" />
@@ -659,6 +660,9 @@
   <ItemGroup>
     <Font Include="resources\fonts\JetBrainsMono-Medium.ttf" />
     <Font Include="resources\fonts\ProggyClean.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="known bugs.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

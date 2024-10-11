@@ -27,9 +27,11 @@ enum state {
 	INTRODUCTION,
 	COLOR,
 	COMPARE,
-	LOAD
+	LOAD,
+	CONSTRAINT
 };
 
+// variables directly related to the interview screen.
 struct Interview {
 	int datapointIndex = 0;
 	int hanselChainIndex = 0;
@@ -41,10 +43,16 @@ struct Interview {
 	DecisionTable<int> dt{};
 };
 
+// variables directly related to the comparison screen.
 struct Compare {
 	int indexOne = 0;
 	int indexTwo = 1;
 	std::vector<std::vector<int>>* comparisons = nullptr;
+};
+
+// constraint screen variables.
+struct Constraint {
+	std::vector<int> answers{};
 };
 
 class Form {
@@ -54,6 +62,7 @@ private:
 	//
 	Interview interview{};
 	Compare compare{};
+	Constraint constraint{};
 	//
 
 	// moeka object (files need to be renamed)
@@ -65,7 +74,7 @@ private:
 	std::string basePath = "..\\DataVisualization\\models";
 
 
-	//
+	// what function the program is currently looking at specifically.
 	Function* func = nullptr;
 
 	/// @brief flag for synchronization
@@ -74,18 +83,19 @@ private:
 	// function that calls moeka->start() with a boolean flag for synchronization
 	//void start(bool* flag);
 
-	//
+	// function screen variables.
 	ImFont* font = nullptr;
 	std::string statusMessage = "";
 	std::string action = "Add Clause";
 	std::vector<std::string> functionNames{};
 	std::string currentFunction = "";
+	// where the program is currently looking in a function
 	int clauseIndex = 0;
 	int functionIndex = -1;
 	int siblingFunctionIndex = 0;
 	int subfunctionIndex = 0;
 
-
+	// color picker variables
 	int colorPickerState = -1;
 	bool colorPickerOpen = false;
 	bool useGradient = false;
@@ -107,6 +117,7 @@ public:
 	void drawColor ();
 	void drawCompare ();
 	void drawLoad ();
+	void drawContraint ();
 	void openWindow ();
 	void setNewFunc(std::string = "");
 

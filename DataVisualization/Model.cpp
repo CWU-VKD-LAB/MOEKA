@@ -1,6 +1,6 @@
 #include "Model.h"
 
-
+// adds a column to the model in 5-3-1-2-4 order.
 void Model::addColumn (std::vector<int>* values) {
 	Section* column = recursiveCreateSections(values);
 
@@ -18,6 +18,8 @@ void Model::addColumn (std::vector<int>* values) {
 	list.push_back(column);
 }
 
+// recursively creates sections based on the length of the values list.
+// if the size is greater than the compressBarAmount, then it will split the list.
 Section* Model::recursiveCreateSections (std::vector<int>* values) {
 	if (values->size() <= config::compressBarAmount) {
 		Section* s = new Section();
@@ -39,6 +41,7 @@ Section* Model::recursiveCreateSections (std::vector<int>* values) {
 	return s;
 }
 
+// creates an empty model
 Model::Model () {
 	// the bounds of the model should be the entire screen.
 	minBoundsX = -config::windowX;
@@ -47,6 +50,7 @@ Model::Model () {
 	maxBoundsY = config::windowY;
 }
 
+// frees up the sections this model holds.
 Model::~Model () {
 	for (auto a : list) {
 		delete(a);
@@ -60,6 +64,7 @@ void Model::draw () {
 	}
 }
 
+// registers a mouse click and determines what bar (if any) was selected by the click. 
 Drawable* Model::selected (GLFWwindow* window) {
 	// use BVH-esque techniques to find the hovered shape without checking too many shapes.
 	double cx, cy;
@@ -87,6 +92,7 @@ Drawable* Model::selected (GLFWwindow* window) {
 	return nullptr;
 }
 
+// sets the translation of the model and all its children, enforcing formatting.
 void Model::setTranslation (float dx, float dy) {
 	x = dx;
 	y = dy;
@@ -105,6 +111,7 @@ void Model::setTranslation (float dx, float dy) {
 	}
 }
 
+// set the scaleX and scaleY of the model, with a translation to its current position to update the childrens positions with the size change.
 void Model::setScale (float scaleX, float scaleY) {
 	totalScaleX = scaleX;
 	totalScaleY = scaleY;
@@ -116,6 +123,7 @@ void Model::setScale (float scaleX, float scaleY) {
 	setTranslation(getX(), getY());
 }
 
+// sets the scaleX of the model
 void Model::setScaleX (float scale) {
 	totalScaleX = scale;
 	scaleBounds(totalScaleX, totalScaleY);
@@ -126,6 +134,7 @@ void Model::setScaleX (float scale) {
 	setTranslation(getX(), getY());
 }
 
+// sets the scaleY of the model
 void Model::setScaleY(float scale) {
 	totalScaleY = scale;
 	scaleBounds(totalScaleX, totalScaleY);
@@ -138,17 +147,27 @@ void Model::setScaleY(float scale) {
 
 // finds a scaling that will fit the model to the screen.
 void Model::fitToScreen () {
-	float largestWidth = 0.0f;
+	float width = 0.0f;
 	float largestHeight = 0.0f;
 
+	// calculate the size of the column
 	for (auto a : list) {
-		largestWidth = std::max(largestWidth, a->getWidth());
-		largestHeight = std::max(largestHeight, a->getHeight());
+		float totalHeight = 0;
+		float w = 0;
+		for (auto b : a->managedList) {
+			totalHeight += b->getHeight();
+			w = std::max(b->getWidth(), w);
+		}
+		width += w;
+		largestHeight = std::max(largestHeight, totalHeight);
 	}
 
-	float ratioX = config::windowX / largestWidth;
+	float ratioX = config::windowX / width;
 	float ratioY = config::windowY / largestHeight;
 
-	setScale(ratioX * .25f, ratioY * .5f);
+	// set the scale based on the calculated ratios and set the translation to the center of the screen.
+	setScale(ratioX, ratioY);
 	setTranslation(config::windowX / 2.0f, config::windowY / 2.0f);
+	totalScaleX = 1;
+	totalScaleY = 1;
 }
