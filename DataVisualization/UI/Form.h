@@ -89,6 +89,7 @@ private:
 	std::string action = "Add Clause";
 	std::vector<std::string> functionNames{};
 	std::string currentFunction = "";
+	// where the program is currently looking in a function
 	int clauseIndex = 0;
 	int functionIndex = -1;
 	int siblingFunctionIndex = 0;

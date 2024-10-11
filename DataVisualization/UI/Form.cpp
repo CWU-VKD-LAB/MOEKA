@@ -6,14 +6,19 @@ Function* Form::comparisonFunction = nullptr;
 // creates a form object, that acts as a root for all the form screens. a list of the managed screens is under the 
 // 'state' enumeration in form.h 
 Form::Form () {
+	// reads interview questions and stores them for later.
 	interview.dt.readData("test.csv");
+	interview.pilotAnswers.resize(config::pilotQuestions.size());
+	std::fill(interview.pilotAnswers.begin(), interview.pilotAnswers.end(), 0);
+
+	// set a default function on form creation
 	setNewFunc();
+	func->trueAttributes = new std::vector<int>(func->attributeCount);
+
+	// load font
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	font = io.Fonts->AddFontFromFileTTF("resources/fonts/JetBrainsMono-Medium.ttf", config::windowY / 42.0f);
-	interview.pilotAnswers.resize(config::pilotQuestions.size());
-	std::fill(interview.pilotAnswers.begin(), interview.pilotAnswers.end(), 0);
-	func->trueAttributes = new std::vector<int>(func->attributeCount);
 
 	// synchronization flag
 	startMoeka = true;
@@ -37,6 +42,7 @@ Form::~Form () {
 	}
 }
 
+// base for drawing the form, which form screen it renders is dependent on the 'current' 
 void Form::draw () {
 	if (open) {
 		switch (current) {
@@ -112,11 +118,12 @@ void Form::drawPrep () {
 	ImGui::InputText("##", func->functionName, 128);
 	ImGui::SameLine();
 	
-	// function swap
+	// function swapping
 	std::string tempText = currentFunction + " " + std::to_string(functionIndex + 1) + "/" + std::to_string(functionList.size());
 	ImGui::SetCursorPos(ImVec2{ImGui::GetWindowSize().x - ImGui::CalcTextSize(tempText.c_str()).x - font->FontSize * 2.0f - ImGui::GetStyle().ItemSpacing.x * 3.0f, positionY});
 	ImGui::Text(tempText.c_str());
 	ImGui::SameLine();
+	// move left in function list
 	if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
 		if (functionIndex > 0) {
 			functionIndex--;
@@ -126,6 +133,7 @@ void Form::drawPrep () {
 			action = "Add Clause";
 		}
 	}
+	// move right in function list
 	ImGui::SameLine();
 	if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
 		if (functionIndex < (int)(functionList.size() - 1) ) {
@@ -191,6 +199,7 @@ void Form::drawPrep () {
 		ImGui::EndDisabled();
 	}
 
+	// add function button. we make sure that the first clause of the function exists and is zeroed out.
 	ImGui::SameLine();
 	if (ImGui::Button("Add Func", buttonSize)) {		
 		current = FUNCTION;
@@ -204,6 +213,7 @@ void Form::drawPrep () {
 		if (std::count(functionList.begin(), functionList.end(), func) == 0) {
 			functionList.insert(functionList.end(), func);
 		}
+		// resize the functions sub and sibling function lists so they dont waste memory
 		func->subfunctionList.resize(func->attributeCount);
 		func->siblingfunctionList.resize(func->targetAttributeCount - 1);
 		for (int a = 0; a < func->targetAttributeCount-1; a++) {
@@ -211,19 +221,26 @@ void Form::drawPrep () {
 			func->siblingfunctionList[a] = *temp;
 		}
 	}
+
+	// interview button
 	ImGui::SameLine();
-	if (ImGui::Button("Interview", buttonSize)) {		
+	if (ImGui::Button("Interview", buttonSize)) {	
+		// go to the constraint screen
 		current = CONSTRAINT;
 		constraint.answers.resize(func->attributeCount);
+
+		// set up some variables for the interview screen. like the function screen, we set a zeroed out vector for the function.
 		std::vector<int>* temp = new std::vector<int>;
 		temp->resize(func->attributeCount);
 		std::fill(temp->begin(), temp->end(), 0);
 		func->clause = temp;
+
+		// make sure the function exists in the functionList, and not duplicated.
 		if (std::count(functionList.begin(), functionList.end(), func) == 0) {
 			functionList.insert(functionList.end(), func);
 		}
 
-		//
+		// for each sibling function, populate it with empty vectors.
 		interview.datapoints.resize(func->siblingfunctionList.size());
 		for (int a = 0; a < interview.datapoints.size(); a++) {
 			std::vector<std::vector<int>>* category = new std::vector<std::vector<int>>;
@@ -242,16 +259,18 @@ void Form::drawPrep () {
 	ImGui::End();
 }
 
+// draws the contraint screen, which lets the user set restraints on a given attribute of the function.
 void Form::drawContraint () {
 	ImGui::Begin("##con", &open, flags);
 	ImGui::SetWindowSize(ImVec2{config::windowX * .75f, config::windowY * .5f});
 	ImVec2 window = ImGui::GetWindowSize();
 	ImGui::SetWindowPos(ImVec2{ (config::windowX - window.x) * .5f, (config::windowY - window.y) * .5f });
 
-	//
+	// when the user presses a cause or effect, it sets a value in a vector.
 	ImGui::PushFont(font);
 	if (ImGui::BeginChild("##child", ImVec2{window.x - (ImGui::GetStyle().WindowPadding.x * 2), window.y * .8f})) {
 		ImGui::SetNextWindowSize(ImVec2{ window.x * .5f, window.y * .5f });
+		// sets a prerequisite for the attribute, the "cause".
 		ImGui::BeginGroup();
 		for (int a = 0; a < func->attributeCount; a++) {
 			std::string t = func->attributeNames[a];
@@ -261,6 +280,7 @@ void Form::drawContraint () {
 			ImGui::Text( t.c_str() );
 			ImGui::Text("Cause");
 			for (int b = 0; b < func->kValues[a]; b++) {
+				// values set into the vector will be positive if they are a cause
 				ImGui::RadioButton(("##aa" + std::to_string(a * func->attributeCount + b)).c_str(), &constraint.answers[a], b + 1);
 				if (b != func->kValues[a] - 1) {
 					ImGui::SameLine();
@@ -270,7 +290,7 @@ void Form::drawContraint () {
 		ImGui::EndGroup();
 		//
 
-		//
+		// sets an effect for the attribute.
 		ImGui::SameLine(window.x * .5f);
 		ImGui::SetNextWindowSize(ImVec2{ window.x * .5f, window.y * .5f });
 		ImGui::BeginGroup();
@@ -282,6 +302,7 @@ void Form::drawContraint () {
 			ImGui::Text(t.c_str());
 			ImGui::Text("Effect");
 			for (int b = 0; b < func->kValues[a]; b++) {
+				// values set into the vector will be negative if they are an effect.
 				ImGui::RadioButton(("##bb" + std::to_string(a * func->attributeCount + b)).c_str(), &constraint.answers[a], -(b + 1));
 				if (b != func->kValues[a] - 1) {
 					ImGui::SameLine();
@@ -294,6 +315,7 @@ void Form::drawContraint () {
 	ImGui::PopFont();
 	//
 	
+	// continue button
 	ImGui::Separator();
 	ImGui::SetCursorPos(ImVec2{window.x - (window.x * .2f + ImGui::GetStyle().WindowPadding.x), window.y - (ImGui::GetStyle().WindowPadding.y) - (window.y * .1f) });
 	if (ImGui::Button("Continue", ImVec2{window.x * .2f, window.y * .1f}) ) {
@@ -303,12 +325,15 @@ void Form::drawContraint () {
 	ImGui::End();
 }
 
+// draws the load screen, which checks the models folder for .csv files. by default, when you press Finish on a function, it saves to this folder
 void Form::drawLoad () {
+	// preamble variables/settings
 	ImGui::Begin("##", &open, flags | ImGuiWindowFlags_NoScrollbar);
 	ImGui::SetWindowSize(ImVec2{config::windowX * .5f, config::windowY * .3f});
 	ImVec2 window = ImGui::GetWindowSize();
 	ImGui::SetWindowPos(ImVec2{ (config::windowX - window.x) * .5f, (config::windowY - window.y) * .5f} );
 
+	// label
 	ImVec2 textSize = ImGui::CalcTextSize("Load from which file?");
 	ImGui::Text("Load from which file?");
 	
@@ -319,9 +344,9 @@ void Form::drawLoad () {
 			selectedFile = a;
 		}
 	}
-	
 	ImGui::EndChild();
 
+	// if we haven't selected a file, the load button should be disabled. 
 	ImVec2 buttonSize{window.x * .2f, window.y * .3f - textSize.y - ImGui::GetStyle().WindowPadding.y * 2.0f - ImGui::GetStyle().ItemInnerSpacing.y * 2.0f };
 	ImGui::SetCursorPosX(window.x - buttonSize.x - ImGui::GetStyle().WindowPadding.x);
 	if (selectedFile == -1) {
@@ -330,6 +355,7 @@ void Form::drawLoad () {
 	if (ImGui::Button("Load##", buttonSize)) {
 		functionList.clear();
 		CSVReader::readCSV(&functionList, (basePath + "\\" + files[selectedFile]).c_str());
+		// once the file is read in, set the indexes to 0 across the board.
 		func = functionList[0];
 		current = state::FUNCTION;
 		clauseIndex = 0;
@@ -352,7 +378,7 @@ void start(moeka* edm, bool* flag) {
 	(*edm).start(flag);
 }
 
-
+// draws a screen containing the pilot questions defined in a csv.
 void Form::drawInterviewPilot () {
 	// TODO : add stuff for decision table for pilot questions
 	ImGui::Begin("##", &open, flags | ImGuiWindowFlags_AlwaysVerticalScrollbar);
@@ -361,16 +387,16 @@ void Form::drawInterviewPilot () {
 	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .625f), window.y - (config::windowY * .25f)));
 	std::string question;
 
-	//
+	// some setup variables for each question.
 	ImGui::PushFont(font);
 	std::string temp;
-
 	bool isSlider = false;
 	bool isTable = false;
 	std::string tempString;
 	for (int b = 0; b < config::pilotQuestions.size(); b++) {
 		question = config::pilotQuestions[b][0];
 
+		// on hovering (?) by a user, create a tooltip with a description of the question.
 		ImGui::TextDisabled("(?)");
 		if (ImGui::BeginItemTooltip()) {
 			ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
@@ -378,7 +404,8 @@ void Form::drawInterviewPilot () {
 			ImGui::PopTextWrapPos();
 			ImGui::EndTooltip();
 		}
-		//
+
+		// writes the question
 		ImGui::SameLine();
 		ImGui::PushTextWrapPos(window.x * .95);
 		ImGui::TextWrapped(question.c_str());
@@ -386,7 +413,7 @@ void Form::drawInterviewPilot () {
 
 		ImGui::Separator();
 
-
+		// if the question in the csv file contains a special token, then instead of radial buttons, we have a slider or table.
 		if (interview.dt.questionType.contains(b)) {
 			tempString = interview.dt.questionType.at(b);
 			if (tempString.find("slider") != std::string::npos) {
@@ -414,6 +441,7 @@ void Form::drawInterviewPilot () {
 			ImGui::SliderInt(std::string("##slider").append(std::to_string(b)).c_str(), &interview.pilotAnswers[b], min, func->targetAttributeCount);
 		}
 		else if (isTable) {
+			// notice: when an element isTable, it currently only creates a table from ONE set of data, from the currently loaded function.
 			ImVec2 tableSize {window.x * .96f, window.y * .5f };
 			if (ImGui::BeginTable("##functiontableinterview", func->attributeCount, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_ScrollX | ImGuiTableFlags_SizingFixedSame | ImGuiTableFlags_BordersOuterV, tableSize)) {
 				for (int a = 0; a < func->attributeCount; a++) {
@@ -434,6 +462,7 @@ void Form::drawInterviewPilot () {
 			}
 		}
 		else {
+			// if we don't have a special token, we render radial buttons instead.
 			if (ImGui::BeginTable(std::string("##Question ").append(std::to_string(b)).c_str(), config::pilotQuestions[b].size() - 1, ImGuiTableFlags_ScrollX | ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_BordersInnerV, ImVec2{ window.x, window.y * .195f })) {
 				for (int a = 1; a < config::pilotQuestions[b].size(); a++) {
 					ImGui::TableNextColumn();
@@ -451,7 +480,7 @@ void Form::drawInterviewPilot () {
 	//
 
 
-	//
+	// we must answer all questions before we move forward.
 	ImVec2 buttonSize{window.x * .1f, window.y * .1f};
 	ImGui::SetCursorPosX(window.x * .9875f - buttonSize.x);
 	bool disable = false;
@@ -464,6 +493,7 @@ void Form::drawInterviewPilot () {
 	if (disable) {
 		ImGui::BeginDisabled();
 	}
+	// moves onto datapoint collection
 	if (ImGui::Button("Next##", buttonSize)) {
 		// TODO: take decision table and use it to initialize moeka object
 		edm = new moeka('x');
@@ -551,9 +581,9 @@ void Form::drawInterviewPilot () {
 }
 
 
-
+// draws the interview screen, where we collect datapoint information from the user.
 void Form::drawInterview () {
-
+	// preamble variables/settings
 	ImGui::Begin("##", &open, flags);
 	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .2f));
 	ImVec2 window = ImGui::GetWindowSize();
@@ -597,6 +627,7 @@ void Form::drawInterview () {
 	}
 	////
 
+	// window for getting the datapoint from the user
 	if (!end)
 	{
 		ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize("Input a class for this datapoint.").x * .5f);
@@ -718,22 +749,27 @@ void Form::drawInterview () {
 	ImGui::End();
 }
 
+// the form will not render if the window is not open.
 void Form::openWindow () {
 	open = true;
 }
 
+// draws the color window, where we can set the colors of datapoints.
 void Form::drawColor () {
+	// preamble variables/settings
 	ImGui::Begin("Set the Colors of each Class Value##ClassColors", &open, flags);
 	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .4f));
 	ImVec2 window = ImGui::GetWindowSize();
 	ImGui::SetWindowPos(ImVec2(config::windowX * .5f - window.x * .5f, config::windowY * .5f - window.y * .5f));
 
+	// sets paddings and other variables for color squares.
 	float paddingX = ImGui::GetStyle().WindowPadding.x * 2.0f;
 	float itemSpacingX = ImGui::GetStyle().ItemSpacing.x;
 	float size = (window.x - paddingX - (itemSpacingX * (config::classColors.size()-1)) ) / config::classColors.size();
 	ImVec2 item{size, size};
 	ImVec4 col;
 
+	// check if the user wishes to use a gradient instead of setting each individual value.
 	ImGui::Checkbox("Use Gradient Instead?", &useGradient);
 	ImGui::SeparatorText("Gradient");
 	//
@@ -769,7 +805,7 @@ void Form::drawColor () {
 	}
 	//
 
-	//
+	// squares for setting individual class colors
 	if (useGradient) {
 		ImGui::BeginDisabled();
 	}
@@ -791,7 +827,7 @@ void Form::drawColor () {
 	}
 	//
 	
-	//
+	// opens a color picker for setting the color of a square (which sets the class color as well)
 	if (colorPickerOpen) {
 		ImGui::Begin("Color Picker", &colorPickerOpen);
 		ImGui::SetWindowFocus();
