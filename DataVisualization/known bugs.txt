@@ -1,3 +1,12 @@
 bug:
 steps to reproduce:
 
+
+
+crash on adding sub function
+create a sibling function and select the rightmost sibling
+	-create a sub function (vector oob)
+
+
+
+load from .csv bugged

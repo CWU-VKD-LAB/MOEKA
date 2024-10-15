@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Comment CommentText="user input windows">
+    <Position X="13.719" Y="0.5" Height="0.75" Width="1.7" />
+  </Comment>
+  <Class Name="Bar">
+    <Position X="8.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIEgAAAAAAAIAAAAAAAIAAAAAAAgAAAAAIAA=</HashCode>
+      <FileName>Bar.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Window">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQIkAAAAQEKAEAACAAIAQAIAAAAgQAAYDMAECAAgAAQ=</HashCode>
+      <FileName>Window.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Form">
+    <Position X="13" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIBBACQACwAAAQgRCYAAEUAgkAAoEEEgAAJgCdAQBQ=</HashCode>
+      <FileName>UI\Form.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="Interview">
+    <Position X="14.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAEAAAAAAAAAAkAAABAAAgAAAAAAAAQAAAAIABA=</HashCode>
+      <FileName>UI\Form.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Compare">
+    <Position X="14.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAQAA=</HashCode>
+      <FileName>UI\Form.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Constraint">
+    <Position X="14.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>UI\Form.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="state">
+    <Position X="14.75" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAEAAAAAAAAAAAAAAAAAIAAAACAAAUAgAAQCAA=</HashCode>
+      <FileName>UI\Form.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

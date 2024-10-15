@@ -514,6 +514,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
+    <None Include="ClassDiagram1.cd" />
     <None Include="glm\glm\detail\func_common.inl" />
     <None Include="glm\glm\detail\func_common_simd.inl" />
     <None Include="glm\glm\detail\func_exponential.inl" />

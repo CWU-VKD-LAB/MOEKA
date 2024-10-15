@@ -1509,6 +1509,7 @@
     <None Include="imgui.ini" />
     <None Include="test.csv" />
     <None Include="ClassDiagram.cd" />
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="resources\fonts\JetBrainsMono-Medium.ttf" />
