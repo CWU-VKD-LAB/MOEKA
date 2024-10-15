@@ -4,13 +4,13 @@
     <Position X="3.292" Y="1.556" Height="0.319" Width="1.7" />
   </Comment>
   <Comment CommentText="windows that the user opens during runtime">
-    <Position X="10.407" Y="1.344" Height="0.458" Width="1.7" />
+    <Position X="11.25" Y="1.25" Height="0.458" Width="1.7" />
   </Comment>
   <Comment CommentText="Abstracted drawing code">
-    <Position X="3.25" Y="9" Height="0.333" Width="1.7" />
+    <Position X="3.25" Y="10" Height="0.333" Width="1.7" />
   </Comment>
   <Comment CommentText="Moeka classes (more could not be added for some reason.)">
-    <Position X="10.5" Y="12.5" Height="0.75" Width="1.7" />
+    <Position X="11.25" Y="12.5" Height="0.75" Width="1.7" />
   </Comment>
   <Class Name="IndexBuffer">
     <Position X="0.75" Y="2" Width="1.5" />
@@ -55,84 +55,91 @@
     </TypeIdentifier>
   </Class>
   <Class Name="Form">
-    <Position X="8.75" Y="2" Width="1.5" />
+    <Position X="9.5" Y="2" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAIBBACQACwAAAQgRCYAAEUAgkAAoEEEgAAJgCdAQBQ=</HashCode>
       <FileName>UI\Form.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Function">
-    <Position X="12.25" Y="2" Width="1.5" />
+    <Position X="13" Y="2" Width="1.5" />
     <TypeIdentifier>
       <HashCode>CQAAgAAAAAIEiEDAAAAAEIIAAgAAAIAAAAAAAACAAAA=</HashCode>
       <FileName>UI\Function.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Drawable">
-    <Position X="0.75" Y="9.5" Width="1.5" />
+    <Position X="0.75" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>QQQQAAIAAEAAAAAAAAIAAABAAKAhwAGCgAFggmAKASo=</HashCode>
       <FileName>Drawable.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Bar">
-    <Position X="5.75" Y="9.5" Width="1.5" />
+    <Position X="5.75" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAIEgAAAAAAAIAAAAAAAIAAAAAAAgAAAAAIAA=</HashCode>
       <FileName>Bar.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Shape">
-    <Position X="3.25" Y="9.5" Width="1.5" />
+    <Position X="3.25" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAQEQIAAAIAAgEAAAAIAIABBAAAAAAACAQAAAEACAAA=</HashCode>
       <FileName>Shape.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Section">
-    <Position X="5.75" Y="12.75" Width="1.5" />
+    <Position X="5.75" Y="13.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAEEAAAAAAgAEAABIAAAAAAAAgAAAGAAAIAoICAAA=</HashCode>
       <FileName>Section.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Model">
-    <Position X="3.25" Y="14.5" Width="1.5" />
+    <Position X="3.25" Y="15.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AQAQAgAAAAAAAAAAAgIAAAAAAAAAAAACAIkAAgACAAA=</HashCode>
       <FileName>Model.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="HanselChains">
-    <Position X="8.75" Y="13.5" Width="1.5" />
+    <Position X="9.5" Y="13.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAQAAAAAAAQAAAAAAAABAAAAAEAQAAAAABAAAAQA=</HashCode>
       <FileName>HanselChains.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="DecisionTable&lt;T&gt;">
-    <Position X="12.25" Y="7" Width="1.5" />
+    <Position X="13" Y="7" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAQEAAAAAgAJAAwEAQAAAAAAAAAgABAAAABAQAAA=</HashCode>
       <FileName>DecisionTable.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="DSU">
-    <Position X="8.75" Y="16.25" Width="1.5" />
+    <Position X="9.5" Y="16.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAQAAAABAAAQAAAAAAAAAAAAACAAAAACAAAA=</HashCode>
       <FileName>moeka\graph.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="graph">
-    <Position X="12.25" Y="13.5" Width="1.5" />
+    <Position X="13" Y="13.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AEAAEAAgAAABCCEAAIAAAAAADAAAAAAgAAgBAAAAEQA=</HashCode>
       <FileName>moeka\graph.h</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="Window">
+    <Position X="14.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQIkAAAAQEKAEAACAAIAQAIAAAAgQAAYDMAECAAgAAQ=</HashCode>
+      <FileName>Window.h</FileName>
+    </TypeIdentifier>
+  </Class>
   <Struct Name="FullShader">
-    <Position X="2.5" Y="3.25" Width="1.5" />
+    <Position X="2.5" Y="6.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AACAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Render\Shader.h</FileName>
@@ -146,35 +153,35 @@
     </TypeIdentifier>
   </Struct>
   <Struct Name="Interview">
-    <Position X="10.5" Y="3.75" Width="1.5" />
+    <Position X="11.25" Y="3.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAEAAAAAAAAAAkAAABAAAgAAAAAAAAQAAAAIABA=</HashCode>
       <FileName>UI\Form.h</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="Compare">
-    <Position X="10.5" Y="2" Width="1.5" />
+    <Position X="11.25" Y="2" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAQAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAQAA=</HashCode>
       <FileName>UI\Form.h</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="Constraint">
-    <Position X="10.5" Y="9.25" Width="1.5" />
+    <Position X="11.25" Y="9.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>UI\Form.h</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="dvector">
-    <Position X="10.5" Y="13.5" Width="1.5" />
+    <Position X="11.25" Y="13.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>EARAAAAAAAAQQAAABAAgAAAIAAgAADAAoAAFMAAAIBA=</HashCode>
       <FileName>moeka\dvector.h</FileName>
     </TypeIdentifier>
   </Struct>
   <Enum Name="state">
-    <Position X="10.5" Y="6.5" Width="1.5" />
+    <Position X="11.25" Y="6.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AEAAAAAEAAAAAAAAAAAAAAAAAIAAAACAAAUAgAAQCAA=</HashCode>
       <FileName>UI\Form.h</FileName>

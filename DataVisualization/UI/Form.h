@@ -94,6 +94,7 @@ private:
 	int functionIndex = -1;
 	int siblingFunctionIndex = 0;
 	int subfunctionIndex = 0;
+	bool addedPrevious; // a really stupid variable that fixes a minor bug with moving backwards from the function screen to prep screen.
 
 	// color picker variables
 	int colorPickerState = -1;

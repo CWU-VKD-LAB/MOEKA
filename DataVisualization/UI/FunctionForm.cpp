@@ -15,6 +15,16 @@ void Form::drawFunction() {
 		while (func->parent) {
 			func = func->parent;
 		}
+		if (addedPrevious) {
+			functionList.pop_back();
+			if ((size_t)functionIndex + 1 > functionList.size()) {
+				functionIndex--;
+			}
+		}
+		else {
+			setNewFunc();
+		}
+		
 	}
 	ImGui::SameLine();
 	// create clause header

@@ -197,6 +197,7 @@ void Form::drawPrep () {
 			functionIndex--;
 		}
 		func = functionList.at(functionIndex);
+		addedPrevious = false;
 	}
 	if (functionList.empty()) {
 		ImGui::SetItemTooltip("Must create a function first.");
@@ -224,6 +225,7 @@ void Form::drawPrep () {
 			std::vector<std::vector<int>*>* temp = new std::vector<std::vector<int>*>;
 			func->siblingfunctionList[a] = *temp;
 		}
+		addedPrevious = true;
 	}
 
 	// interview button
