@@ -27,7 +27,7 @@ int main()
         o.start();
 
         std::fstream results;
-        results.open("housingResults.csv", std::ios::out | std::ios::app);
+        results.open("cancerRevisitedResults.csv", std::ios::out | std::ios::app);
         o.printToFile(results); // start the parent
     }
     else

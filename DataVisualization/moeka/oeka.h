@@ -33,17 +33,33 @@ struct attribute
 class moeka
 {
 public:
-	// flags 
+	/// flags for synchronization
 
+	/// @brief synchronization for background moeka and UI main thread
 	bool* synchronizationFlag = nullptr;
 
-
+	/// @brief current datapoint to pass to UI
 	dvector* currentDatapoint = nullptr;
+
+	/// @brief current class to pass to UI
 	int* currentClass = nullptr;
 
+	/// flags for synchronization end
+
+	/// @brief 
+	std::string webOracle = "webOracle/webScrapePREVENT.py";
 
 	/// @brief set of Hansel Chains
 	std::vector<std::vector<dvector>> hanselChainSet;
+
+	/// @brief by default this is none but if there is one then initialize here or through startFromUI() function
+	std::vector<int> minimumAcceptableDatapoint = {};
+
+	/// @brief low units that the expert knows from observation, intuition, or data
+	std::vector<std::vector<int>> knownLowUnits = { {0, 0, 1, 0, 0 } };
+		// y1-y5{ {1, 0, 0, 0, 0 }, {0, 1, 0, 0, 0} };
+		//{ {0,1,0} }; // cancer biopsy w1-w3
+		// cancer biopsy x1-x5{ {0, 0, 1, 0, 0 }, {0, 0, 0, 0, 1} };
 
 	/// @brief needs to be changed for whatever oracle is supposed to be used
 	std::string oraclePath = "";// "MonotoneDataGenerator/diabetesOracleKV.csv";
@@ -62,7 +78,7 @@ public:
 	bool useMajorityFlag = false;
 
 	// true if intra-chain binary search is used instead of sequential search at the bottom or top of the chains.
-	bool useBinarySearch = false;
+	bool useBinarySearch = true;
 
 	/// @brief signals whether to use a chainJump ordering of questions
 	bool chainJump = false;
@@ -70,10 +86,12 @@ public:
 	/// @brief for chainJump ordering, start at the top of the chain
 	bool top = false;
 
+
 	// constructors
 
 	/// @brief constructor. Used for the top-most MBF/MOR in a hierarchy of functions.
 	moeka(char attributeSymbol);
+
 
 	/// @brief constructor. used for individually testing the various operation reduction methods.
 	/// @param attributeSymbol 
@@ -249,6 +267,10 @@ private:
 
 	/// @brief Find the majority vectors in the set of Hansel Chains
 	void findMajorityVectors();
+
+
+	/// @brief take known low units and expand them before the interview and after order has been established through the pilot questions
+	void expandKnownLowUnits();
 
 
 	/// @brief Updates the query order of the vector, then calls askingOfQuestion(), and then determines if it should be expanded or was already expanded.

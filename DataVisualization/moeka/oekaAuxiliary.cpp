@@ -351,6 +351,13 @@ std::vector<int> moeka::initFromUI(int attributeCount, std::vector<std::string> 
 	}
 
 	// TODO: implement new trueAttributes function
+	for (int i = 0; i < dimension; i++)
+	{
+		if (trueAttributes[i] != -1)
+		{
+			attributes[i] = trueAttributes[i];
+		}
+	}
 
 	// TODO: change majority to work as written
 
@@ -499,7 +506,9 @@ void moeka::start()
 				{
 					return a.size() > b.size();
 				});;
+			calculateAllPossibleExpansions();
 			numberAssignment();
+			expandKnownLowUnits();
 			chainJumpOrderQuestionsFunc();
 			break;
 
@@ -507,13 +516,17 @@ void moeka::start()
 			// let user order chains however they want
 		case 2:
 			//manualHanselChainOrder();
+			calculateAllPossibleExpansions();
 			numberAssignment();
+			expandKnownLowUnits();
 			chainJumpOrderQuestionsFunc();
 			break;
 
 			// default order
 		case 3:
+			calculateAllPossibleExpansions();
 			numberAssignment();
+			expandKnownLowUnits();
 			chainJumpOrderQuestionsFunc();
 			break;
 
@@ -531,7 +544,9 @@ void moeka::start()
 				{
 					return a.size() < b.size();
 				});
+			calculateAllPossibleExpansions();
 			numberAssignment();
+			expandKnownLowUnits();
 			chainJumpOrderQuestionsFunc();
 			break;
 		}
@@ -549,6 +564,7 @@ void moeka::start()
 				});;
 			calculateAllPossibleExpansions();
 			numberAssignment();
+			expandKnownLowUnits();
 			staticOrderQuestionsFunc();
 			break;
 
@@ -558,6 +574,7 @@ void moeka::start()
 			//manualHanselChainOrder();
 			calculateAllPossibleExpansions();
 			numberAssignment();
+			expandKnownLowUnits();
 			staticOrderQuestionsFunc();
 			break;
 
@@ -565,6 +582,7 @@ void moeka::start()
 		case 3:
 			calculateAllPossibleExpansions();
 			numberAssignment();
+			expandKnownLowUnits();
 			staticOrderQuestionsFunc();
 			break;
 
@@ -573,6 +591,7 @@ void moeka::start()
 			mstHanselChainOrder();
 			calculateAllPossibleExpansions();
 			numberAssignment();
+			expandKnownLowUnits();
 			staticOrderQuestionsFunc();
 			break;
 
@@ -581,6 +600,7 @@ void moeka::start()
 			simpleSortHanselChainOrder();
 			calculateAllPossibleExpansions();
 			numberAssignment();
+			expandKnownLowUnits();
 			staticOrderQuestionsFunc();
 			break;
 
@@ -589,6 +609,7 @@ void moeka::start()
 			shortestPathHanselChainOrder();
 			calculateAllPossibleExpansions();
 			numberAssignment();
+			expandKnownLowUnits();
 			staticOrderQuestionsFunc();
 			break;
 
@@ -601,6 +622,7 @@ void moeka::start()
 				});
 			calculateAllPossibleExpansions();
 			numberAssignment();
+			expandKnownLowUnits();
 			staticOrderQuestionsFunc();
 			break;
 		}
