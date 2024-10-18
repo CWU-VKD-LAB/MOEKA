@@ -17,6 +17,7 @@ void Form::drawFunction() {
 		}
 		if (addedPrevious) {
 			functionList.pop_back();
+			func->subfunctionList.clear();
 			if ((size_t)functionIndex + 1 > functionList.size()) {
 				functionIndex--;
 			}
@@ -332,9 +333,8 @@ void Form::drawFunction() {
 				setNewFunc(std::string(parent->functionName) + "-" + std::to_string(subfunctionIndex+1));
 				func->parent = parent;
 				parent->subfunctionList[subfunctionIndex] = func;
-
+				func->siblingfunctionList.resize(parent->targetAttributeCount-1);
 				func->subfunctionList.resize(parent->attributeCount);
-				func->siblingfunctionList.resize(func->targetAttributeCount - 1);
 				for (int a = 0; a < func->targetAttributeCount-1; a++) {
 					std::vector<std::vector<int>*>* temp = new std::vector<std::vector<int>*>;
 					func->siblingfunctionList[a] = *temp;
