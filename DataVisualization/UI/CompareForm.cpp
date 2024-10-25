@@ -4,7 +4,7 @@
 // where the differences are shown as class values.
 void Form::drawCompare() {
 	ImGui::Begin("Compare Functions", &open, flags);
-	ImVec2 window{ config::windowX * .75f, config::windowY * .175f };
+	ImVec2 window{ config::windowX * .75f, config::windowY * .25f };
 	ImGui::SetWindowSize(window);
 	ImGui::SetWindowPos(ImVec2((config::windowX - window.x) * .5f, (config::windowY - window.y) * .5f));
 	ImGui::PushFont(font);
@@ -14,49 +14,86 @@ void Form::drawCompare() {
 	ImGui::Text(text);
 	ImGui::PopFont();
 	ImGui::Separator();
-
-
+	
 	// grab all function names
 	std::vector<char*> names{};
 	for (auto a : functionList) {
 		names.push_back(a->functionName);
 	}
 
-	if (names.size() > 1) {
-		// for each function name, add an option to the combo box.
-		if (ImGui::BeginCombo("Function 1", names[compare.indexOne])) {
-			for (int a = 0; a < names.size(); a++) {
-				if (ImGui::Selectable(names[a], compare.indexOne)) {
-					compare.indexOne = a;
-					// make sure that compare.indexTwo does not have the same index as compare.indexOne
-					if (compare.indexOne == compare.indexTwo) {
-						compare.indexTwo = 0;
-						while (compare.indexOne == compare.indexTwo) {
-							compare.indexTwo++;
-						}
+	ImGui::Checkbox("Use Machine Learning model to compare against.", &compare.ml);
+	if (compare.ml) {
+		if (names.size() > 1) {
+			if (ImGui::BeginCombo("Function", names[compare.indexOne])) {
+				for (int a = 0; a < names.size(); a++) {
+					if (ImGui::Selectable(names[a], compare.indexOne)) {
+						compare.indexOne = a;
 					}
 				}
+				ImGui::EndCombo();
 			}
-			ImGui::EndCombo();
+			ImGui::Text("Compare to:");
+			if (ImGui::Button("Find ML Model...##", ImVec2{window.x * .25f, 30})) {
+				// gross code that opens up the find file explorer thing
+				char sizeOfFilePath[300];
+				ZeroMemory(&compare.ofn, sizeof(OPENFILENAME));
+				compare.ofn.lStructSize = sizeof(OPENFILENAME);
+				compare.ofn.hwndOwner = NULL;
+				compare.ofn.lpstrFile = sizeOfFilePath;
+				compare.ofn.lpstrFile[0] = '\0';
+				compare.ofn.nFilterIndex = 1;
+				compare.ofn.nMaxFile = sizeof(sizeOfFilePath);
+				compare.ofn.lpstrFileTitle = NULL;
+				compare.ofn.nMaxFileTitle = 0;
+				compare.ofn.lpstrInitialDir = NULL;
+				compare.ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+				GetOpenFileNameA(&compare.ofn);
+				compare.mlFilePath = compare.ofn.lpstrFile;
+			}
 		}
-		ImGui::Text("Compare to:");
-
-		// for each function name, add an option to the combo box, skipping indexOne
-		if (ImGui::BeginCombo("Function 2", names[compare.indexTwo])) {
-			for (int a = 0; a < names.size(); a++) {
-				if (a == compare.indexOne) {
-					continue;
-				}
-				if (ImGui::Selectable(names[a], compare.indexTwo)) {
-					compare.indexTwo = a;
-				}
-			}
-			ImGui::EndCombo();
+		else {
+			ImGui::TextDisabled("There are not enough loaded functions to compare.");
 		}
 	}
 	else {
-		ImGui::TextDisabled("There are not enough loaded functions to compare.");
+		if (names.size() > 1) {
+			// for each function name, add an option to the combo box.
+			if (ImGui::BeginCombo("Function 1", names[compare.indexOne])) {
+				for (int a = 0; a < names.size(); a++) {
+					if (ImGui::Selectable(names[a], compare.indexOne)) {
+						compare.indexOne = a;
+						// make sure that compare.indexTwo does not have the same index as compare.indexOne
+						if (compare.indexOne == compare.indexTwo) {
+							compare.indexTwo = 0;
+							while (compare.indexOne == compare.indexTwo) {
+								compare.indexTwo++;
+							}
+						}
+					}
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::Text("Compare to:");
+
+			// for each function name, add an option to the combo box, skipping indexOne
+			if (ImGui::BeginCombo("Function 2", names[compare.indexTwo])) {
+				for (int a = 0; a < names.size(); a++) {
+					if (a == compare.indexOne) {
+						continue;
+					}
+					if (ImGui::Selectable(names[a], compare.indexTwo)) {
+						compare.indexTwo = a;
+					}
+				}
+				ImGui::EndCombo();
+			}
+		}
+		else {
+			ImGui::TextDisabled("There are not enough loaded functions to compare.");
+		}
 	}
+
+	
 
 	// bottom row 
 	ImGui::SetCursorPosY(window.y * 0.75f - ImGui::GetStyle().WindowPadding.y);

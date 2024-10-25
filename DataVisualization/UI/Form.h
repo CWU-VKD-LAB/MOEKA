@@ -47,6 +47,9 @@ struct Interview {
 struct Compare {
 	int indexOne = 0;
 	int indexTwo = 1;
+	bool ml = false;
+	std::string mlFilePath = "";
+	OPENFILENAMEA ofn;
 	std::vector<std::vector<int>>* comparisons = nullptr;
 };
 
