@@ -49,6 +49,7 @@ struct Compare {
 	int indexTwo = 1;
 	bool ml = false;
 	std::string mlFilePath = "";
+	std::string mlFileExtension = "";
 	OPENFILENAMEA ofn;
 	std::vector<std::vector<int>>* comparisons = nullptr;
 };
@@ -124,6 +125,8 @@ public:
 	void drawContraint ();
 	void openWindow ();
 	void setNewFunc(std::string = "");
+	void compareModelToModel ();
+	void compareModelToML ();
 
 	Function* getFunc(void) { return func; }
 

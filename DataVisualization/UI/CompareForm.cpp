@@ -21,6 +21,8 @@ void Form::drawCompare() {
 		names.push_back(a->functionName);
 	}
 
+
+	// checkbox that either enables rendering the findfile version of the compare, or the comparing two models in memory.
 	ImGui::Checkbox("Use Machine Learning model to compare against.", &compare.ml);
 	if (compare.ml) {
 		if (names.size() > 1) {
@@ -49,6 +51,8 @@ void Form::drawCompare() {
 				compare.ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 				GetOpenFileNameA(&compare.ofn);
 				compare.mlFilePath = compare.ofn.lpstrFile;
+				compare.mlFileExtension = compare.mlFilePath.substr(compare.mlFilePath.find('.')+1);
+				std::cout << compare.mlFileExtension << std::endl;
 			}
 		}
 		else {
@@ -104,116 +108,11 @@ void Form::drawCompare() {
 		ImGui::BeginDisabled();
 	}
 	if (ImGui::Button("Compare", ImVec2{window.x * .3f, window.y * .23f})) {
-		Function* funcOne = functionList[compare.indexOne];
-		Function* funcTwo = functionList[compare.indexTwo];
-
-		bool same = true;
-		same = funcOne->attributeCount == funcTwo->attributeCount && same;
-		same = funcOne->siblingfunctionList.size() == funcTwo->siblingfunctionList.size() && same;
-		same = funcOne->subfunctionList.size() == funcTwo->subfunctionList.size() && same;
-
-		if (same) {
-			for (int a = 0; a < funcOne->kValues.size(); a++) {
-				same = funcOne->kValues[a] == funcTwo->kValues[a] && same;
-			}
-
-			for (int b = 0; b < funcOne->targetAttributeCount - 1; b++) 
-			{
-				// TODO: bug here most likely b is too large for one func one or two
-				same = (funcOne->siblingfunctionList[b].size() == funcTwo->siblingfunctionList[b].size()) && same;
-
-				if (same) 
-				{
-					for (int c = 0; c < funcOne->siblingfunctionList[b].size(); c++) 
-					{
-						same = (funcOne->siblingfunctionList[b][c]->size() == funcTwo->siblingfunctionList[b][c]->size()) && same;
-					}
-				}
-				
-			}
+		if (compare.ml) {
+			compareModelToML();
 		}
-		if (same) {
-			// free previous comparison function if it existed previously.
-			if (comparisonFunction != nullptr) {
-				delete(comparisonFunction);
-			}
-
-			// i believe we can directly insert into the model list instead of creating a function...
-			std::vector<std::vector<int>>* comparisons = new std::vector<std::vector<int>>;
-
-			for (int a = 0; a < funcOne->siblingfunctionList.size(); a++) 
-			{
-				//std::vector<std::vector<int>*>* sibling = new std::vector<std::vector<int>*>;
-
-				for (int b = 0; b < funcOne->siblingfunctionList[a].size(); b++) 
-				{
-					std::vector<int> datapoint;
-
-					for (int c = 0; c < funcOne->siblingfunctionList[a][b]->size(); c++) 
-					{
-						datapoint.push_back((1 - funcOne->siblingfunctionList[a][b]->at(c) == funcTwo->siblingfunctionList[a][b]->at(c)));
-					}
-
-					comparisons->push_back(datapoint);
-				}
-
-				//comparisonFunction->siblingfunctionList.push_back(*sibling);
-			}
-
-			// now add model directly to model list
-			compare.comparisons = comparisons;
-
-			// TODO remove commented out code?
-			// 
-			// create new comparison function
-			/*
-			char* name = new char[128];
-			strcpy_s(name, 128, (funcOne->functionName + std::string(" Compare ") + funcTwo->functionName).c_str());
-			comparisonFunction = new Function(name);
-
-			for (auto a : funcOne->kValues) {
-				comparisonFunction->kValues.push_back(a);
-			}
-
-			for (auto a : funcOne->attributeNames) {
-				comparisonFunction->attributeNames.push_back(a);
-			}
-
-			comparisonFunction->attributeCount = funcOne->attributeCount;
-			comparisonFunction->targetAttributeCount = funcOne->targetAttributeCount;
-			
-			
-
-			for (int a = 0; a < funcOne->siblingfunctionList.size(); a++) {
-				std::vector<std::vector<int>*>* sibling = new std::vector<std::vector<int>*>;
-				for (int b = 0; b < funcOne->siblingfunctionList[a].size(); b++) {
-					std::vector<int>* datapoint = new std::vector<int>;
-					for (int c = 0; c < funcOne->siblingfunctionList[a][b]->size(); c++) {
-						datapoint->push_back((1 - funcOne->siblingfunctionList[a][b]->at(c) == funcTwo->siblingfunctionList[a][b]->at(c)) );
-					}
-					sibling->push_back(datapoint);
-				}
-				comparisonFunction->siblingfunctionList.push_back(*sibling);
-			}*/
-
-
-			//comparisonFunction->clause = comparisonFunction->siblingfunctionList[0][0];
-			
-			
-			//functionList.push_back(comparisonFunction);
-
-			open = !open;
-
-			////create hanselChainSet for function
-			//result->initializeHanselChains();
-
-			//// organize them and assign classes such that we can visualize
-			//result->setUpHanselChains();
-
-			// create a model for the hanselChains
-			//addModel = true;
-			//config::drawIndex++;
-
+		else {
+			compareModelToModel();
 		}
 	}
 	if (disabled) {
@@ -221,4 +120,122 @@ void Form::drawCompare() {
 	}
 
 	ImGui::End();
+}
+
+void Form::compareModelToML () {
+	// TODO ML comparison here
+}
+
+void Form::compareModelToModel () {
+	Function* funcOne = functionList[compare.indexOne];
+	Function* funcTwo = functionList[compare.indexTwo];
+
+	bool same = true;
+	same = funcOne->attributeCount == funcTwo->attributeCount && same;
+	same = funcOne->siblingfunctionList.size() == funcTwo->siblingfunctionList.size() && same;
+	same = funcOne->subfunctionList.size() == funcTwo->subfunctionList.size() && same;
+
+	if (same) {
+		for (int a = 0; a < funcOne->kValues.size(); a++) {
+			same = funcOne->kValues[a] == funcTwo->kValues[a] && same;
+		}
+
+		for (int b = 0; b < funcOne->targetAttributeCount - 1; b++)
+		{
+			// TODO: bug here most likely b is too large for one func one or two
+			same = (funcOne->siblingfunctionList[b].size() == funcTwo->siblingfunctionList[b].size()) && same;
+
+			if (same)
+			{
+				for (int c = 0; c < funcOne->siblingfunctionList[b].size(); c++)
+				{
+					same = (funcOne->siblingfunctionList[b][c]->size() == funcTwo->siblingfunctionList[b][c]->size()) && same;
+				}
+			}
+
+		}
+	}
+	if (same) {
+		// free previous comparison function if it existed previously.
+		if (comparisonFunction != nullptr) {
+			delete(comparisonFunction);
+		}
+
+		// i believe we can directly insert into the model list instead of creating a function...
+		std::vector<std::vector<int>>* comparisons = new std::vector<std::vector<int>>;
+
+		for (int a = 0; a < funcOne->siblingfunctionList.size(); a++)
+		{
+			//std::vector<std::vector<int>*>* sibling = new std::vector<std::vector<int>*>;
+
+			for (int b = 0; b < funcOne->siblingfunctionList[a].size(); b++)
+			{
+				std::vector<int> datapoint;
+
+				for (int c = 0; c < funcOne->siblingfunctionList[a][b]->size(); c++)
+				{
+					datapoint.push_back((1 - funcOne->siblingfunctionList[a][b]->at(c) == funcTwo->siblingfunctionList[a][b]->at(c)));
+				}
+
+				comparisons->push_back(datapoint);
+			}
+
+			//comparisonFunction->siblingfunctionList.push_back(*sibling);
+		}
+
+		// now add model directly to model list
+		compare.comparisons = comparisons;
+
+		// TODO remove commented out code?
+		// 
+		// create new comparison function
+		/*
+		char* name = new char[128];
+		strcpy_s(name, 128, (funcOne->functionName + std::string(" Compare ") + funcTwo->functionName).c_str());
+		comparisonFunction = new Function(name);
+
+		for (auto a : funcOne->kValues) {
+			comparisonFunction->kValues.push_back(a);
+		}
+
+		for (auto a : funcOne->attributeNames) {
+			comparisonFunction->attributeNames.push_back(a);
+		}
+
+		comparisonFunction->attributeCount = funcOne->attributeCount;
+		comparisonFunction->targetAttributeCount = funcOne->targetAttributeCount;
+
+
+
+		for (int a = 0; a < funcOne->siblingfunctionList.size(); a++) {
+			std::vector<std::vector<int>*>* sibling = new std::vector<std::vector<int>*>;
+			for (int b = 0; b < funcOne->siblingfunctionList[a].size(); b++) {
+				std::vector<int>* datapoint = new std::vector<int>;
+				for (int c = 0; c < funcOne->siblingfunctionList[a][b]->size(); c++) {
+					datapoint->push_back((1 - funcOne->siblingfunctionList[a][b]->at(c) == funcTwo->siblingfunctionList[a][b]->at(c)) );
+				}
+				sibling->push_back(datapoint);
+			}
+			comparisonFunction->siblingfunctionList.push_back(*sibling);
+		}*/
+
+
+		//comparisonFunction->clause = comparisonFunction->siblingfunctionList[0][0];
+
+
+		//functionList.push_back(comparisonFunction);
+
+		open = !open;
+
+		////create hanselChainSet for function
+		//result->initializeHanselChains();
+
+		//// organize them and assign classes such that we can visualize
+		//result->setUpHanselChains();
+
+		// create a model for the hanselChains
+		//addModel = true;
+		//config::drawIndex++;
+
+	}
 }
