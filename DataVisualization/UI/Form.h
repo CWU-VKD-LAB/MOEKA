@@ -28,7 +28,8 @@ enum state {
 	COLOR,
 	COMPARE,
 	LOAD,
-	CONSTRAINT
+	CONSTRAINT,
+	ML
 };
 
 // variables directly related to the interview screen.
@@ -41,6 +42,20 @@ struct Interview {
 	int dataPointValue = 1;
 	int _class = 0;
 	DecisionTable<int> dt{};
+};
+
+struct MLs {
+	OPENFILENAMEA ofn;
+	/// selected is the name of the file as a string, but not the path towards it.
+	//ml
+	std::vector<std::string> mlFilePaths{};
+	std::string mlSelected; // ..\\DataVisualization\\mlModels
+	int mlIndex = 0;
+
+	//dataset
+	std::vector<std::string> dFilePaths{};
+	std::string dSelected; // ..\\DataVisualization\\datasets
+	int dIndex = 0;
 };
 
 // variables directly related to the comparison screen.
@@ -62,12 +77,6 @@ struct Constraint {
 class Form {
 private:
 	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
-
-	//
-	Interview interview{};
-	Compare compare{};
-	Constraint constraint{};
-	//
 
 	// moeka object (files need to be renamed)
 	moeka* edm;
@@ -105,6 +114,14 @@ private:
 	bool colorPickerOpen = false;
 	bool useGradient = false;
 public:
+
+	//
+	Interview interview{};
+	Compare compare{};
+	Constraint constraint{};
+	MLs ml{};
+	//
+
 	int current = state::INTRODUCTION;
 	static std::vector<Function*> functionList;
 	static Function* comparisonFunction;
@@ -114,6 +131,7 @@ public:
 	Form ();
 	~Form ();
 	void draw ();
+	void drawML ();
 	void drawPrep ();
 	void drawFunction ();
 	void drawInterviewPilot ();
@@ -124,7 +142,7 @@ public:
 	void drawLoad ();
 	void drawContraint ();
 	void openWindow ();
-	void setNewFunc(std::string = "");
+	void setNewFunc (std::string = "");
 	void compareModelToModel ();
 	void compareModelToML ();
 

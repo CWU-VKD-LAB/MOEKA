@@ -663,7 +663,10 @@
     <Font Include="resources\fonts\ProggyClean.ttf" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="datasets\totallyrealdataset.txt" />
     <Text Include="known bugs.txt" />
+    <Text Include="mlModels\test.txt" />
+    <Text Include="mlModels\test2.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

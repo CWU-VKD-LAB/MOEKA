@@ -1517,5 +1517,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="known bugs.txt" />
+    <Text Include="mlModels\test.txt" />
+    <Text Include="mlModels\test2.txt" />
+    <Text Include="datasets\totallyrealdataset.txt" />
   </ItemGroup>
 </Project>

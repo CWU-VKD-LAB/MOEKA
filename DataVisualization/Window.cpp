@@ -326,7 +326,7 @@ void Window::createOptions (Texture& texture) {
     ImGui::Begin("##formState", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
     ImGui::SetWindowSize(ImVec2(config::windowX * .5f, config::windowY * .06f));
     ImGui::SetWindowPos(ImVec2(0.0f, config::windowY * .94));
-    windoww = ImGui::GetWindowSize();
+    windoww = ImVec2{ImGui::GetWindowSize().x, ImGui::GetWindowSize().y * .61f};
     ImVec2 buttonSize{windoww.x * .25f - ImGui::GetStyle().ItemSpacing.x - (ImGui::GetStyle().WindowPadding.x * .25f), windoww.y - (ImGui::GetStyle().WindowPadding.y * 2.0f)};
     if (ImGui::Button("Open Help##", buttonSize)) {
         form.current = state::INTRODUCTION;
@@ -347,6 +347,22 @@ void Window::createOptions (Texture& texture) {
     if (ImGui::Button("Compare Funcs", buttonSize)) {
         form.current = state::COMPARE;
         form.openWindow();
+    }
+    if (ImGui::Button("ML", buttonSize)) {
+        form.current = state::ML;
+        form.openWindow();
+
+        std::string path = "..\\DataVisualization\\mlModels";
+        for (const auto& entry : std::filesystem::directory_iterator(path)) {
+            std::string temp = entry.path().string();
+            form.ml.mlFilePaths.push_back(temp.replace(temp.begin(), temp.begin()+path.length()+1, "") );
+        }
+        path = "..\\DataVisualization\\datasets";
+        for (const auto& entry : std::filesystem::directory_iterator(path)) {
+            std::string temp = entry.path().string();
+            form.ml.dFilePaths.push_back(temp.replace(temp.begin(), temp.begin() + path.length() + 1, ""));
+        }
+            
     }
     ImGui::End();
 

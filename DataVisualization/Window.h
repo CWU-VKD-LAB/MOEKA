@@ -14,6 +14,7 @@
 #include "Model.h"
 #include "Bar.h"
 #include "UI/Form.h"
+#include <filesystem>
 
 extern float color[3];
 extern std::vector<std::string> options;
