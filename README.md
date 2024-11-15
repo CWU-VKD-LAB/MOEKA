@@ -125,8 +125,7 @@ When in this screen, we will see the following:
     Attributes" minus 1.\
     ![A black rectangular object with a black border Description
     automatically
-    generated](./help/media/image53.tmp){width="4.1047397200349955in"
-    height="0.8751224846894138in"}
+    generated](./help/media/image53.tmp)
 
 6)  A box that contains all the sub functions this function has, which
     is pre-calculated using the value of "Amount of Attributes". The sub
