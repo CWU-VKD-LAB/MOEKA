@@ -11,8 +11,7 @@ When you run the program, you will get a Window that looks like the one
 below. Each Node is labeled with a number that corresponds to its
 description.
 
-![](./help/media/image11.png){width="4.5913046806649165in"
-height="4.584923447069117in"}
+![](./help/media/image11.png)
 
 1)  A window that contains buttons that manipulate the model, such as
     "Show bush up" and "Change expanded to real elements". As of
@@ -25,11 +24,9 @@ height="4.584923447069117in"}
     and "English" that will show the function as expressed through
     mathematical notation, and plain english.\
     ![A black screen with white text Description automatically
-    generated](./help/media/image13.tmp){width="5.198641732283464in"
-    height="1.3335192475940507in"}\
+    generated](./help/media/image13.tmp)\
     ![A black screen with white text Description automatically
-    generated](./help/media/image14.tmp){width="4.337261592300963in"
-    height="1.0625in"}
+    generated](./help/media/image14.tmp)
 
 3)  An introduction window that appears on first time start up, or by
     pressing the "Open Help" button. This window shows the keybinds
@@ -42,8 +39,7 @@ height="4.584923447069117in"}
 
 5)  When a model is loaded, some widgets will populate this Window to
     affect the scaling of the currently focused model.\
-    ![](./help/media/image15.tmp){width="2.489931102362205in"
-    height="0.5000699912510936in"}
+    ![](./help/media/image15.tmp)
 
 6)  When there are multiple models loaded into memory, we can swap the
     selected model using the arrow buttons in this Window.
@@ -53,11 +49,9 @@ height="4.584923447069117in"}
 > the color of the bar and other bars with the same class.
 >
 > ![A screen shot of a computer Description automatically
-> generated](./help/media/image16.tmp){width="2.229478346456693in"
-> height="1.3647736220472442in"}![A screenshot of a computer Description
+> generated](./help/media/image16.tmp)![A screenshot of a computer Description
 > automatically
-> generated](./help/media/image17.tmp){width="1.5961078302712162in"
-> height="1.492146762904637in"}
+> generated](./help/media/image17.tmp)
 
 ## Prep Window:
 
@@ -65,8 +59,7 @@ When opening the prep window, the program will have a handful of fields
 pop up:
 
 ![A screenshot of a computer Description automatically
-generated](./help/media/image33.tmp){width="5.0111154855643045in"
-height="4.1672484689413825in"}
+generated](./help/media/image33.tmp)
 
 1)  The Functions name
 
@@ -105,8 +98,7 @@ height="4.1672484689413825in"}
 
 When in this screen, we will see the following:
 
-![](./help/media/image51.tmp){width="6.250872703412074in"
-height="6.261290463692038in"}
+![](./help/media/image51.tmp)
 
 1)  A button to go back to the previous screen.
 
@@ -126,8 +118,7 @@ height="6.261290463692038in"}
     pressing X will delete the clause.\
     ![A black rectangular object with a black border Description
     automatically
-    generated](./help/media/image52.tmp){width="4.11515748031496in"
-    height="0.8751224846894138in"}
+    generated](./help/media/image52.tmp)
 
 5)  A box that contains all the Sibling functions this function has,
     which is pre-calculated using the value of "Amount of Target
@@ -141,8 +132,7 @@ height="6.261290463692038in"}
     is pre-calculated using the value of "Amount of Attributes". The sub
     functions come undefined until the user defines them.\
     ![A screen shot of a computer Description automatically
-    generated](./help/media/image54.tmp){width="4.1047397200349955in"
-    height="0.8855402449693788in"}
+    generated](./help/media/image54.tmp)
 
 7)  The button to add a clause to the function. This button changes to
     "Update Clause" when a clause has been loaded into memory, for
@@ -156,8 +146,7 @@ height="6.261290463692038in"}
     press Select. The program will load into that subfunction
     automatically.\
     ![A screenshot of a computer program Description automatically
-    generated](./help/media/image55.tmp){width="2.990566491688539in"
-    height="2.9806310148731407in"}
+    generated](./help/media/image55.tmp)
 
 10) Finish up the Function screen and create a model of the function.
     This button is greyed out if there is no defined clauses.
