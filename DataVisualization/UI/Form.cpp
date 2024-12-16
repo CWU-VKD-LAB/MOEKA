@@ -75,7 +75,7 @@ void Form::draw () {
 				drawLoad();
 				break;
 			case CONSTRAINT:
-				drawContraint();
+				//drawContraint();
 				break;
 			case ML:
 				drawML();
@@ -312,7 +312,9 @@ void Form::drawPrep () {
 	ImGui::SameLine();
 	if (ImGui::Button("Interview", buttonSize)) {	
 		// go to the constraint screen
-		current = CONSTRAINT;
+		//current = CONSTRAINT;
+		current = PILOT;			// F the constraints screen, we're skipping it and going straight to 
+
 		constraint.answers.resize(func->attributeCount);
 
 		// set up some variables for the interview screen. like the function screen, we set a zeroed out vector for the function.
@@ -346,6 +348,8 @@ void Form::drawPrep () {
 }
 
 // draws the contraint screen, which lets the user set restraints on a given attribute of the function.
+// Creates the cause and effect buttons, which are not working properly.
+// Don't seem to have any effect on outputs anyways.
 void Form::drawContraint () {
 	ImGui::Begin("##con", &open, flags);
 	ImGui::SetWindowSize(ImVec2{config::windowX * .75f, config::windowY * .5f});
@@ -459,13 +463,16 @@ void Form::drawLoad () {
 	ImGui::End();
 }
 
-
 void start(moeka* edm, bool* flag) {
 	(*edm).start(flag);
 }
 
 // draws a screen containing the pilot questions defined in a csv.
 void Form::drawInterviewPilot () {
+	
+	// THIS STUFF IS NOT IMPLEMENTED FOR THE LOGIC, SO SKIP
+	/*
+	
 	// TODO : add stuff for decision table for pilot questions
 	ImGui::Begin("##", &open, flags | ImGuiWindowFlags_AlwaysVerticalScrollbar);
 	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .5f));
@@ -579,8 +586,12 @@ void Form::drawInterviewPilot () {
 	if (disable) {
 		ImGui::BeginDisabled();
 	}
+
+
 	// moves onto datapoint collection
 	if (ImGui::Button("Next##", buttonSize)) {
+
+	*/
 		// TODO: take decision table and use it to initialize moeka object
 		edm = new moeka('x');
 
@@ -652,21 +663,24 @@ void Form::drawInterviewPilot () {
 		thr.detach();
 
 		current = state::INTERVIEW;
-	}
+	//}
+
+	// NO IDEA WHAT THIS COULD BE DOING.
+	/*
 	if (disable) {
 		ImGui::EndDisabled();
 	}
+	*/
 	//
 
-	ImGui::End();
+	//ImGui::End();
 }
-
 
 // draws the interview screen, where we collect datapoint information from the user.
 void Form::drawInterview () {
 	// preamble variables/settings
 	ImGui::Begin("##", &open, flags);
-	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .2f));
+	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .3f));
 	ImVec2 window = ImGui::GetWindowSize();
 	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .625f), config::windowY * .4f));
 	ImGui::PushFont(font);
@@ -702,11 +716,11 @@ void Form::drawInterview () {
 		// wait for background thread to fetch next interview question
 		else
 		{
-			std::cout << "UI: waiting for moeka thread..." << std::endl;
+			//std::cout << "UI: waiting for moeka thread..." << std::endl;
 			Sleep(200);
 		}
 	}
-	////
+	
 
 	// window for getting the datapoint from the user
 	if (!end)
@@ -717,10 +731,12 @@ void Form::drawInterview () {
 		ImGui::Separator();
 		ImGui::Text("Datapoint: ");
 		for (int a = 0; a < datapoint->dataPoint.size(); a++) {
-			ImGui::SameLine();
 			ImGui::SetNextItemWidth(font->FontSize);
-			ImGui::Text(std::to_string(datapoint->dataPoint.at(a)).c_str());
+
+			// Print attribute name instead of just the numbers...
+			ImGui::Text("%s: %d", func->attributeNames.at(a), datapoint->dataPoint.at(a));
 		}
+
 		ImGui::Text("Target Value (Class): ");
 		for (int b = 0; b < func->targetAttributeCount; b++) {
 			ImGui::SameLine();
