@@ -89,9 +89,9 @@ std::vector<int> moeka::init()
 	std::vector<int> genericParentOrChildList;
 
 	// automatic testing by using a dataset as an oracle
-	if (std::filesystem::exists(oraclePath) && oraclePath != "")
+	if (std::filesystem::exists(generatedOraclePath) && generatedOraclePath != "")
 	{
-		auto oracle = readFile(oraclePath);
+		auto oracle = readFile(generatedOraclePath);
 
 		calculateHanselChains(dimension);
 		numChains = (int)hanselChainSet.size();
@@ -267,40 +267,46 @@ std::vector<int> moeka::init()
 		std::cin.ignore(1000, '\n');*/
 		attribute_names[i].name = attributeSymbol + std::to_string(i + 1);
 	}
-
-
-	// let the user determine the order of the Hansel Chains
-	std::cout << "\nWhat order to use for the Hansel Chains?";
-	std::cout << "\n0 - Shortest Hansel Chain First";
-	std::cout << "\n1 - Longest Hansel Chain First";
-	std::cout << "\n2 - Manual Hansel Chain Order";
-	std::cout << "\n3 - Default Hansel Chain Algorithm Order";
-	std::cout << "\n4 - MST Hansel Chain Order"; 
-	std::cout << "\n5 - Simple Sort Hansel Chain Order"; // AKA linkage sort order
-	std::cout << "\n6 - Shortest Path Hansel Chain Order";
-	std::cout << "\nEnter: " << std::flush;
-
-	try
+	if (buildAndUseOracleML)
 	{
-		std::cin >> orderOption;
+		//buildOracleML();
+		//assignOracleML();
 	}
-	catch (std::exception& e)
+	else
 	{
-		std::cerr << "user input fail. " << e.what() << std::endl;
+		// let the user determine the order of the Hansel Chains
+		std::cout << "\nWhat order to use for the Hansel Chains?";
+		std::cout << "\n0 - Shortest Hansel Chain First";
+		std::cout << "\n1 - Longest Hansel Chain First";
+		std::cout << "\n2 - Manual Hansel Chain Order";
+		std::cout << "\n3 - Default Hansel Chain Algorithm Order";
+		std::cout << "\n4 - MST Hansel Chain Order";
+		std::cout << "\n5 - Simple Sort Hansel Chain Order"; // AKA linkage sort order
+		std::cout << "\n6 - Shortest Path Hansel Chain Order";
+		std::cout << "\nEnter: " << std::flush;
+
+		try
+		{
+			std::cin >> orderOption;
+		}
+		catch (std::exception& e)
+		{
+			std::cerr << "user input fail. " << e.what() << std::endl;
+		}
+
+		findTrueAttributes();
+
+		// determine if program should be chainJump or static
+		std::cout << "\nDo you want to use chain jumping (1/0)?";
+		std::cout << "\nEnter: " << std::flush;
+		std::cin >> chainJump;
+
+		askMajorityFlag();
+
+		std::cout << "\nShould the program start at the top of the Hansel Chains? (1/0)";
+		std::cout << "\nEnter: " << std::flush;
+		std::cin >> top;
 	}
-
-	findTrueAttributes();
-
-	// determine if program should be chainJump or static
-	std::cout << "\nDo you want to use chain jumping (1/0)?";
-	std::cout << "\nEnter: " << std::flush;
-	std::cin >> chainJump;
-
-	askMajorityFlag();
-
-	std::cout << "\nShould the program start at the top of the Hansel Chains? (1/0)";
-	std::cout << "\nEnter: " << std::flush;
-	std::cin >> top;
 
 	return genericParentOrChildList;
 }
@@ -436,10 +442,10 @@ moeka::moeka(char attributeSymbol)
 }
 
 
-moeka::moeka(char attributeSymbol, std::string oraclePath, int hanselChainOrder, bool useMajorityFlag, bool useBinarySearch, bool chainJump, bool top)
+moeka::moeka(char attributeSymbol, std::string generatedOraclePath, int hanselChainOrder, bool useMajorityFlag, bool useBinarySearch, bool chainJump, bool top)
 {
 	this->attributeSymbol = attributeSymbol;
-	this->oraclePath = oraclePath;
+	this->generatedOraclePath = generatedOraclePath;
 	this->hanselChainOrder = hanselChainOrder;
 	this->useMajorityFlag = useMajorityFlag;
 	this->useBinarySearch = useBinarySearch;
@@ -492,6 +498,17 @@ void moeka::start()
 	{
 		// FIX: dimension is already assigned if file is given
 		realData = true;
+	}
+
+	// TODO:
+	if (askOracleML)
+	{
+		// sort hansel chains and write hansel chains to file (this code should be called in each case of switch)
+		// send file to python program for ML classification
+		// write to new file here
+		// since answers are sorted, can calculate where the correct answer is based on the location fo question in hanselChainSet[i][j]
+		// 
+		askFromOracleMLFile();
 	}
 
 	// order vectors and ask questions
@@ -785,6 +802,169 @@ void moeka::printToFile(std::fstream& results)
 				boolFuncsSimplified.insert(boolFuncsSimplified.begin(), str.first);
 			}
 		}
+
+		// compare against real dataset and print out function accuracy results
+		if (useRealOrdinalNormalizedDatasetToTestFunction && std::filesystem::exists(realOrdinalNormalizedDataset))
+		{
+			auto& testFunction = boolFunc.first;
+
+			std::vector<std::vector<int>> dataset;
+			std::vector<int> labels;
+
+			std::ifstream file;
+
+			file.open(realOrdinalNormalizedDataset);
+			//file.open("diabetes_prediction_dataset.csv");
+
+			if (file.is_open())
+			{
+				std::string line;
+
+				std::getline(file, line);
+				//attribute_names = parse_input_string(',', line);
+				//dimension = (int)attribute_names.size() - 1;
+
+				while (file.good())
+				{
+					try {
+						std::getline(file, line);
+						auto in = parse_input_int(',', line);
+
+						if (in.size() < dimension + 1)
+						{
+							break;
+						}
+						
+						std::vector<int> d(in.begin(), in.end() - 1);
+						int l = in[int(in.size()) - 1];
+
+						dataset.push_back(d);
+						labels.push_back(l);
+					}
+					catch (std::exception e)
+					{
+						std::cout << e.what();
+					}
+				}
+			}
+
+			file.close();
+
+			double truePositives = 0;
+			double falsePositives = 0;
+			double trueNegatives = 0;
+			double falseNegatives = 0;
+			double counter = 0;
+			std::vector<std::vector<int>> trimmedFunc;
+			
+			// TODO: delete false positives and negatives and make a new edited function???
+			for (int i = 0; i < (int)dataset.size(); i++)
+			{
+				for (auto& clause : testFunction)
+				{
+					// true positive
+					if (clause <= dataset[i] && labels[i])
+					{
+						counter++;
+						truePositives++;
+						break;
+					}
+					// true negative
+					else if (clause > dataset[i] && !labels[i])
+					{
+						counter++;
+						trueNegatives++;
+						break;
+					}
+					// false positive
+					else if (clause <= dataset[i] && !labels[i])
+					{
+						falsePositives++;
+						break;
+					}
+					// false negative
+					else if (clause > dataset[i] && labels[i])
+					{
+						falseNegatives++;
+						break;
+					}
+				}
+			}
+
+			std::cout << "Accuracy: " << (counter / (double)dataset.size()) * 100 << std::endl;
+			std::cout << "Precision: " << (truePositives / (truePositives + falsePositives)) * 100 << std::endl;
+			std::cout << "Recall: " << (truePositives / (truePositives + falseNegatives)) * 100 << std::endl;
+			std::cout << "f1-score: " << (truePositives / (truePositives + 0.5 * (falsePositives + falseNegatives))) * 100 << std::endl;
+
+			results << "Accuracy on real ordinal normalized dataset: " << (counter / (double)dataset.size()) * 100 << std::endl;
+			results << "True Positives" << truePositives << std::endl;
+			results << "True Negatives" << trueNegatives << std::endl;
+			results << "False Positives" << falsePositives << std::endl;
+			results << "False Negatives" << falseNegatives << std::endl;
+			results << "Precision on real ordinal normalized dataset: " << (truePositives / (truePositives + falsePositives)) << std::endl;
+			results << "Recall on real ordinal normalized dataset: " << (truePositives / (truePositives + falseNegatives)) << std::endl;
+			results << "f1-score on real ordinal normalized dataset: " << (truePositives / (truePositives + 0.5 * (falsePositives + falseNegatives))) << std::endl;
+			
+
+			// this doesnt work because a clause can be true or false depending on the datapoint
+			/*
+			// trim function and print results here
+			truePositives = 0;
+			falsePositives = 0;
+			trueNegatives = 0;
+			falseNegatives = 0;
+			counter = 0;
+			
+			// TODO: delete false positives and negatives and make a new edited function???
+			for (int i = 0; i < (int)dataset.size(); i++)
+			{
+
+				for (auto& clause : trimmedFunc)
+				{
+					// true positive
+					if (clause <= dataset[i] && labels[i])
+					{
+						counter++;
+						truePositives++;
+						break;
+					}
+					// true negative
+					else if (clause > dataset[i] && !labels[i])
+					{
+						counter++;
+						trueNegatives++;
+						break;
+					}
+					// false positive
+					if (clause <= dataset[i] && !labels[i])
+					{
+						falsePositives++;
+						break;
+					}
+					// false negative
+					else if (clause > dataset[i] && labels[i])
+					{
+						falseNegatives++;
+						break;
+					}
+				}
+			}
+
+			std::cout << "Accuracy: " << (counter / (double)dataset.size()) * 100 << std::endl;
+			std::cout << "Precision: " << (truePositives / (truePositives + falsePositives)) * 100 << std::endl;
+			std::cout << "Recall: " << (truePositives / (truePositives + falseNegatives)) * 100 << std::endl;
+			std::cout << "f1-score: " << (truePositives / (truePositives + 0.5 * (falsePositives + falseNegatives))) * 100 << std::endl;
+
+			results << "TRIMMED FUNC accuracy on real ordinal normalized dataset: " << (counter / (double)dataset.size()) * 100 << std::endl;
+			results << "TRIMMED FUNC True Positives" << truePositives << std::endl;
+			results << "TRIMMED FUNC True Negatives" << trueNegatives << std::endl;
+			results << "TRIMMED FUNC False Positives" << falsePositives << std::endl;
+			results << "TRIMMED FUNC False Negatives" << falseNegatives << std::endl;
+			results << "TRIMMED FUNC Precision on real ordinal normalized dataset: " << (truePositives / (truePositives + falsePositives)) << std::endl;
+			results << "TRIMMED FUNC Recall on real ordinal normalized dataset: " << (truePositives / (truePositives + falseNegatives)) << std::endl;
+			results << "TRIMMED FUNC f1-score on real ordinal normalized dataset: " << (truePositives / (truePositives + 0.5 * (falsePositives + falseNegatives))) << std::endl;
+			*/
+		}
 	}
 	else
 	{
@@ -890,6 +1070,9 @@ std::pair<std::vector<std::vector<int>>, std::vector<std::vector<int>>> moeka::r
 
 	// restore monotone Boolean function
 	// iterate over every hansel chain, and check each chain for its "lower one" vector, if it has one
+	// first large loop gets complete non simplified bool func
+	// last large loop simnplifies this bool func
+	// non simplified is stored in new variable
 	std::vector<std::vector<int>> boolFunc;
 
 	for (int i = 0; i < (int)hanselChainSet.size(); i++)
