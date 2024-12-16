@@ -5,6 +5,9 @@ Author: Harlow Huber
 Supervisor: Dr. Boris Kovalerchuk
 */
 
+#define PY_SSIZE_T_CLEAN
+//#include <C:\Users\79har\AppData\Local\Programs\Python\Python310\include\Python.h>
+#include <stdlib.h>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -34,7 +37,7 @@ class moeka
 {
 public:
 	/// flags for synchronization
-
+	///
 	/// @brief synchronization for background moeka and UI main thread
 	bool* synchronizationFlag = nullptr;
 
@@ -43,11 +46,43 @@ public:
 
 	/// @brief current class to pass to UI
 	int* currentClass = nullptr;
-
+	///
 	/// flags for synchronization end
 
+
+
+	// TODO: if doing testing with real file, as take the attributes so that kvalues and such do not have to be entered
+	/// flags for testing function on real world dataset which must be ordinal and normalized in some way so that testing can work.
+	///
 	/// @brief 
-	std::string webOracle = "webOracle/webScrapePREVENT.py";
+	bool useRealOrdinalNormalizedDatasetToTestFunction = false;
+
+	/// @brief path to real ordinal normalized dataset
+	std::string realOrdinalNormalizedDataset = "D:\\.School\\Work\\Github DataVisualization\\DataVisualization\\DataVisualization\\moeka\\ML_Oracles\\heart_failure_ordinal_normalization.csv";
+	///
+	/// flags for testing
+
+
+
+
+	/// flags for machine learning start
+	/// 
+	/// @brief build oracle and use it as oracle to test various orders
+	bool buildAndUseOracleML = false;
+
+	/// @brief only ask from oracle ML without assigning all possibilities
+	bool askOracleML = false;
+
+	/// @brief path to ML model
+	std::string oracleML_path = "moeka\\ML_Oracles\\LinearDiscriminantAnalysis.sav";
+
+	/// @brief path to ML model loading and predicting function
+	std::string oracleML_loadingPath = "moeka\\ML_Oracles\\makePredictionsDriver.py";
+
+	/// @brief path to ML model mnking function - for if the user can make ML models eventually
+	std::string oracleML_makingPath = "D:\\.School\\Work\\webOracle\\makeMLModels.py";
+	///
+	/// flags for machine learning end
 
 	/// @brief set of Hansel Chains
 	std::vector<std::vector<dvector>> hanselChainSet;
@@ -56,13 +91,14 @@ public:
 	std::vector<int> minimumAcceptableDatapoint = {};
 
 	/// @brief low units that the expert knows from observation, intuition, or data
-	std::vector<std::vector<int>> knownLowUnits = { {0, 0, 1, 0, 0 } };
+	std::vector<std::vector<int>> knownLowUnits = {};
+	// forgot what this one was for{ {0, 0, 1, 0, 0 } };
 		// y1-y5{ {1, 0, 0, 0, 0 }, {0, 1, 0, 0, 0} };
 		//{ {0,1,0} }; // cancer biopsy w1-w3
 		// cancer biopsy x1-x5{ {0, 0, 1, 0, 0 }, {0, 0, 0, 0, 1} };
 
 	/// @brief needs to be changed for whatever oracle is supposed to be used
-	std::string oraclePath = "";// "MonotoneDataGenerator/diabetesOracleKV.csv";
+	std::string generatedOraclePath = "";// "MonotoneDataGenerator/diabetesOracleKV.csv";
 	//kv3_7D_summation.csv //sum10D8T.csv
 
 	/// @brief hiearchy of functions. 0 means no hiearchy should be used. -1 is uninitialized. 1 is use it...
@@ -78,7 +114,7 @@ public:
 	bool useMajorityFlag = false;
 
 	// true if intra-chain binary search is used instead of sequential search at the bottom or top of the chains.
-	bool useBinarySearch = true;
+	bool useBinarySearch = false;
 
 	/// @brief signals whether to use a chainJump ordering of questions
 	bool chainJump = false;
@@ -102,7 +138,7 @@ public:
 	/// @param useBinarySearch 
 	/// @param chainJump 
 	/// @param top 
-	moeka(char attributeSymbol, std::string oraclePath, int hanselChainOrder, bool useMajorityFlag, bool useBinarySearch, bool chainJump, bool top);
+	moeka(char attributeSymbol, std::string generatedOraclePath, int hanselChainOrder, bool useMajorityFlag, bool useBinarySearch, bool chainJump, bool top);
 
 
 	/// @brief constructor. used for individually testing the various operation reduction methods. Uses the oraclePath to select k-values
@@ -135,9 +171,28 @@ public:
 	/// @param asociated_attributes 
 	moeka(char attributeSymbol, std::vector<std::vector<std::string>> childAttributes);
 
+
+	/// @brief ask question using oracle ML
+	/// @param e 
+	int askFromOracleMLDatapoint(dvector& e);
+
+
+	/// @brief send and retrieve file for 
+	void askFromOracleMLFile();
+
+
+	/// @brief build ML models to use as oracles
+	void buildOracleML();
+
+
+	/// @brief use a ML model as oracle. Use oracleML_path and 
+	void assignOracleML();
+
+
 	/// @brief get the necessary user inputs to run the program with the hiearchy of functions driver class
 	/// @return vector starts with -1 if it is a list of attributes with child functions. Otherwise, first number is group size, next numbers are attributes in that group, and repeat
 	std::vector<int> init();
+
 
 	/// @brief same as above function, except done via the new UI and not from the console
 	/// @param attributes 
