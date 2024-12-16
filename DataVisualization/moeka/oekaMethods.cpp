@@ -1254,14 +1254,12 @@ int moeka::askingOfQuestion(int i, int j)
 		orderOfAskingSummary.push_back(i);
 		orderOfAskingSummary.push_back(j);
 
-		if (webOracle != "")
+		if (askOracleML && hanselChainSet[i][j].oracle == -1)
 		{
-
+			vector_class = askFromOracleMLDatapoint(hanselChainSet[i][j]);
 		}
-
-
 		// if there is no oracle, then ask expert
-		if (hanselChainSet[i][j].oracle == -1)
+		else if (hanselChainSet[i][j].oracle == -1)
 		{
 			std::cout << "\nEnter the class for this data point:\n";
 
