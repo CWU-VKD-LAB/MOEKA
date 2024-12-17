@@ -680,7 +680,7 @@ void Form::drawInterviewPilot () {
 void Form::drawInterview () {
 	// preamble variables/settings
 	ImGui::Begin("##", &open, flags);
-	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .3f));
+	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .075f * func->attributeCount));
 	ImVec2 window = ImGui::GetWindowSize();
 	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .625f), config::windowY * .4f));
 	ImGui::PushFont(font);
