@@ -10,7 +10,6 @@
 #include "windows.h"
 #include "Render/Texture.h"
 
-
 bool console = false;
 
 GLFWwindow* window;

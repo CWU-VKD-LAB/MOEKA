@@ -46,7 +46,8 @@ Window::Window () {
 
     for (int a = 0; a < config::maxClassValue; a++) {
         float val = 0.8f * (((float)a+1)/(config::maxClassValue+1));
-        config::classColors.insert(config::classColors.end(), ImVec4{val, val, val, 1.0f});
+        //config::classColors.insert(config::classColors.end(), ImVec4{val, val, val, 1.0f});
+        config::classColors.push_back(ImVec4{ val,val,val,1.0f });
     }
 }
 

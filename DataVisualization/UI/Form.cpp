@@ -233,7 +233,14 @@ void Form::drawPrep () {
 	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5f - (ImGui::CalcTextSize("Amount of Target Attributes: ").x * .5f));
 	ImGui::Text("Amount of Target Attributes: ");
 	ImGui::SetNextItemWidth(ImGui::GetWindowSize().x - ImGui::GetStyle().WindowPadding.x * 2.0f);
+	
 	ImGui::SliderInt("##amtTargetSlider", &func->targetAttributeCount, 2, config::defaultAmount);
+	// change the maxClassValue to adjust based on the number of target attributes, rather than hard code to six. 
+	/*
+	if (ImGui::SliderInt("##amtTargetSlider", &func->targetAttributeCount, 2, config::defaultAmount)) {
+		config::maxClassValue = func->targetAttributeCount + 1;
+	}
+	*/
 	ImGui::Separator();
 
 	// amount of attributes
