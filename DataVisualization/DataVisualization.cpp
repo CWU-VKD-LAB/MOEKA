@@ -41,10 +41,6 @@ void init () {
     window = w.window;
     
 
-    
-
-
-
     // update loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();

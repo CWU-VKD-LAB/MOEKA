@@ -229,19 +229,29 @@ void Form::drawPrep () {
 		}
 	}
 
-	// target attributes
+	// target attributes amount slider
 	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5f - (ImGui::CalcTextSize("Amount of Target Attributes: ").x * .5f));
 	ImGui::Text("Amount of Target Attributes: ");
 	ImGui::SetNextItemWidth(ImGui::GetWindowSize().x - ImGui::GetStyle().WindowPadding.x * 2.0f);
-	
 	ImGui::SliderInt("##amtTargetSlider", &func->targetAttributeCount, 2, config::defaultAmount);
-	// change the maxClassValue to adjust based on the number of target attributes, rather than hard code to six. 
-	/*
-	if (ImGui::SliderInt("##amtTargetSlider", &func->targetAttributeCount, 2, config::defaultAmount)) {
-		config::maxClassValue = func->targetAttributeCount + 1;
+
+	// Target attributes names list
+	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5f - (ImGui::CalcTextSize("Target Attribute Names: ").x * .5f));
+	ImGui::Text("Target Attribute Names: ");
+	ImGui::SetNextItemWidth(ImGui::GetWindowSize().x - ImGui::GetStyle().WindowPadding.x * 2.0f);
+	
+	// Create a subwindow to list target classes
+	ImGui::BeginChild("##TargetClasses",
+		ImVec2{ ImGui::GetWindowSize().x - ImGui::GetStyle().WindowPadding.x * 2.0f, ImGui::GetWindowSize().y * .4f },
+		ImGuiChildFlags_None, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+
+	for (int t = 0; t < func->targetAttributeCount; t++) {
+		// InputText for naming target classes
+		ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .9f); // Adjust width as needed
+		ImGui::InputText(std::string("##TargetName").append(std::to_string(t)).c_str(), func->targetAttributeNames.at(t), 128);
 	}
-	*/
-	ImGui::Separator();
+
+	ImGui::EndChild();
 
 	// amount of attributes
 	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5f - (ImGui::CalcTextSize("Amount of Attributes: ").x * .5f));
@@ -320,7 +330,7 @@ void Form::drawPrep () {
 	if (ImGui::Button("Interview", buttonSize)) {	
 		// go to the constraint screen
 		//current = CONSTRAINT;
-		current = PILOT;			// F the constraints screen, we're skipping it and going straight to 
+		current = PILOT;			// going straight to PILOT for now, since the constraints and pilot other questions are not implemented
 
 		constraint.answers.resize(func->attributeCount);
 
@@ -669,7 +679,7 @@ void Form::drawInterviewPilot () {
 		std::thread thr(start, edm, &startMoeka);
 		thr.detach();
 
-		current = state::INTERVIEW;
+		current = INTERVIEW;
 	//}
 
 	// NO IDEA WHAT THIS COULD BE DOING.
@@ -692,14 +702,6 @@ void Form::drawInterview () {
 	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .625f), config::windowY * .4f));
 	ImGui::PushFont(font);
 
-	//// TODO: replace with actual datapoint.
-	
-	// below obsolete now
-	//std::vector<int> data{};
-	//data.resize(interview.datapoint.size());
-	
-	//create hanselChainSet for function
-	// is this done every frame
 	dvector* datapoint = nullptr;
 
 	bool end = false;
@@ -743,26 +745,34 @@ void Form::drawInterview () {
 			// Print attribute name instead of just the numbers...
 			ImGui::Text("%s: %d", func->attributeNames.at(a), datapoint->dataPoint.at(a));
 		}
+		
+		// Initialize currentClass to -1, or some default value
+		int currentClass = -1;  // This would typically be set based on your initial data
 
-		ImGui::Text("Target Value (Class): ");
-		for (int b = 0; b < func->targetAttributeCount; b++) {
-			ImGui::SameLine();
-			ImGui::RadioButton(std::to_string(b).append("##").append(std::to_string(b)).c_str(), &interview._class, b); // interview._class
+		// Create the dropdown (combo box)
+		if (ImGui::BeginCombo("##ClassDropdown", "Select Class")){
+			for (int i = 0; i <= func->targetAttributeCount; i++){
+				bool isSelected = (currentClass == i);
+
+				// When a selectable item is clicked, update the selected class
+				if (ImGui::Selectable(func->targetAttributeNames[i], isSelected)) {
+					currentClass = i;  // Update the current selection
+				}
+
+				if (isSelected) {
+					ImGui::SetItemDefaultFocus(); // Focus on the selected item
+				}
+			}
+			ImGui::EndCombo();
 		}
 
-		int c = -1;
-		ImGui::SameLine();
-		ImGui::RadioButton("N/A##N/A", &interview._class, c); // interview._class
-
 		ImGui::PopFont();
-		//
 		ImGui::Separator();
-		//
+
 		ImGui::SetCursorPosY(window.y * 0.75f);
 		ImVec2 buttonSize{ window.x * .2f, window.y * .2f };
 		ImGui::SetCursorPosX(window.x * .56f - buttonSize.x);
 
-		// below  dont do anything need to change 
 		if (ImGui::Button("Next##", buttonSize)) {
 			// monotonic expansion
 			// assign class to currentDatapoint in moeka iva currentClass pointer
@@ -855,6 +865,7 @@ void Form::drawInterview () {
 	//
 
 	ImGui::End();
+
 }
 
 // the form will not render if the window is not open.
@@ -976,16 +987,23 @@ void Form::setNewFunc (std::string functionName) {
 	}
 	
 	func = new Function(name);
-	func->kValues.resize(config::defaultAmount); // TODO: needs to be the actual number of values
+	func->kValues.resize(config::defaultAmount);
 	func->attributeNames.resize(config::defaultAmount);
+	func->targetAttributeNames.resize(config::defaultAmount); // this can also get resized just the same way, since we are always going to have at least two target attributes also
 	// set default names of attributes
 	int b = 0;
 	for (auto a : func->attributeNames) {
 		char* buff = new char[128];
 		strcpy_s(buff, 128, std::string("Attribute ").append(std::to_string(b+1)).c_str() );
-		func->attributeNames.at(b) = buff;
-		b++;
+		func->attributeNames.at(b++) = buff;
 	}
+	b = 0;
+	for (auto a : func->targetAttributeNames) {
+		char* buff = new char[128];
+		strcpy_s(buff, 128, std::string("Class ").append(std::to_string(b + 1)).c_str());
+		func->targetAttributeNames.at(b++) = buff;
+	}
+
 	//
 	std::fill(func->kValues.begin(), func->kValues.end(), 2);
 	if (func->siblingfunctionList.empty()) {

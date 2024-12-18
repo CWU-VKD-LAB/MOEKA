@@ -1,12 +1,11 @@
 #include "Window.h"
-
-
 #define NOMINMAX
 
 std::vector<Drawable*> Window::managedList{};
 Drawable* Window::s = nullptr;
 Drawable* Window::focus = nullptr;
 Form Window::form{};
+extern std::vector<char*> targetAttributeNames{};		// the names from Function. We can now display the names here as well. 
 
 bool Window::drawColorPicker = false;
 void cursorCallback(GLFWwindow* window, int button, int action, int mods);
@@ -245,9 +244,10 @@ void Window::createOptions (Texture& texture) {
         glfwGetCursorPos(window, &x, &y);
         ImGui::SetWindowPos(ImVec2{ (float)x, (float)y });
         ImGui::SetWindowSize(ImVec2{ 150.0f, 100.0f });
-        // put bar information here!
-        ImGui::Text((std::string("Class Value: ") + std::to_string(reinterpret_cast<Bar*>(Window::s)->classVal)).c_str());
-        //
+        // get the class name for the bar. 
+        int c = reinterpret_cast<Bar*>(Window::s)->classVal;
+        ImGui::Text(("Classified As: ") + (c == -1) ? "Unavailable" : targetAttributeNames[c]);
+        
         ImGui::End();
     }
 
@@ -559,14 +559,12 @@ void Window::createColorPicker () {
     }
 }
 
-
 // draws the members of the managedList
 void Window::draw () {
     if (!managedList.empty()) {
         managedList[config::drawIndex]->draw();
     }
 }
-
 
 // TODO: reverse classes vector and add information to bar for the tooltip
 void Window::addModelFromFunctionForm() {
@@ -603,7 +601,6 @@ void Window::addModelFromCompareForm()
     m->fitToScreen();
     this->addToRender(m);
 }
-
 
 // when a button is pressed, it calls this function with a "val" equal to which button in the window is pressed.
 void Window::buttonActions(int val) {
