@@ -3,6 +3,10 @@
 std::vector<Function*> Form::functionList{};
 Function* Form::comparisonFunction = nullptr;
 
+// Define the global variables here (allocate memory)
+int classCount = 16;                      
+std::vector<char*> classNames;
+
 // creates a form object, that acts as a root for all the form screens. a list of the managed screens is under the 
 // 'state' enumeration in form.h 
 Form::Form () {
@@ -835,6 +839,10 @@ void Form::drawInterview () {
 		// add model to model list
 		//create hanselChainSet for function
 		//func->initializeHanselChains();
+
+		// now that we are starting the hansel chains, we can copy over the information so that window can use it in displaying
+		classCount = func->targetAttributeCount;
+		classNames = func->targetAttributeNames;
 
 		// TODO: move to hansel chain class?
 		func->hanselChains = new HanselChains();

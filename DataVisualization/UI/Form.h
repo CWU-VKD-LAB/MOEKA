@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "../tools/config.h"
+#include "../tools/globalVariables.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include <imgui_impl_opengl3.h>
@@ -13,6 +14,7 @@
 #include "../DecisionTable.h"
 #include "../FileReader.h"
 #include <filesystem>
+
 
 // weird bug if this isn't defined due to some file included in oeka.h
 #define NOMINMAX

@@ -5,7 +5,6 @@ std::vector<Drawable*> Window::managedList{};
 Drawable* Window::s = nullptr;
 Drawable* Window::focus = nullptr;
 Form Window::form{};
-extern std::vector<char*> targetAttributeNames{};		// the names from Function. We can now display the names here as well. 
 
 bool Window::drawColorPicker = false;
 void cursorCallback(GLFWwindow* window, int button, int action, int mods);
@@ -43,13 +42,12 @@ Window::Window () {
     
     initImGui();
 
-    for (int a = 0; a < config::maxClassValue; a++) {
+    for (int a = 0; a < classCount; a++) {
         float val = 0.8f * (((float)a+1)/(config::maxClassValue+1));
         //config::classColors.insert(config::classColors.end(), ImVec4{val, val, val, 1.0f});
         config::classColors.push_back(ImVec4{ val,val,val,1.0f });
     }
 }
-
 
 // ensure that GLEW was successful
 void Window::initGLEW () {
@@ -161,9 +159,7 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
         // the intro screen again when the window is opened.
         if (Window::form.current == state::INTRODUCTION) {
             Window::form.current = state::FUNCTION;
-        }
-
-        
+        }  
     }
 }
 
@@ -246,8 +242,11 @@ void Window::createOptions (Texture& texture) {
         ImGui::SetWindowSize(ImVec2{ 150.0f, 100.0f });
         // get the class name for the bar. 
         int c = reinterpret_cast<Bar*>(Window::s)->classVal;
-        ImGui::Text(("Classified As: ") + (c == -1) ? "Unavailable" : targetAttributeNames[c]);
-        
+        std::string text = "Classified As: ";
+        text += (c == -1) ? "Unavailable" : classNames[c];
+
+        // Pass the resulting string to ImGui
+        ImGui::Text(text.c_str());
         ImGui::End();
     }
 
