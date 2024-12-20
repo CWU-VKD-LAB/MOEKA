@@ -239,10 +239,10 @@ void Window::createOptions (Texture& texture) {
         double x, y;
         glfwGetCursorPos(window, &x, &y);
         ImGui::SetWindowPos(ImVec2{ (float)x, (float)y });
-        ImGui::SetWindowSize(ImVec2{ 150.0f, 100.0f });
+        ImGui::SetWindowSize(ImVec2{ 200.0f, 150.0f });
         // get the class name for the bar. 
         int c = reinterpret_cast<Bar*>(Window::s)->classVal;
-        std::string text = "Classified As: ";
+        std::string text = "Classified As:\n ";
         text += (c == -1) ? "Unavailable" : classNames[c];
 
         // Pass the resulting string to ImGui

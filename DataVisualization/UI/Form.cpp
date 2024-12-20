@@ -753,14 +753,21 @@ void Form::drawInterview () {
 		// Initialize currentClass to -1, or some default value
 		int currentClass = -1;  // This would typically be set based on your initial data
 
+
+		static const char* previewLabel = (currentClass == -1) ? "Select Classification" : func->targetAttributeNames[currentClass];
+
 		// Create the dropdown (combo box)
-		if (ImGui::BeginCombo("##ClassDropdown", "Select Class")){
+		if (ImGui::BeginCombo("##ClassDropdown", previewLabel)) {
 			for (int i = 0; i <= func->targetAttributeCount; i++){
 				bool isSelected = (currentClass == i);
 
 				// When a selectable item is clicked, update the selected class
-				if (ImGui::Selectable(func->targetAttributeNames[i], isSelected)) {
-					currentClass = i;  // Update the current selection
+				// ternary operator so that if we are at targetAttribute count, it displays N/A, if not, just gets the name.
+				if (ImGui::Selectable((i == func->targetAttributeCount) ? "N/A" : func->targetAttributeNames[i], isSelected)) {
+					// update current selection, and update the preview of the box so that you can see what is selected.
+					// if it is the last choice, it's N/A, if anything else, that class number
+					currentClass = (i == func->targetAttributeCount) ? -1 : i; 
+					previewLabel = (currentClass == -1) ? "N/A" : func->targetAttributeNames[currentClass];
 				}
 
 				if (isSelected) {
