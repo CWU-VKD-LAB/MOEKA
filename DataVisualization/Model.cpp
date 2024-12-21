@@ -168,6 +168,10 @@ void Model::fitToScreen () {
 	// set the scale based on the calculated ratios and set the translation to the center of the screen.
 	setScale(ratioX, ratioY);
 	setTranslation(config::windowX / 2.0f, config::windowY / 2.0f);
+
+	//totalScaleX = ratioX;
+	//totalScaleY = ratioY;
+
 	totalScaleX = 1;
 	totalScaleY = 1;
 }

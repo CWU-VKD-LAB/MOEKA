@@ -750,23 +750,26 @@ void Form::drawInterview () {
 			ImGui::Text("%s: %d", func->attributeNames.at(a), datapoint->dataPoint.at(a));
 		}
 		
-		// Initialize currentClass to -1, or some default value
-		int currentClass = -1;  // This would typically be set based on your initial data
+		// Retain currentClass across frames
+		static int currentClass = -1;
 
+		// Handle Tab key navigation
+		if (ImGui::IsKeyPressed(ImGuiKey_Tab)) {
+			currentClass = (currentClass + 1 > func->targetAttributeCount) ? -1 : currentClass + 1;
+		}
 
+		// Update previewLabel before rendering the combo box
 		static const char* previewLabel = (currentClass == -1) ? "Select Classification" : func->targetAttributeNames[currentClass];
 
-		// Create the dropdown (combo box)
+		// Render the combo box
 		if (ImGui::BeginCombo("##ClassDropdown", previewLabel)) {
-			for (int i = 0; i <= func->targetAttributeCount; i++){
+			for (int i = 0; i <= func->targetAttributeCount; i++) {
 				bool isSelected = (currentClass == i);
 
-				// When a selectable item is clicked, update the selected class
-				// ternary operator so that if we are at targetAttribute count, it displays N/A, if not, just gets the name.
-				if (ImGui::Selectable((i == func->targetAttributeCount) ? "N/A" : func->targetAttributeNames[i], isSelected)) {
-					// update current selection, and update the preview of the box so that you can see what is selected.
-					// if it is the last choice, it's N/A, if anything else, that class number
-					currentClass = (i == func->targetAttributeCount) ? -1 : i; 
+				const char* itemLabel = (i == func->targetAttributeCount) ? "N/A" : func->targetAttributeNames[i];
+
+				if (ImGui::Selectable(itemLabel, isSelected)) {
+					currentClass = (i == func->targetAttributeCount) ? -1 : i;
 					previewLabel = (currentClass == -1) ? "N/A" : func->targetAttributeNames[currentClass];
 				}
 
@@ -777,41 +780,18 @@ void Form::drawInterview () {
 			ImGui::EndCombo();
 		}
 
-		ImGui::PopFont();
-		ImGui::Separator();
-
+		// Render the "Next" button and handle Enter key press
 		ImGui::SetCursorPosY(window.y * 0.75f);
 		ImVec2 buttonSize{ window.x * .2f, window.y * .2f };
 		ImGui::SetCursorPosX(window.x * .56f - buttonSize.x);
 
-		if (ImGui::Button("Next##", buttonSize)) {
-			// monotonic expansion
-			// assign class to currentDatapoint in moeka iva currentClass pointer
+		if (ImGui::Button("Next##", buttonSize) || ImGui::IsKeyPressed(ImGuiKey_Enter)) {
 			edm->currentClass = &interview._class;
-
-			// continue background thread
 			startMoeka = true;
-
-			// below obsolete
-			/*
-		   // increment intra chain
-		   if (interview.datapointIndex < interview.datapoints[interview.hanselChainIndex].size() - 1)
-		   {
-			   interview.datapointIndex++;
-		   }
-		   // incrememnt chain
-		   else if (interview.hanselChainIndex < interview.datapoints.size() - 1)
-		   {
-			   interview.hanselChainIndex++;
-			   interview.datapointIndex = 0;
-		   }
-		   // else interview is done
-		   else
-		   {
-			   action = state::PREP;
-			   open = !open;
-		   }*/
 		}
+
+
+		ImGui::PopFont();
 
 		// temporarily disable
 		/*
@@ -928,7 +908,7 @@ void Form::drawColor () {
 	ImGui::PushStyleColor(ImGuiCol_Button, col);
 	ImGui::SetCursorPosX(window.x * .2f);
 	if (ImGui::Button("##1", item)) {
-		colorPickerState = config::classColors.size()-1;
+		colorPickerState = func->targetAttributeCount;
 		colorPickerOpen = true;
 	}
 	ImGui::PopStyleColor();
