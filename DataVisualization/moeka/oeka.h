@@ -98,8 +98,7 @@ public:
 		// cancer biopsy x1-x5{ {0, 0, 1, 0, 0 }, {0, 0, 0, 0, 1} };
 
 	/// @brief needs to be changed for whatever oracle is supposed to be used
-	std::string generatedOraclePath = "";// "MonotoneDataGenerator/diabetesOracleKV.csv";
-	//kv3_7D_summation.csv //sum10D8T.csv
+	std::string generatedOraclePath = "";// "MonotoneDataGenerator/diabetesOracleKV.csv"; //kv3_7D_summation.csv //sum10D8T.csv
 
 	/// @brief hiearchy of functions. 0 means no hiearchy should be used. -1 is uninitialized. 1 is use it...
 	int hierarchy = 0;

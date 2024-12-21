@@ -572,15 +572,16 @@ void Window::addModelFromFunctionForm() {
     const auto classIndex = this->form.getFunc()->hanselChains->dimension;
     Model* m = new Model();
 
-    for (const auto& chain : this->form.getFunc()->hanselChains->hanselChainSet)
+    for (int i = this->form.getFunc()->hanselChains->hanselChainSet.size() - 1; i >= 0; i--)
     {
+        const auto& chain = this->form.getFunc()->hanselChains->hanselChainSet[i];
+
         std::vector<int> classes;
 
         for (const auto& e : chain)
         {
             classes.push_back(e[classIndex]);
         }
-
 
         m->addColumn(&classes);
     }

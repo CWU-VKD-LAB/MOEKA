@@ -11,7 +11,7 @@
 #include "Render/Texture.h"
 
 
-bool console = false;
+bool console = true;
 
 GLFWwindow* window;
 
@@ -27,7 +27,7 @@ int main()
         o.start();
 
         std::fstream results;
-        results.open("burner.csv", std::ios::out | std::ios::app);
+        results.open("results.csv", std::ios::out | std::ios::app);
         o.printToFile(results); // start the parent
     }
     else
