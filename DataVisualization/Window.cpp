@@ -128,6 +128,12 @@ void cursorCallback(GLFWwindow* window, int button, int action, int mods) {
 
 // function that is called when a key is pressed
 void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods) {
+
+    if (config::drawIndex < 0 || config::drawIndex >= Window::managedList.size() || Window::managedList[config::drawIndex] == nullptr) {
+        std::cerr << "Invalid drawIndex or null pointer in managedList. Window.cpp" << std::endl;
+        return;
+    }
+
     // cleanup later but fine in short term.
     if (key == GLFW_KEY_UP && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
         Window::managedList[config::drawIndex]->setTranslation(Window::managedList[config::drawIndex]->getX(), Window::managedList[config::drawIndex]->getY() - 5);
