@@ -928,7 +928,7 @@ void Form::drawColor () {
 	}
 	ImGui::PushFont(font);
 	std::string base = "Class ";
-	for (int a = 0; a < config::classColors.size(); a++) {
+	for (int a = 0; a < classCount; a++) {
 		col = config::classColors[a];
 		ImGui::PushStyleColor(ImGuiCol_Button, col);
 		if (ImGui::Button((base + std::to_string(a + 1)).c_str(), item)) {
