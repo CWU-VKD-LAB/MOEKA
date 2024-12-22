@@ -79,7 +79,7 @@ void Window::initImGui () {
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
-    font = io.Fonts->AddFontFromFileTTF("resources/fonts/ProggyClean.ttf", 13.0f);
+    font = io.Fonts->AddFontFromFileTTF("resources/fonts/ProggyClean.ttf", 20.0f);
     monoFont = io.Fonts->AddFontFromFileTTF("resources/fonts/JetBrainsMono-Medium.ttf", config::windowY / 42.0f);
     ImGuiStyle& style = ImGui::GetStyle();
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
@@ -276,16 +276,19 @@ void Window::createOptions(Texture& texture) {
     else {
         auto model = Window::managedList[config::drawIndex];
 
+        // Set larger button sizes
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 10));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(20, 5));
+
         // Scale X buttons
         ImGui::PushItemFlag(ImGuiItemFlags_ButtonRepeat, true);
         ImGui::Text("Scale X");
         ImGui::SameLine();
         if (ImGui::ArrowButton("##downScaleX", ImGuiDir_Down)) {
-            if (model->getScaleX() - Window::scaleBy.x > 0.1f) {
+            if (model->getScaleX() - Window::scaleBy.x > 0.2f) {
                 model->setScale(model->getScaleX() - Window::scaleBy.x, model->getScaleY());
             }
         }
-
 
         ImGui::SameLine();
         if (ImGui::ArrowButton("##upScaleX", ImGuiDir_Up)) {
@@ -298,7 +301,7 @@ void Window::createOptions(Texture& texture) {
         ImGui::Text("Scale Y");
         ImGui::SameLine();
         if (ImGui::ArrowButton("##downScaleY", ImGuiDir_Down)) {
-            if (model->getScaleY() - Window::scaleBy.y > 0.1f) {
+            if (model->getScaleY() - Window::scaleBy.y > 0.2f) {
                 model->setScale(model->getScaleX(), model->getScaleY() - Window::scaleBy.y);
             }
         }
@@ -306,7 +309,10 @@ void Window::createOptions(Texture& texture) {
         if (ImGui::ArrowButton("##upScaleY", ImGuiDir_Up)) {
             model->setScale(model->getScaleX(), model->getScaleY() + Window::scaleBy.y);
         }
+
         ImGui::PopItemFlag();
+        // Pop Style Variables
+        ImGui::PopStyleVar(2);
     }
     ImGui::End();
 
