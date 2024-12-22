@@ -701,7 +701,7 @@ void Form::drawInterviewPilot () {
 void Form::drawInterview () {
 	// preamble variables/settings
 	ImGui::Begin("##", &open, flags);
-	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .075f * func->attributeCount));
+	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .085f * func->attributeCount));
 	ImVec2 window = ImGui::GetWindowSize();
 	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .625f), config::windowY * .4f));
 	ImGui::PushFont(font);
@@ -753,9 +753,12 @@ void Form::drawInterview () {
 		// Retain currentClass across frames
 		static int currentClass = -1;
 
-		// Handle Tab key navigation
-		if (ImGui::IsKeyPressed(ImGuiKey_Tab)) {
-			currentClass = (currentClass + 1 > func->targetAttributeCount) ? -1 : currentClass + 1;
+		// using up and down to navigate the drop down menu
+		if (ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
+			currentClass = (currentClass - 1 <= -1) ? func->targetAttributeCount : currentClass - 1;
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
+			currentClass = (currentClass + 1 > func->targetAttributeCount) ? 0 : currentClass + 1;
 		}
 
 		// Update previewLabel before rendering the combo box
