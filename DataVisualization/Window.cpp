@@ -559,7 +559,7 @@ void Window::draw () {
 
 // TODO: reverse classes vector and add information to bar for the tooltip
 void Window::addModelFromFunctionForm() {
-    const auto classIndex = this->form.getFunc()->hanselChains->dimension;
+    const auto classIndex = this->form.getFunc()->hanselChains->dimension - 1;
     Model* m = new Model();
 
     for (const auto& chain : this->form.getFunc()->hanselChains->hanselChainSet)

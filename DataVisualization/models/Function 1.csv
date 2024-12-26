@@ -1,7 +1,6 @@
 ##Function 1
-Attribute 1, Attribute 2, 
-2, 2, 
-2, 2, 
+Attribute 1, Attribute 2, Attribute 3, 
+2, 2, 2, 
+3, 2, 
 #sib0
-1, 0, 
-0, 1, 
+0, 1, 0, 

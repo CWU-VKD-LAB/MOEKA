@@ -34,9 +34,6 @@ void Form::drawFunction() {
 	ImGui::Text("Create a Clause");
 	ImGui::SameLine(window.x * .835f - ImGui::CalcTextSize(func->functionName).x);
 
-	
-
-
 
 	std::string functionFraction;
 	if (func->parent == nullptr) {
@@ -169,9 +166,7 @@ void Form::drawFunction() {
 	ImGui::EndChild();
 	ImGui::PopFont();
 	ImGui::Separator();
-	//
-
-
+	
 
 
 	ImGui::BeginGroup();
@@ -384,6 +379,9 @@ void Form::drawFunction() {
 		// TODO save to file screen
 		CSVReader::saveToCSV(&functionList, basePath + "\\" + functionList[0]->functionName + ".csv");
 		open = !open;
+
+		classNames = func->attributeNames;
+		classCount = func->attributeCount;
 
 		//create hanselChainSet for function
 		func->initializeHanselChains();

@@ -834,6 +834,7 @@ void Form::drawInterview () {
 		classCount = func->targetAttributeCount;
 		classNames = func->targetAttributeNames;
 
+		/*
 		// TODO: move to hansel chain class?
 		func->hanselChains = new HanselChains();
 		func->hanselChains->attributes = func->kValues;
@@ -856,6 +857,11 @@ void Form::drawInterview () {
 
 		func->hanselChains->hanselChainSet = temp;
 
+		*/
+
+		func->initializeHanselChains();
+		func->setUpHanselChains();
+
 		// create a model for the hanselChains
 		addModel = true;
 		config::drawIndex++;
@@ -863,7 +869,6 @@ void Form::drawInterview () {
 	//
 
 	ImGui::End();
-
 }
 
 // the form will not render if the window is not open.
