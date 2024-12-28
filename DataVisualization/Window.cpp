@@ -315,6 +315,7 @@ void Window::createOptions(Texture& texture) {
         ImGui::PopStyleVar(2);
     }
     ImGui::End();
+    ImGui::BringWindowToDisplayFront(ImGui::FindWindowByName("ScaleWindow"));
 
     ImGui::Begin("FunctionView", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
     ImGui::SetWindowSize(ImVec2(config::windowX * .15f, config::windowY * BUTTON_HEIGHT));
