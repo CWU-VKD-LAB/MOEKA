@@ -40,7 +40,6 @@ void init () {
     Texture texture{ "../resources/icons.png" };
     window = w.window;
     
-
     // update loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();

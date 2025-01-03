@@ -793,29 +793,7 @@ void Form::drawInterview () {
 			startMoeka = true;
 		}
 
-
 		ImGui::PopFont();
-
-		// temporarily disable
-		/*
-		ImGui::SameLine();
-		if (ImGui::Button("Add Datapoint##", buttonSize)) {
-			interview.datapoints[interview.categoryIndex][interview.datapointIndex].push_back(interview.dataPointValue);
-
-			// debug
-			std::cout << "------------" << std::endl;
-			std::cout << "function" << std::endl;
-			for (auto a : interview.datapoints) {
-				std::cout << " categories" << std::endl;
-				for (auto b : a) {
-					std::cout << "  ----------\n  datapoints" << std::endl;
-					for (auto c : b) {
-						std::cout << "  " << c << std::endl;
-					}
-				}
-			}
-			//
-		}*/
 		ImGui::SameLine();
 		if (ImGui::Button("Done##", buttonSize)) {
 			action = state::PREP;
@@ -833,31 +811,6 @@ void Form::drawInterview () {
 		// now that we are starting the hansel chains, we can copy over the information so that window can use it in displaying
 		classCount = func->targetAttributeCount;
 		classNames = func->targetAttributeNames;
-
-		/*
-		// TODO: move to hansel chain class?
-		func->hanselChains = new HanselChains();
-		func->hanselChains->attributes = func->kValues;
-		func->hanselChains->dimension = func->attributeCount;
-		func->hanselChains->hanselChainContainsLowUnit.reserve(func->hanselChains->hanselChainSet.size());
-
-		std::vector<std::vector<std::vector<int>>> temp(edm->hanselChainSet.size()); 
-
-		// organize them and assign classes such that we can visualize
-		for (const auto hc : edm->hanselChainSet)
-		{
-			temp.push_back({});
-
-			for (auto e : hc) // copy by value
-			{
-				e.dataPoint.push_back(e._class);
-				temp[temp.size() - 1].push_back(e.dataPoint);
-			}
-		}
-
-		func->hanselChains->hanselChainSet = temp;
-
-		*/
 
 		func->initializeHanselChains();
 		func->setUpHanselChains();
