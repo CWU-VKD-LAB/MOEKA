@@ -315,6 +315,7 @@ void Window::createOptions(Texture& texture) {
         ImGui::PopStyleVar(2);
     }
     ImGui::End();
+    // bring to the front so that hovering over the bars doesn't block the buttons
     ImGui::BringWindowToDisplayFront(ImGui::FindWindowByName("ScaleWindow"));
 
     ImGui::Begin("FunctionView", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
@@ -560,6 +561,8 @@ void Window::draw () {
 
 // TODO: reverse classes vector and add information to bar for the tooltip
 void Window::addModelFromFunctionForm() {
+
+    // dimension needs to not be dependent on the k value of an attribute, but rather the amount of classes we have.
     const auto classIndex = this->form.getFunc()->hanselChains->dimension - 1;
     Model* m = new Model();
 
@@ -571,7 +574,6 @@ void Window::addModelFromFunctionForm() {
         {
             classes.push_back(e[classIndex]);
         }
-
 
         m->addColumn(&classes);
     }

@@ -14,7 +14,6 @@ void Function::initializeHanselChains(){
 	hanselChains->hanselChainContainsLowUnit.reserve(hanselChains->hanselChainSet.size());
 }
 
-
 void Function::setUpHanselChains()
 {
 	// sorting like this might be obsolete depending on how Model works but its fine to leave for now

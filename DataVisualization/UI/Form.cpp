@@ -739,7 +739,7 @@ void Form::drawInterview () {
 	if (!end)
 	{
 		ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize("Input a class for this datapoint.").x * .5f);
-		ImGui::Text("Input a target value (class) for the datapoint.");
+		ImGui::Text("Input a target value (classification) for the datapoint.");
 		ImGui::SetNextItemWidth(window.x * .2f);
 		ImGui::Separator();
 		ImGui::Text("Datapoint: ");
@@ -861,7 +861,7 @@ void Form::drawInterview () {
 
 		func->initializeHanselChains();
 		func->setUpHanselChains();
-
+		
 		// create a model for the hanselChains
 		addModel = true;
 		config::drawIndex++;
