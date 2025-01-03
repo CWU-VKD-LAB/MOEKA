@@ -561,8 +561,6 @@ void Window::draw () {
 
 // TODO: reverse classes vector and add information to bar for the tooltip
 void Window::addModelFromFunctionForm() {
-
-    // dimension needs to not be dependent on the k value of an attribute, but rather the amount of classes we have.
     const auto classIndex = this->form.getFunc()->hanselChains->dimension - 1;
     Model* m = new Model();
 

@@ -789,6 +789,7 @@ void Form::drawInterview () {
 		ImGui::SetCursorPosX(window.x * .56f - buttonSize.x);
 
 		if (ImGui::Button("Next##", buttonSize) || ImGui::IsKeyPressed(ImGuiKey_Enter)) {
+			interview._class = currentClass;
 			edm->currentClass = &interview._class;
 			startMoeka = true;
 		}
@@ -812,9 +813,34 @@ void Form::drawInterview () {
 		classCount = func->targetAttributeCount;
 		classNames = func->targetAttributeNames;
 
-		func->initializeHanselChains();
-		func->setUpHanselChains();
-		
+		/*
+		// TODO: move to hansel chain class?
+		func->hanselChains = new HanselChains();
+		func->hanselChains->attributes = func->kValues;
+		func->hanselChains->dimension = func->attributeCount;
+		func->hanselChains->hanselChainContainsLowUnit.reserve(func->hanselChains->hanselChainSet.size());
+
+		std::vector<std::vector<std::vector<int>>> temp(edm->hanselChainSet.size()); 
+
+		// organize them and assign classes such that we can visualize
+		for (const auto hc : edm->hanselChainSet)
+		{
+			temp.push_back({});
+
+			for (auto e : hc) // copy by value
+			{
+				e.dataPoint.push_back(e._class);
+				temp[temp.size() - 1].push_back(e.dataPoint);
+			}
+		}
+
+		func->hanselChains->hanselChainSet = temp;
+
+		*/
+
+		//func->initializeHanselChains();
+		//func->setUpHanselChains();
+
 		// create a model for the hanselChains
 		addModel = true;
 		config::drawIndex++;
