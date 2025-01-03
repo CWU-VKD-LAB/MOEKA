@@ -380,8 +380,8 @@ void Form::drawFunction() {
 		CSVReader::saveToCSV(&functionList, basePath + "\\" + functionList[0]->functionName + ".csv");
 		open = !open;
 
-		classNames = func->attributeNames;
-		classCount = func->attributeCount;
+		classNames = func->targetAttributeNames;
+		classCount = func->targetAttributeCount;
 
 		//create hanselChainSet for function
 		func->initializeHanselChains();

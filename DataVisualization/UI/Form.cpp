@@ -789,6 +789,7 @@ void Form::drawInterview () {
 		ImGui::SetCursorPosX(window.x * .56f - buttonSize.x);
 
 		if (ImGui::Button("Next##", buttonSize) || ImGui::IsKeyPressed(ImGuiKey_Enter)) {
+			interview._class = currentClass;
 			edm->currentClass = &interview._class;
 			startMoeka = true;
 		}
@@ -834,7 +835,7 @@ void Form::drawInterview () {
 		classCount = func->targetAttributeCount;
 		classNames = func->targetAttributeNames;
 
-		/*
+		
 		// TODO: move to hansel chain class?
 		func->hanselChains = new HanselChains();
 		func->hanselChains->attributes = func->kValues;
@@ -857,10 +858,7 @@ void Form::drawInterview () {
 
 		func->hanselChains->hanselChainSet = temp;
 
-		*/
 
-		func->initializeHanselChains();
-		func->setUpHanselChains();
 
 		// create a model for the hanselChains
 		addModel = true;
