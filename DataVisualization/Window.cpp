@@ -43,7 +43,7 @@ Window::Window () {
     initImGui();
 
     for (int a = 0; a < classCount; a++) {
-        float val = 0.8f * (((float)a+1)/(config::maxClassValue+1));
+        float val = 0.75f * (((float)a+1)/(config::maxClassValue+1));
         //config::classColors.insert(config::classColors.end(), ImVec4{val, val, val, 1.0f});
         config::classColors.push_back(ImVec4{ val,val,val,1.0f });
     }
@@ -559,12 +559,44 @@ void Window::draw () {
     }
 }
 
-// TODO: reverse classes vector and add information to bar for the tooltip
+// VERY nasty looking but it gets the right shape.
 void Window::addModelFromFunctionForm() {
-    const auto classIndex = this->form.getFunc()->hanselChains->dimension - 1;
+    const auto classIndex = this->form.getFunc()->hanselChains->dimension; // maybe needs to be -1????
     Model* m = new Model();
 
-    for (const auto& chain : this->form.getFunc()->hanselChains->hanselChainSet)
+    auto& hanselChains = this->form.getFunc()->hanselChains->hanselChainSet;
+
+    // Step 1: Sort chains by their lengths (largest first)
+    std::vector<std::vector<std::vector<int>>> sortedChains = hanselChains;
+    std::sort(sortedChains.begin(), sortedChains.end(),
+        [](const std::vector<std::vector<int>>& a, const std::vector<std::vector<int>>& b) {
+            return a.size() > b.size(); // Sort by size (largest first)
+        });
+    
+    // Step 2: Create a diamond-like arrangement by placing chains symmetrically
+    std::vector<std::vector<std::vector<int>>> diamondChains;
+    size_t middleIndex = sortedChains.size() / 2; // Find the middle
+
+    // Place the largest chain (middle one) first
+    diamondChains.push_back(sortedChains[middleIndex]);
+
+    // Now, alternate chains around the middle
+    int leftIndex = middleIndex - 1;
+    int rightIndex = middleIndex + 1;
+
+    while (leftIndex >= 0 || rightIndex < sortedChains.size()) {
+        if (leftIndex >= 0) {
+            diamondChains.insert(diamondChains.begin(), sortedChains[leftIndex]);
+            leftIndex--;
+        }
+        if (rightIndex < sortedChains.size()) {
+            diamondChains.push_back(sortedChains[rightIndex]);
+            rightIndex++;
+        }
+    }
+
+    // Step 3: Add chains to the model for rendering
+    for (const auto& chain : diamondChains)
     {
         std::vector<int> classes;
 

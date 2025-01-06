@@ -801,24 +801,24 @@ void Form::drawInterview () {
 			open = !open;
 		}
 	}
+	// when the interview is done, as detetermined by the moeka thread
 	else
 	{
 		ImGui::PopFont();
 
 		// add model to model list
 		//create hanselChainSet for function
-		//func->initializeHanselChains();
+		func->initializeHanselChains();
 
 		// now that we are starting the hansel chains, we can copy over the information so that window can use it in displaying
 		classCount = func->targetAttributeCount;
 		classNames = func->targetAttributeNames;
 
-		/*
 		// TODO: move to hansel chain class?
-		func->hanselChains = new HanselChains();
+		func->hanselChains = new HanselChains(func);
 		func->hanselChains->attributes = func->kValues;
 		func->hanselChains->dimension = func->attributeCount;
-		func->hanselChains->hanselChainContainsLowUnit.reserve(func->hanselChains->hanselChainSet.size());
+		//func->hanselChains->hanselChainContainsLowUnit.reserve(func->hanselChains->hanselChainSet.size());
 
 		std::vector<std::vector<std::vector<int>>> temp(edm->hanselChainSet.size()); 
 
@@ -835,11 +835,6 @@ void Form::drawInterview () {
 		}
 
 		func->hanselChains->hanselChainSet = temp;
-
-		*/
-
-		//func->initializeHanselChains();
-		//func->setUpHanselChains();
 
 		// create a model for the hanselChains
 		addModel = true;

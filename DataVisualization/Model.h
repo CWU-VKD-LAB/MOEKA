@@ -13,7 +13,7 @@ public:
 	~Model();
 
 	void addColumn (std::vector<int>* values);
-	Section* recursiveCreateSections (std::vector<int>* values);
+	Section* createSections (std::vector<int>* values);
 	void draw ();
 	Drawable* selected (GLFWwindow* window);
 	void setTranslation(float dx, float dy) override;

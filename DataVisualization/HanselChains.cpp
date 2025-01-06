@@ -6,8 +6,6 @@ std::vector<std::vector<std::vector<int>>> HanselChains::genChains(int num, int 
 	std::unordered_map<int, std::vector<std::vector<std::vector<int>>>> chains = chain;
 
 	// add key string "0","1",...,num to the beginning of each element in the corresponding key
-
-	// iterating j to num seems to be the problem. Since num is the k value of an attribute, ut has no relation to the class count. 
 	for (int j = 0; j < num; j++)
 	{
 		for (int k = 0; k < chains.at(j).size(); k++)
@@ -116,8 +114,14 @@ void HanselChains::calculateHanselChains(int vector_dimension)
 			//generate the base chain
 			std::vector<std::vector<int>> baseChain;
 
+			// hansel chains is 3d, first dimension is one particular number in the chain
+			// second is one chain
+			// third is the whole set of chains
+
+			// k is the k value of a particular attribute
 			for (int k = 0; k < num; k++)
 			{
+
 				std::vector<int> b(vector_dimension);
 				b[vector_dimension - 1] = k;
 				std::vector<int> c;
@@ -142,12 +146,11 @@ void HanselChains::calculateHanselChains(int vector_dimension)
 		}
 	}
 
-	for (int i = 0; i < (int)hanselChainSet.size(); i++)
+	for (int i = (int)hanselChainSet.size() - 1; i >= 0; i--)
 	{
 		if (!hanselChainSet[i].size())
 		{
 			hanselChainSet.erase(hanselChainSet.begin() + i);
-			i--;
 		}
 	}
 }
