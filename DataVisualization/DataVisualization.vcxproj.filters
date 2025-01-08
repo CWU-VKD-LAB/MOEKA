@@ -99,19 +99,19 @@
     <ClCompile Include="moeka\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="moeka\oekaAuxiliary.cpp">
+    <ClCompile Include="moeka\initialization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="moeka\oekaExperimental.cpp">
+    <ClCompile Include="moeka\functionChanges.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="moeka\oekaGraph.cpp">
+    <ClCompile Include="moeka\graphOrders.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="moeka\oekaMethods.cpp">
+    <ClCompile Include="moeka\coreAlgorithms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="moeka\oekaOracle.cpp">
+    <ClCompile Include="moeka\oracle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FileReader.cpp">
@@ -121,6 +121,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UI\FunctionForm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="moeka\expansions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="moeka\orders.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="moeka\auxiliaryFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1082,7 +1091,7 @@
     <ClInclude Include="moeka\hierarchyDriver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="moeka\oeka.h">
+    <ClInclude Include="moeka\moeka.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FileReader.h">

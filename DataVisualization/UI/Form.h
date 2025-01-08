@@ -16,7 +16,7 @@
 
 // weird bug if this isn't defined due to some file included in oeka.h
 #define NOMINMAX
-#include "../moeka/oeka.h"
+#include "../moeka/moeka.h"
 #undef NOMINMAX
 
 enum state {

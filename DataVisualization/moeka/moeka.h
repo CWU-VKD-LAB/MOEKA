@@ -51,25 +51,12 @@ public:
 
 
 
-	// TODO: if doing testing with real file, as take the attributes so that kvalues and such do not have to be entered
-	/// flags for testing function on real world dataset which must be ordinal and normalized in some way so that testing can work.
-	///
-	/// @brief 
-	bool useRealOrdinalNormalizedDatasetToTestFunction = false;
-
-	/// @brief path to real ordinal normalized dataset
-	std::string realOrdinalNormalizedDataset = "D:\\.School\\Work\\Github DataVisualization\\DataVisualization\\DataVisualization\\moeka\\ML_Oracles\\heart_failure_ordinal_normalization.csv";
-	///
-	/// flags for testing
-
-
-
 
 	/// flags for machine learning start
 	/// 
-	/// @brief build oracle and use it as oracle to test various orders
-	bool buildAndUseOracleML = false;
-
+	/// YOU HAVE TO MAKE THE MACHINE LEARNING MODELS BY MANUALLY RUNNING THE PYTHON PROGRAMS IN ML_ORACLES
+	/// THEN YOU CAN USE THE SAV file(s) AND CHANGE the oracleML_Path variable TO USE THE ML MODEL AS AN ORACLE
+	/// 
 	/// @brief only ask from oracle ML without assigning all possibilities
 	bool askOracleML = false;
 
@@ -79,14 +66,29 @@ public:
 	/// @brief path to ML model loading and predicting function
 	std::string oracleML_loadingPath = "moeka\\ML_Oracles\\makePredictionsDriver.py";
 
-	/// @brief path to ML model mnking function - for if the user can make ML models eventually
-	std::string oracleML_makingPath = "D:\\.School\\Work\\webOracle\\makeMLModels.py";
+
+	// TODO: if doing testing with real file, as take the attributes so that kvalues and such do not have to be entered
+	/// flags for testing function on real world dataset which must be ordinal and normalized in some way so that testing can work.
+	///
+	/// @brief 
+	bool useRealOrdinalNormalizedDatasetToTestFunction = false;
+
+	/// @brief path to real ordinal normalized dataset
+	std::string realOrdinalNormalizedDataset = "D:\\.School\\Work\\Github DataVisualization\\DataVisualization\\DataVisualization\\moeka\\ML_Oracles\\heart_failure_ordinal_normalization.csv";
 	///
 	/// flags for machine learning end
+
+
+
 
 	/// @brief set of Hansel Chains
 	std::vector<std::vector<dvector>> hanselChainSet;
 
+
+
+	/// TODO: create functions for console input for Min acceptable datapoint and known low units. 
+	/// These orders currently have to be compiled below
+	///  
 	/// @brief by default this is none but if there is one then initialize here or through startFromUI() function
 	std::vector<int> minimumAcceptableDatapoint = {};
 
@@ -96,6 +98,8 @@ public:
 		// y1-y5{ {1, 0, 0, 0, 0 }, {0, 1, 0, 0, 0} };
 		//{ {0,1,0} }; // cancer biopsy w1-w3
 		// cancer biopsy x1-x5{ {0, 0, 1, 0, 0 }, {0, 0, 0, 0, 1} };
+
+
 
 	/// @brief needs to be changed for whatever oracle is supposed to be used
 	std::string generatedOraclePath = "";// "MonotoneDataGenerator/diabetesOracleKV.csv"; //kv3_7D_summation.csv //sum10D8T.csv
@@ -120,6 +124,8 @@ public:
 
 	/// @brief for chainJump ordering, start at the top of the chain
 	bool top = false;
+
+
 
 
 	// constructors
@@ -171,21 +177,8 @@ public:
 	moeka(char attributeSymbol, std::vector<std::vector<std::string>> childAttributes);
 
 
-	/// @brief ask question using oracle ML
-	/// @param e 
-	int askFromOracleMLDatapoint(dvector& e);
-
-
-	/// @brief send and retrieve file for 
+	/// @brief send and retrieve file for ML
 	void askFromOracleMLFile();
-
-
-	/// @brief build ML models to use as oracles
-	void buildOracleML();
-
-
-	/// @brief use a ML model as oracle. Use oracleML_path and 
-	void assignOracleML();
 
 
 	/// @brief get the necessary user inputs to run the program with the hiearchy of functions driver class

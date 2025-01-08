@@ -1,4 +1,8 @@
-/*#include "oeka.h"
+// currently unused to create hierarchy of functions, mostly because its annoying to do via software.
+// just remember that ki for a sub-function must equal kn+1 of the parent function, 
+// and making hierarchy of functions is easier to do on separate runs
+
+/*#include "moeka.h"
 
 
 class oekaDriver

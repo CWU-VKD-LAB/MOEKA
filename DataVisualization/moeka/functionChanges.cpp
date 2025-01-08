@@ -1,85 +1,4 @@
-#include "oeka.h"
-
-/*void expertDataMining::chainExpansions(int i, int j, int vector_class)
-{
-	if (function_kv = 2)
-	{
-		// expand up
-		if (vector_class)
-		{
-			for (int k = j + 1; k < (int)hanselChainSet[i].size(); k++)
-			{
-				expandUp(i, k - 1, &hanselChainSet[i][k], vector_class);
-			}
-		}
-		// expand down
-		else
-		{
-			for (int k = j - 1; k >= 0; k--)
-			{
-				expandDown(i, k + 1, &hanselChainSet[i][k], vector_class);
-			}
-		}
-	}
-	// expand in both directions
-	else
-	{
-		for (int k = j + 1; k < (int)hanselChainSet[i].size(); k++)
-		{
-			expandUp(i, k - 1, &hanselChainSet[i][k], vector_class);
-		}
-
-		for (int k = j - 1; k >= 0; k--)
-		{
-			expandDown(i, k + 1, &hanselChainSet[i][k], vector_class);
-		}
-	}
-}*/
-
-/*void oeka::manualHanselChainOrder()
-{
-	std::cout << "\nThere are " << numChains << " Hansel Chains, labelled 1 through " << numChains << "." << std::endl;
-
-	for (int i = 0; i < numChains; i++)
-	{
-		std::string suffix;
-
-		if (i == 0) suffix = "st";
-		else if (i == 1) suffix = "nd";
-		else if (i == 2) suffix = "rd";
-		else suffix = "th";
-
-		std::cout << "\nWhat is the " << i + 1 << suffix << " Hansel Chain?";
-		std::cout << "\nEnter: " << std::flush;
-		std::cin >> hanselChainOrder[i];
-		hanselChainOrder[i]--;
-
-		if (hanselChainOrder[i] == -1)
-		{
-			std::cout << "There is no chain zero. Select a different number chain." << std::endl;
-			i--;
-		}
-		else if (!chainsVisited[hanselChainOrder[i]])
-		{
-			chainsVisited[hanselChainOrder[i]] = true;
-		}
-		else
-		{
-			std::cout << "You already selected this chain. Pick a different chain to go next." << std::endl;
-			i--;
-		}
-
-		std::cin.clear();
-		std::cin.ignore(1000, '\n');
-	}
-
-	auto tempSet = hanselChainSet;
-
-	for (int i = 0; i < numChains; i++)
-	{
-		hanselChainSet[i] = tempSet[hanselChainOrder[i]];
-	}
-}*/
+#include "moeka.h"
 
 
 void moeka::f_change_check()
@@ -654,6 +573,41 @@ void moeka::fixViolationOfMonotonicityAddAttr()
 	}
 
 	std::cout << "Done adding new attribute_names and asking questions about those attribute_names." << std::endl;
+}
+
+
+void moeka::fixExpansions(int vector_class, int i, int j)
+{
+	if (vector_class)
+	{
+		for (auto vector : hanselChainSet[i][j].up_expandable)
+		{
+			if (vector->expanded_by && !vector->f_change && vector->_class != vector_class) // if it was expanded and has not been fixed
+			{
+				hanselChainSet[i][j].up_expansions.push_back(vector);
+				vector->expanded_by = &hanselChainSet[i][j];
+				vector->_class = vector_class;
+				vector->f_change = true;
+				vector->down_expansions.clear(); // clear expanded zero because we are now going to expand vectors with a class of 1
+				fixExpansions(vector_class, vector->number.first - 1, vector->number.second - 1);
+			}
+		}
+	}
+	else
+	{
+		for (auto vector : hanselChainSet[i][j].down_expandable)
+		{
+			if (vector->expanded_by && !vector->f_change && vector->_class != vector_class) // if it was expanded and has not been fixed
+			{
+				hanselChainSet[i][j].down_expansions.push_back(vector);
+				vector->expanded_by = &hanselChainSet[i][j];
+				vector->_class = vector_class;
+				vector->f_change = true;
+				vector->up_expansions.clear(); // clear expanded one because we are now going to expand vectors with a class of 0
+				fixExpansions(vector_class, vector->number.first - 1, vector->number.second - 1);
+			}
+		}
+	}
 }
 
 

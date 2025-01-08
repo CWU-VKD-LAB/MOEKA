@@ -1,4 +1,4 @@
-#include "oeka.h"
+#include "moeka.h"
 
 
 // these functions are called in the initialization if the test dataset file is present as well as useOracle variable in oeka.h
@@ -92,70 +92,6 @@ void moeka::assignOracle(std::map<int, std::vector<std::vector<int>>> oracle)
 // add some sort of functionality to store results and run all experiments automatically?
 
 
-void moeka::buildOracleML()
-{
-	FILE* pipe = _popen(oracleML_makingPath.c_str(), "r");
-
-	if (!pipe)
-	{
-		std::cout << "failed to build model" << std::endl;
-	}
-
-	char buffer[128];
-
-	while (!feof(pipe))
-	{
-		if (fgets(buffer, 128, pipe) != NULL)
-		{
-			std::cout << buffer << std::endl;
-
-			// do something with buffer, which is the class
-		}
-	}
-
-	//PyObject* myModuleString = PyRun_SimpleStringFlags((char*)"makeModel", 0);
-	//PyObject* myModule = PyImport_Import("makeModel");
-}
-
-
-int moeka::askFromOracleMLDatapoint(dvector& e)
-{
-	std::string tmp = "";
-
-	for (auto ei : e.dataPoint)
-	{
-		tmp += std::to_string(ei) + " ";
-	}
-
-	std::string command = oracleML_loadingPath + " " + oracleML_path + " " + tmp;
-
-	FILE* pipe = _popen(command.c_str(), "r");
-
-	if (!pipe)
-	{
-		std::cout << "failed to load model" << std::endl;
-
-		exit(1);
-	}
-
-	char buffer[2];
-	int _class = -1;
-
-	if (fgets(buffer, 2, pipe) != NULL)
-	{
-		std::cout << "\nML prediction: " << buffer << std::endl;
-
-		// do something with buffer, which is the class
-		_class = std::stoi(buffer);
-	}
-
-	_pclose(pipe);
-
-	return _class;
-}
-
-
-
 void moeka::askFromOracleMLFile()
 {
 	std::string hanselChainSetFile = "hanselChains.csv";
@@ -241,15 +177,3 @@ void moeka::askFromOracleMLFile()
 	oracleFile.close();
 }
 
-
-void moeka::assignOracleML()
-{
-	for (auto& chain : hanselChainSet)
-	{
-		for (auto& e : chain)
-		{
-			int _class = askFromOracleMLDatapoint(e);
-			e.oracle = _class;
-		}
-	}
-}
