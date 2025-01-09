@@ -1,6 +1,4 @@
 #include "Window.h"
-
-
 #define NOMINMAX
 
 std::vector<Drawable*> Window::managedList{};
@@ -44,12 +42,12 @@ Window::Window () {
     
     initImGui();
 
-    for (int a = 0; a < config::maxClassValue; a++) {
-        float val = 0.8f * (((float)a+1)/(config::maxClassValue+1));
-        config::classColors.insert(config::classColors.end(), ImVec4{val, val, val, 1.0f});
+    for (int a = 0; a < classCount; a++) {
+        float val = 0.75f * (((float)a+1)/(config::maxClassValue+1));
+        //config::classColors.insert(config::classColors.end(), ImVec4{val, val, val, 1.0f});
+        config::classColors.push_back(ImVec4{ val,val,val,1.0f });
     }
 }
-
 
 // ensure that GLEW was successful
 void Window::initGLEW () {
@@ -81,7 +79,7 @@ void Window::initImGui () {
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
-    font = io.Fonts->AddFontFromFileTTF("resources/fonts/ProggyClean.ttf", 13.0f);
+    font = io.Fonts->AddFontFromFileTTF("resources/fonts/ProggyClean.ttf", 20.0f);
     monoFont = io.Fonts->AddFontFromFileTTF("resources/fonts/JetBrainsMono-Medium.ttf", config::windowY / 42.0f);
     ImGuiStyle& style = ImGui::GetStyle();
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
@@ -130,6 +128,12 @@ void cursorCallback(GLFWwindow* window, int button, int action, int mods) {
 
 // function that is called when a key is pressed
 void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods) {
+
+    if (config::drawIndex < 0 || config::drawIndex >= Window::managedList.size() || Window::managedList[config::drawIndex] == nullptr) {
+        std::cerr << "Invalid drawIndex or null pointer in managedList. Window.cpp" << std::endl;
+        return;
+    }
+
     // cleanup later but fine in short term.
     if (key == GLFW_KEY_UP && (action == GLFW_REPEAT || action == GLFW_PRESS || glfwGetKey(window, key))) {
         Window::managedList[config::drawIndex]->setTranslation(Window::managedList[config::drawIndex]->getX(), Window::managedList[config::drawIndex]->getY() - 5);
@@ -161,9 +165,7 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
         // the intro screen again when the window is opened.
         if (Window::form.current == state::INTRODUCTION) {
             Window::form.current = state::FUNCTION;
-        }
-
-        
+        }  
     }
 }
 
@@ -188,44 +190,52 @@ void frameBufferCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-// creates the table of buttons by sampling a texture
-void Window::createOptions (Texture& texture) {
+void Window::createOptions(Texture& texture) {
+    // Set up the window properties for the Options window
     ImGui::Begin("Options", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+
+    // Calculate the width of the options window based on the number of buttons and their size
     float optionWidth = config::buttonSize * config::options.size() + (config::options.size() - 1) * ImGui::GetStyle().ItemSpacing.x + (2.0f * ImGui::GetStyle().WindowPadding.x);
     ImGui::SetWindowSize(ImVec2(optionWidth, config::buttonSize + (2.0f * ImGui::GetStyle().WindowPadding.y)));
-    ImGui::SetWindowPos(ImVec2{0.0f, 0.0f});
-    ImGui::SetCursorPos(ImVec2{ImGui::GetStyle().WindowPadding.x, ImGui::GetStyle().WindowPadding.y });
-    // create options table
-    texture.bind();
-    int numOfElements = std::min((int)round(config::windowX / 32.0f), (int)config::options.size());
-    ImVec2 windoww = ImGui::GetWindowSize();
+    ImGui::SetWindowPos(ImVec2(0.0f, 0.0f));
 
-    int x, y;
-    for (int item = 0; item < config::options.size(); item++) {
-        x = item % 5;
-        y = item / 5;
+    // Start drawing the buttons
+    ImGui::SetCursorPos(ImVec2(ImGui::GetStyle().WindowPadding.x, ImGui::GetStyle().WindowPadding.y));
+    texture.bind();
+
+    // Calculate the number of elements to fit within the window size
+    int numOfElements = std::min((int)round(config::windowX / 32.0f), (int)config::options.size());
+    ImVec2 windowSize = ImGui::GetWindowSize();
+
+    // Loop through each option and create a button for each
+    for (int item = 0; item < config::options.size(); ++item) {
+        int x = item % 5;  // Determine the X position
+        int y = item / 5;  // Determine the Y position
+
+        // Ensure proper button spacing
         if (item != 0) {
             ImGui::SameLine();
         }
 
-        ImVec2 size = ImVec2(config::buttonSize, config::buttonSize);   // Size of the image we want to make visible
+        ImVec2 size(config::buttonSize, config::buttonSize); // Size of the button
 
-        // UV coordinates for lower-left
-        ImVec2 uv0 = ImVec2(
+        // Calculate the UV coordinates for the texture slice
+        ImVec2 uv0(
             (config::buttonSize * x / texture.getWidth()),
             (config::buttonSize * y / texture.getHeight())
         );
 
-        // UV coordinates for (32,32) in our texture
-        ImVec2 uv1 = ImVec2(
+        ImVec2 uv1(
             (config::buttonSize * (x + 1) / texture.getWidth()),
             (config::buttonSize * (y + 1) / texture.getHeight())
         );
 
-        ImGui::PushID(item);
+        ImGui::PushID(item);  // Push an ID for ImGui state management
         if (ImGui::ImageButton("", (void*)texture.id, size, uv0, uv1)) {
             Window::buttonActions(item);
         }
+
+        // Display a tooltip when the button is hovered
         if (ImGui::IsItemHovered()) {
             ImGui::BeginTooltip();
             ImGui::Text("Currently non-functional");
@@ -233,80 +243,88 @@ void Window::createOptions (Texture& texture) {
             ImGui::EndTooltip();
         }
         ImGui::PopID();
-
     }
+
     ImGui::End();
 
-    
+    // Hovering functionality for class name display
     if (Window::s != nullptr && !drawColorPicker && !form.open) {
         ImGui::Begin("##", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoFocusOnAppearing);
+
         double x, y;
         glfwGetCursorPos(window, &x, &y);
-        ImGui::SetWindowPos(ImVec2{ (float)x, (float)y });
-        ImGui::SetWindowSize(ImVec2{ 150.0f, 100.0f });
-        // put bar information here!
-        ImGui::Text((std::string("Class Value: ") + std::to_string(reinterpret_cast<Bar*>(Window::s)->classVal)).c_str());
-        //
+        ImGui::SetWindowPos(ImVec2((float)x, (float)y));
+        ImGui::SetWindowSize(ImVec2(200.0f, 150.0f));
+
+        int c = reinterpret_cast<Bar*>(Window::s)->classVal;
+        std::string text = "Classified As:\n ";
+        text += (c == -1) ? "Unavailable" : classNames[c];
+
+        ImGui::Text(text.c_str());
         ImGui::End();
     }
 
+    // Scaling buttons window
     ImGui::Begin("ScaleWindow", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-    ImGui::SetWindowSize(ImVec2{ (config::windowX * .3f) , config::windowY * .06f });
-    ImGui::SetWindowPos(ImVec2{ config::windowX * .5f, config::windowY - (config::windowY * .06f) });
-    if (Window::managedList.empty() || Window::managedList[config::drawIndex] == nullptr) {
-        ImGui::Text("No loaded models to scale.");
+    ImVec2 scalingWindowSize(config::windowX * 0.15f, config::windowY * BUTTON_HEIGHT);
+    ImGui::SetWindowSize(scalingWindowSize);
+    ImGui::SetWindowPos(ImVec2(config::windowX * 0.5f, config::windowY - (config::windowY * BUTTON_HEIGHT)));
+
+    if (Window::managedList.empty() || config::drawIndex < 0 || config::drawIndex >= Window::managedList.size() || Window::managedList[config::drawIndex] == nullptr) {
+        ImGui::Text("No Loaded Model.");
     }
     else {
+        auto model = Window::managedList[config::drawIndex];
+
+        // Set larger button sizes
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 10));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(20, 5));
+
+        // Scale X buttons
         ImGui::PushItemFlag(ImGuiItemFlags_ButtonRepeat, true);
         ImGui::Text("Scale X");
         ImGui::SameLine();
-        if (ImGui::ArrowButton("##leftScaleX", ImGuiDir_Left)) {
-            if (0.1 < (Window::managedList[config::drawIndex]->getScaleX() - Window::scaleBy.y)) {
-                Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX() - Window::scaleBy.x, Window::managedList[config::drawIndex]->getScaleY());
+        if (ImGui::ArrowButton("##downScaleX", ImGuiDir_Down)) {
+            if (model->getScaleX() - Window::scaleBy.x > 0.2f) {
+                model->setScale(model->getScaleX() - Window::scaleBy.x, model->getScaleY());
             }
         }
-        ImGui::SameLine(0.0f);
-        if (ImGui::ArrowButton("##rightScaleX", ImGuiDir_Right)) {
-            Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX() + Window::scaleBy.x, Window::managedList[config::drawIndex]->getScaleY());
+
+        ImGui::SameLine();
+        if (ImGui::ArrowButton("##upScaleX", ImGuiDir_Up)) {
+            model->setScale(model->getScaleX() + Window::scaleBy.x, model->getScaleY());
         }
         ImGui::PopItemFlag();
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - ImGui::GetStyle().WindowPadding.x - ImGui::CalcTextSize("Inc. X").x);
-        ImGui::InputFloat("Inc. X", &Window::scaleBy.x, 0.01f, 1.0f, "%.3f");
-        ImGui::SetItemTooltip("Increases how fast scaling by X is");
 
+        // Scale Y buttons
         ImGui::PushItemFlag(ImGuiItemFlags_ButtonRepeat, true);
         ImGui::Text("Scale Y");
         ImGui::SameLine();
-        if (ImGui::ArrowButton("##leftScaleX", ImGuiDir_Left)) {
-            if (0.1 < (Window::managedList[config::drawIndex]->getScaleY() - Window::scaleBy.y)) {
-                Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX(), Window::managedList[config::drawIndex]->getScaleY() - Window::scaleBy.y);
+        if (ImGui::ArrowButton("##downScaleY", ImGuiDir_Down)) {
+            if (model->getScaleY() - Window::scaleBy.y > 0.2f) {
+                model->setScale(model->getScaleX(), model->getScaleY() - Window::scaleBy.y);
             }
-            
         }
-        ImGui::SameLine(0.0f);
-        if (ImGui::ArrowButton("##rightScaleX", ImGuiDir_Right)) {
-            Window::managedList[config::drawIndex]->setScale(Window::managedList[config::drawIndex]->getScaleX(), Window::managedList[config::drawIndex]->getScaleY() + Window::scaleBy.y);
-        }
-        ImGui::PopItemFlag();
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - ImGui::GetStyle().WindowPadding.x - ImGui::CalcTextSize("Inc. Y").x);
-        ImGui::InputFloat("Inc. Y", &Window::scaleBy.y, 0.01f, 1.0f, "%.3f");
-        ImGui::SetItemTooltip("Increases how fast scaling by Y is");
+        if (ImGui::ArrowButton("##upScaleY", ImGuiDir_Up)) {
+            model->setScale(model->getScaleX(), model->getScaleY() + Window::scaleBy.y);
+        }
 
+        ImGui::PopItemFlag();
+        // Pop Style Variables
+        ImGui::PopStyleVar(2);
     }
-    
-    
     ImGui::End();
+    // bring to the front so that hovering over the bars doesn't block the buttons
+    ImGui::BringWindowToDisplayFront(ImGui::FindWindowByName("ScaleWindow"));
 
-
-    ImGui::SetNextWindowSizeConstraints(ImVec2{ config::windowX - optionWidth, config::buttonSize + (2.0f * ImGui::GetStyle().WindowPadding.y) }, ImVec2{config::windowX, config::windowY});
     ImGui::Begin("FunctionView", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-    ImGui::SetWindowSize(ImVec2{ config::windowX - optionWidth, config::buttonSize + (2.0f * ImGui::GetStyle().WindowPadding.y) }, ImGuiCond_Once);
-    ImGui::SetWindowPos(ImVec2{optionWidth, 0});
+    ImGui::SetWindowSize(ImVec2(config::windowX * .15f, config::windowY * BUTTON_HEIGHT));
+    ImGui::SetWindowPos(ImVec2(config::windowX * .75f, config::windowY * (1.0f - BUTTON_HEIGHT)));
+
     if (!Form::functionList.empty()) {
-        for (auto a : Form::functionList) {
-            tree(a);
+        for (auto& func : Form::functionList) {
+            tree(func);
         }
         if (Form::comparisonFunction != nullptr) {
             tree(Form::comparisonFunction);
@@ -316,18 +334,20 @@ void Window::createOptions (Texture& texture) {
         ImGui::SetNextItemWidth(config::windowX - optionWidth - ImGui::GetStyle().WindowPadding.x);
         ImGui::TextWrapped("There are no currently loaded functions. Please Open the prep window to create or load functions to view them in this window.");
     }
-    
 
     ImGui::End();
 
-
-    
-    // bottom row of buttons
+    // Bottom row of buttons
     ImGui::Begin("##formState", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-    ImGui::SetWindowSize(ImVec2(config::windowX * .5f, config::windowY * .06f));
-    ImGui::SetWindowPos(ImVec2(0.0f, config::windowY * .94));
-    windoww = ImVec2{ImGui::GetWindowSize().x, ImGui::GetWindowSize().y * .61f};
-    ImVec2 buttonSize{windoww.x * .25f - ImGui::GetStyle().ItemSpacing.x - (ImGui::GetStyle().WindowPadding.x * .25f), windoww.y - (ImGui::GetStyle().WindowPadding.y * 2.0f)};
+    const int numButtons = 5;  // Number of buttons in the bottom row
+
+    // using .5 so it takes up half the bottom
+    ImVec2 buttonWindowSize(config::windowX * .5f, config::windowY * BUTTON_HEIGHT); // Calculate window size
+    ImGui::SetWindowSize(buttonWindowSize);
+    ImGui::SetWindowPos(ImVec2(0.0f, config::windowY * (1.0f - BUTTON_HEIGHT)));
+
+    // Buttons for various functions
+    ImVec2 buttonSize((0.95f) * buttonWindowSize.x / numButtons, (.9f) * buttonWindowSize.y);
     if (ImGui::Button("Open Help##", buttonSize)) {
         form.current = state::INTRODUCTION;
         form.openWindow();
@@ -348,49 +368,23 @@ void Window::createOptions (Texture& texture) {
         form.current = state::COMPARE;
         form.openWindow();
     }
+    ImGui::SameLine();
     if (ImGui::Button("ML", buttonSize)) {
         form.current = state::ML;
         form.openWindow();
-
         std::string path = "..\\DataVisualization\\mlModels";
         for (const auto& entry : std::filesystem::directory_iterator(path)) {
             std::string temp = entry.path().string();
-            form.ml.mlFilePaths.push_back(temp.replace(temp.begin(), temp.begin()+path.length()+1, "") );
-        }
-        path = "..\\DataVisualization\\datasets";
-        for (const auto& entry : std::filesystem::directory_iterator(path)) {
-            std::string temp = entry.path().string();
-            form.ml.dFilePaths.push_back(temp.replace(temp.begin(), temp.begin() + path.length() + 1, ""));
-        }
-            
-    }
-    ImGui::End();
-
-    ImGui::Begin("##modelswitch", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-    ImVec2 modelSelectWindow = {config::windowX * .2f, config::windowY * .06f};
-    ImGui::SetWindowSize(modelSelectWindow);
-    ImGui::SetWindowPos(ImVec2(config::windowX - modelSelectWindow.x, config::windowY - modelSelectWindow.y));
-    ImGui::Text((std::string("Selected Model: ") + std::to_string(config::drawIndex+1) + "/" + std::to_string(managedList.size())).c_str());
-    ImGui::SetNextItemWidth(modelSelectWindow.x * .5f);
-    if (ImGui::ArrowButton("##leftb", ImGuiDir_Left)) {
-        if (config::drawIndex > 0) {
-            config::drawIndex--;
+            form.ml.mlFilePaths.push_back(temp.replace(temp.begin(), temp.begin() + 2, ""));
         }
     }
-    ImGui::SameLine();
-    if (ImGui::ArrowButton("##rightb", ImGuiDir_Right)) {
-        if (config::drawIndex < managedList.size()-1) {
-            config::drawIndex++;
-        }
-    }
-
     ImGui::End();
 }
 
 void Window::treeDescription (Function* function) {
     //ImGui::SameLine();
     
-    if (ImGui::Button("Math##", ImVec2{ ImGui::CalcTextSize("Math").x * 1.0f, ImGui::GetFontSize() * 1.0f })) {
+    if (ImGui::Button("Math##", ImVec2(ImGui::CalcTextSize("Math").x * 1.0f, ImGui::GetFontSize() * 1.0f))){
         //std::cout << "asdf" << std::endl;
         ImGui::OpenPopup("Math Version");
     }
@@ -558,7 +552,6 @@ void Window::createColorPicker () {
     }
 }
 
-
 // draws the members of the managedList
 void Window::draw () {
     if (!managedList.empty()) {
@@ -566,10 +559,9 @@ void Window::draw () {
     }
 }
 
-
-// TODO: reverse classes vector and add information to bar for the tooltip
+// VERY nasty looking but it gets the right shape.
 void Window::addModelFromFunctionForm() {
-    const auto classIndex = this->form.getFunc()->hanselChains->dimension;
+    const auto classIndex = this->form.getFunc()->hanselChains->dimension; // maybe needs to be -1????
     Model* m = new Model();
 
     for (int i = this->form.getFunc()->hanselChains->hanselChainSet.size() - 1; i >= 0; i--)
@@ -603,7 +595,6 @@ void Window::addModelFromCompareForm()
     m->fitToScreen();
     this->addToRender(m);
 }
-
 
 // when a button is pressed, it calls this function with a "val" equal to which button in the window is pressed.
 void Window::buttonActions(int val) {

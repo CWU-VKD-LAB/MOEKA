@@ -9,9 +9,11 @@ private:
 	bool dnfOnlyVisualization = false;
 
 public:
-	int attributeCount = 2;
-	int targetAttributeCount = 2;
+	int targetAttributeCount = 2;					// default of two, since we wouldn't ever be classifying things in 1 or less classes.
+	std::vector<char*> targetAttributeNames{};		// allows us to store names of each target class as well, useful if they're not just numerical. IE, leukemia, Cystic Fibrosis, Pneumonia...
+
 	std::vector<int> kValues{};
+	int attributeCount = 2;
 	std::vector<char*> attributeNames{};
 
 	std::vector<int>* clause = nullptr;

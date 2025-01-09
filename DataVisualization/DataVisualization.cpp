@@ -10,8 +10,7 @@
 #include "windows.h"
 #include "Render/Texture.h"
 
-
-bool console = true;
+bool console = false;
 
 GLFWwindow* window;
 
@@ -41,11 +40,6 @@ void init () {
     Texture texture{ "../resources/icons.png" };
     window = w.window;
     
-
-    
-
-
-
     // update loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();

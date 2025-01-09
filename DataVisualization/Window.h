@@ -10,11 +10,15 @@
 #include "tools/config.h"
 #include "Shape.h"
 #include "Render/Texture.h"
-#include "tools/config.h"
+#include "../tools/config.h"
+#include "../tools/globalVariables.h"
 #include "Model.h"
 #include "Bar.h"
 #include "UI/Form.h"
 #include <filesystem>
+
+#define BUTTON_HEIGHT .2f
+#define BUTTON_WIDTH .125f
 
 extern float color[3];
 extern std::vector<std::string> options;
@@ -30,7 +34,7 @@ private:
 	inline static ImFont* font = nullptr;
 	inline static ImFont* monoFont = nullptr;
 	inline static ImGuiIO io;
-	inline static ImVec2 scaleBy{.2f, .2f};
+	inline static ImVec2 scaleBy{.4f, .4f};
 public:
 	static Form form;
 	static Drawable* s;

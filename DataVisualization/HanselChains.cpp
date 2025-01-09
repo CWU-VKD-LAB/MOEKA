@@ -96,11 +96,16 @@ std::vector<std::vector<std::vector<int>>> HanselChains::genChains(int num, int 
 }
 
 
+//TODO: fix num call, since this seems to be how we are assigning things to k values instead of target classes
+// There seems to be an issue in how we are generating the chains themselves. 
+
 void HanselChains::calculateHanselChains(int vector_dimension)
 {
 	// For n dimensions, iterate through to generate chains and
 	for (int dim_num = 0; dim_num < vector_dimension; dim_num++)
 	{
+		// num is the k value of a particular attribute
+		// PROBABLY AN ISSUE
 		int num = attributes[dim_num];
 
 		// Need a base chain to use for genChains
@@ -109,8 +114,14 @@ void HanselChains::calculateHanselChains(int vector_dimension)
 			//generate the base chain
 			std::vector<std::vector<int>> baseChain;
 
+			// hansel chains is 3d, first dimension is one particular number in the chain
+			// second is one chain
+			// third is the whole set of chains
+
+			// k is the k value of a particular attribute
 			for (int k = 0; k < num; k++)
 			{
+
 				std::vector<int> b(vector_dimension);
 				b[vector_dimension - 1] = k;
 				std::vector<int> c;
@@ -135,12 +146,11 @@ void HanselChains::calculateHanselChains(int vector_dimension)
 		}
 	}
 
-	for (int i = 0; i < (int)hanselChainSet.size(); i++)
+	for (int i = (int)hanselChainSet.size() - 1; i >= 0; i--)
 	{
 		if (!hanselChainSet[i].size())
 		{
 			hanselChainSet.erase(hanselChainSet.begin() + i);
-			i--;
 		}
 	}
 }

@@ -16,9 +16,8 @@ namespace config {
 	const int compressValue = 1;
 	const float barWidth = 25.0f;
 	const float barHeight = 100.0f;
-	const int maxClassValue = 6;
-	const int defaultAmount = 15;
-	//
+	const int maxClassValue = 16;				// hard code to have more possibilities than our slider possibly can, and we can change from here if needed. 
+	const int defaultAmount = 15;				// max amount of classes that we could have. 
 	
 	extern float color[3];
 	extern std::vector<std::string> options;

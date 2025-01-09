@@ -30,8 +30,10 @@ public:
 	//std::vector<int> attributes = { 5, 2, 5};
 	// std::vector<int> attributes = { 5, 5, 2, 2 };
 
+	// amount of attributes
 	int dimension = 0;
 
+	// the list of k values for each attribute
 	std::vector<int> attributes;
 
 	void calculateHanselChains(int vector_dimension);

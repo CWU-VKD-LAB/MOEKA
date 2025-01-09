@@ -1,45 +1,29 @@
 #include "Model.h"
 
-// adds a column to the model in 5-3-1-2-4 order.
-void Model::addColumn (std::vector<int>* values) {
-	Section* column = recursiveCreateSections(values);
+// adds a column to the model
+void Model::addColumn(std::vector<int>* values) {
+	Section* column = createSections(values);
 
-	// which side to set this to be drawn on
-	int side = 0;
-	// every other insertion should see side be negative
-	if (list.size() != 0) {
-		side = list.size() % 2 == 0 ? -1 : 1;
-	}
-	if (side == 1) {
-		// every other insertion increases the stride
-		stride += column->getWidth() + padding;
-	}
-	column->setTranslation(getX() + (stride * side), getY());
+	// Set the translation directly without modifying stride
+	column->setTranslation(getX(), getY());
+
+	// Add the column to the list
 	list.push_back(column);
 }
 
 // recursively creates sections based on the length of the values list.
 // if the size is greater than the compressBarAmount, then it will split the list.
-Section* Model::recursiveCreateSections (std::vector<int>* values) {
-	if (values->size() <= config::compressBarAmount) {
-		Section* s = new Section();
-		for (auto a : *values) {
-			s->addChild(new Bar(a));
-		}
-		return s;
-	}
-
-	size_t middle = values->size() / 2;
-	std::vector<int> left {values->begin(), values->begin()+middle};
-	std::vector<int> right {values->begin()+middle, values->end()};
-
+Section* Model::createSections(std::vector<int>* values) {
+	// Create a new Section
 	Section* s = new Section();
 
-	s->addChild(recursiveCreateSections(&left));
-	s->addChild(recursiveCreateSections(&right));
-
+	// Add a Bar for each value in the vector
+	for (auto a : *values) {
+		s->addChild(new Bar(a));
+	}
 	return s;
 }
+
 
 // creates an empty model
 Model::Model () {
@@ -145,29 +129,33 @@ void Model::setScaleY(float scale) {
 	setTranslation(getX(), getY());
 }
 
-// finds a scaling that will fit the model to the screen.
-void Model::fitToScreen () {
-	float width = 0.0f;
-	float largestHeight = 0.0f;
+void Model::fitToScreen() {
+	// Calculate the total width and height of the model based on the bars' sizes.
+	float totalWidth = 0.0f;
+	float totalHeight = 0.0f;
 
-	// calculate the size of the column
+	// Iterate through the list of sections (list) and calculate the total width and maximum height.
 	for (auto a : list) {
-		float totalHeight = 0;
-		float w = 0;
+		float sectionWidth = 0.0f;
+		float sectionHeight = 0.0f;
+
 		for (auto b : a->managedList) {
-			totalHeight += b->getHeight();
-			w = std::max(b->getWidth(), w);
+			sectionWidth += b->getWidth();
+			sectionHeight = std::max(sectionHeight, b->getHeight());
 		}
-		width += w;
-		largestHeight = std::max(largestHeight, totalHeight);
+
+		totalWidth += sectionWidth;
+		totalHeight = std::max(totalHeight, sectionHeight);
 	}
 
-	float ratioX = config::windowX / width;
-	float ratioY = config::windowY / largestHeight;
+	// Scale the model to exactly fit the window
+	float scaleX = std::min(1.0f, config::windowX / totalWidth);
+	float scaleY = std::min(1.0f, config::windowY / totalHeight);
 
-	// set the scale based on the calculated ratios and set the translation to the center of the screen.
-	setScale(ratioX, ratioY);
+	// Set the scale for the model to fit the window size.
+	setScale(scaleX, scaleY);
+
+	// After scaling, center the model in the window.
 	setTranslation(config::windowX / 2.0f, config::windowY / 2.0f);
-	totalScaleX = 1;
-	totalScaleY = 1;
 }
+
