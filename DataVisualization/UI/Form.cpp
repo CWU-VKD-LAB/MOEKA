@@ -29,7 +29,7 @@ Form::Form () {
 
 
 	// synchronization flag
-	startMoeka = true;
+	startMoeka = new bool(true);
 
 	// load all files from the models folder
 	for (auto a : std::filesystem::directory_iterator(basePath)) {
@@ -48,6 +48,7 @@ Form::~Form () {
 		}
 		delete(&a);
 	}
+	delete (startMoeka);
 }
 
 // base for drawing the form, which form screen it renders is dependent on the 'current' 
@@ -616,8 +617,10 @@ void Form::drawInterviewPilot () {
 		// TODO: take decision table and use it to initialize moeka object
 		edm = new moeka('x');
 
-		std::vector<int> decisions = interview.dt.getDecision(interview.pilotAnswers);
-
+		//std::vector<int> decisions = interview.dt.getDecision(interview.pilotAnswers);
+		std::vector<int>decisions{};
+		//decisions.resize(interview.pilotAnswers.size(), 0);
+		decisions.resize(8, 0); // pilot questions are not properly being created, thus pilot answers aren't either. This stems from deicions table.
 		std::vector<std::string> attrNames;
 
 		for (auto a : func->attributeNames) {
@@ -641,7 +644,6 @@ void Form::drawInterviewPilot () {
 		// would be easy to just take pilot answer data structure and iterate over it
 		// DT is useful for presentatation and explanation though
 		
-		// positioin of low unit
 		if (decisions[0] == 1) {
 			staticInterChainOrder = 1; // SHCF
 			topBottomOrBinarySearch = 1; // bottom
@@ -680,7 +682,7 @@ void Form::drawInterviewPilot () {
 			chainJump, majority, topBottomOrBinarySearch);
 
 		// now, need to start thread either in new functionor in drawInterview...
-		std::thread thr(start, edm, &startMoeka);
+		std::thread thr(start, edm, startMoeka);
 		thr.detach();
 
 		current = INTERVIEW;
@@ -712,26 +714,30 @@ void Form::drawInterview () {
 
 	while (true)
 	{
+		Sleep(100);
 		// continue interview UI thread
-		if (!startMoeka && edm-> currentDatapoint->_class == -1)
+		if (!*startMoeka && edm-> currentDatapoint->_class == -1)
 		{
 			datapoint = edm->currentDatapoint; // interview.datapoints[interview.hanselChainIndex][interview.datapointIndex];
 			break;
 		}
 		// interview is done
-		else if (!startMoeka && edm->currentDatapoint->_class != -1)
+		else if (!*startMoeka && edm->currentDatapoint->_class != -1)
 		{
 			action = state::PREP;
 			open = !open;
 			end = true;
 			break;
 		}
+		
+		/*
 		// wait for background thread to fetch next interview question
 		else
 		{
 			//std::cout << "UI: waiting for moeka thread..." << std::endl;
 			Sleep(200);
 		}
+		*/
 	}
 	
 
@@ -791,7 +797,7 @@ void Form::drawInterview () {
 		if (ImGui::Button("Next##", buttonSize) || ImGui::IsKeyPressed(ImGuiKey_Enter)) {
 			interview._class = currentClass;
 			edm->currentClass = &interview._class;
-			startMoeka = true;
+			*startMoeka = true;
 		}
 
 		ImGui::PopFont();

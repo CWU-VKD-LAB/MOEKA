@@ -619,12 +619,15 @@ int moeka::askingOfQuestion(int i, int j)
 				std::cout << attribute_names[k].name + "\t\t\t= " << hanselChainSet[i][j].dataPoint[k] << std::endl;
 			}
 
+			// if the flag isn't null
 			if (synchronizationFlag)
 			{
 				std::cout << "Thread: sending data to supervisor..." << std::endl;
 				currentDatapoint = &hanselChainSet[i][j];
 
+				// set the flag false
 				*synchronizationFlag = false;
+
 
 				while (true)
 				{
@@ -696,8 +699,7 @@ int moeka::askingOfQuestion(int i, int j)
 	/*if (synchronizationFlag)
 	{
 		// set synchronization flag to false so that when it gets to the next question, it will not continue yet
-		//*synchronizationFlag = false;
-
+		*synchronizationFlag = false;
 		return currentDatapoint->_class;
 	}*/
 

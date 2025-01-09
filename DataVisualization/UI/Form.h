@@ -93,7 +93,7 @@ private:
 	Function* func = nullptr;
 
 	/// @brief flag for synchronization
-	bool startMoeka;
+	bool *startMoeka;
 
 	// function that calls moeka->start() with a boolean flag for synchronization
 	//void start(bool* flag);

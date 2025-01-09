@@ -252,7 +252,7 @@ private:
 	std::vector<int> orderOfAskingSummary;
 
 	/// @brief the order of Hansel Chains to be used
-	int orderOption = -1;
+	int orderOption = 1;
 
 	/// @brief the total number of questions that were asked
 	int questionsAsked = 0;
