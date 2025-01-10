@@ -146,9 +146,9 @@ void moeka::calculateHanselChains(int vector_dimension)
 }
 
 
+// CONTAINS ALL THE QUESTION ASKING FUNCTIONS AND THE CHAIN EXPANSION
 void moeka::start()
 {
-	std::cout << "Thread: hellow from start()" << std::endl;
 
 	if (parent_attribute != "")
 	{
@@ -173,6 +173,7 @@ void moeka::start()
 	}
 
 	// order vectors and ask questions
+
 	if (chainJump)
 	{
 		switch (orderOption)
@@ -222,6 +223,7 @@ void moeka::start()
 				{
 					return a.size() < b.size();
 				});
+			
 			calculateAllPossibleExpansions();
 			numberAssignment();
 			expandKnownLowUnits();
@@ -306,23 +308,20 @@ void moeka::start()
 		}
 	}
 
+	// set the end flag so we can be done. Form.cpp is listening to this one here. 
+	*endFlag = true;
+
 }
 
-
-void moeka::start(bool* flag)
+void moeka::start(std::mutex *t, bool *endFlag, int *c)
 {
-	std::cout << "Thread: hello from start." << std::endl;
-	std::cout << "Thread: Synchronization flag is " << *flag << std::endl;
 
-	synchronizationFlag = flag;
+	// set our turn flag mutex now that we are ready
+	this->turnFlag = t;
+	this->endFlag = endFlag;
+	this->currentClass = c;
 
-	// TODO: possible bug fixes with UI if real data is used and such
 	start();
-
-	std::cout << "Thread: moeka thread is ending." << std::endl;
-
-	*synchronizationFlag = false;
-
 	return;
 }
 
@@ -409,7 +408,6 @@ void moeka::staticOrderQuestionsFunc()
 		}
 	}
 }
-
 
 void moeka::chainJumpOrderQuestionsFunc()
 {
@@ -509,7 +507,7 @@ void moeka::chainJumpOrderQuestionsFunc()
 	}
 }
 
-
+// function which asks a question if we determine that we need to ask a question for this point
 bool moeka::questionFunc(int i, int j, int& vector_class)
 {
 	std::cout << "Thread: within question func." << std::endl;
@@ -547,32 +545,12 @@ bool moeka::questionFunc(int i, int j, int& vector_class)
 	return false;
 }
 
-
 int moeka::askingOfQuestion(int i, int j)
 {
-	// syncrhonization here
-	std::cout << "Thread: beginning asking of question..." << std::endl;
 
-	if (synchronizationFlag)
-	{
-		std::cout << "Thread: checking synchronization flag..." << std::endl;
-
-		while (true)
-		{
-			// if true, then continue
-			if (*synchronizationFlag)
-			{
-				std::cout << "Thread: synchroniziation flag is true." << std::endl;
-				break;
-			}
-			// else wait until flag is turned true
-			else
-			{
-				std::cout << "Thread: checking synchronization flag... currently" << std::endl;
-				Sleep(100);
-			}
-		}
-	}
+	// if we're using UI version, so we have a turn flag, we are going to wait to lock that mutex
+	if (turnFlag)
+		turnFlag->lock();
 
 	int vector_class = -1;
 	bool ask = true;
@@ -619,32 +597,24 @@ int moeka::askingOfQuestion(int i, int j)
 				std::cout << attribute_names[k].name + "\t\t\t= " << hanselChainSet[i][j].dataPoint[k] << std::endl;
 			}
 
-			// if the flag isn't null
-			if (synchronizationFlag)
+			// if the flag isn't null, meaning we're using UI version
+			if (turnFlag)
 			{
+				// where we update the new datapoint.
 				std::cout << "Thread: sending data to supervisor..." << std::endl;
 				currentDatapoint = &hanselChainSet[i][j];
 
-				// set the flag false
-				*synchronizationFlag = false;
+				// now we unlock, so that the supervisor has time to lock, and then lock again to set the vector class when that's done
+				turnFlag->unlock();
+				
+				// in between these locks, the lock in form.cpp needs to hit. 
+				Sleep(250);
 
-
-				while (true)
-				{
-					if (!*synchronizationFlag)
-					{
-						std::cout << "Thread: waiting for user to assign class..." << std::endl;
-						Sleep(100);
-					}
-					else
-					{
-						std::cout << "Thread: user assigned class of " << *currentClass << std::endl;
-						break;
-					}
-				}
-
+				// use this so that we are blocking to wait until we get a result in currentClass
+				turnFlag->lock();
 				vector_class = *currentClass;
 			}
+			//console version
 			else
 			{
 
@@ -696,16 +666,11 @@ int moeka::askingOfQuestion(int i, int j)
 		hanselChainSet[i][j].weak = false;
 	}
 
-	/*if (synchronizationFlag)
-	{
-		// set synchronization flag to false so that when it gets to the next question, it will not continue yet
-		*synchronizationFlag = false;
-		return currentDatapoint->_class;
-	}*/
-
+	if (turnFlag)
+		turnFlag->unlock();
+	
 	return vector_class;
 }
-
 
 // assume a "<=" relationship when using k-value. for example k = 3. attribute is 1, but user said that the datapoint was true, so then if attrbute is 2, it is also true
 std::pair<std::vector<std::vector<int>>, std::vector<std::vector<int>>> moeka::restoreFunction(int target)
@@ -834,7 +799,6 @@ std::pair<std::vector<std::vector<int>>, std::vector<std::vector<int>>> moeka::r
 
 	return std::make_pair(boolFunc, nonSimplifiedBoolFunc);
 }
-
 
 std::pair<std::string, std::string> moeka::functionToString(std::pair<std::vector<std::vector<int>>, std::vector<std::vector<int>>> boolFuncPair, std::string sign)
 {

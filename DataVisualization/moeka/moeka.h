@@ -12,6 +12,7 @@ Supervisor: Dr. Boris Kovalerchuk
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <mutex>
 #include <map>
 #include <windows.h>
 #include <shellapi.h>
@@ -207,9 +208,7 @@ public:
 
 	/// @brief same as above but uses flag for synchronization with UI
 	/// @param flag 
-	void start(bool* flag);
-
-
+	void start(std::mutex *, bool*, int *);
 
 	/// @brief print results to file
 	/// @param results the results file
@@ -243,6 +242,8 @@ private:
 	/// @brief of the real dataset, if applicable
 	std::vector<std::string> real_attributes;
 
+	std::mutex* turnFlag = nullptr;
+	bool *endFlag = nullptr;
 
 	/// @brief check whether each Chain has been ordered when user is manually ordering them
 	std::vector<bool> chainsVisited;
@@ -291,6 +292,9 @@ private:
 
 	/// @brief truye if nonMonotonicVectors is used
 	bool non_monotone = false;
+
+
+
 
 	/// @brief generates a Hansel Chain from a given dimension and number
 	/// @param num 

@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <thread>
+#include <mutex>
 #include "Function.h"
 #include "../moeka/dvector.h"
 #include "../DecisionTable.h"
@@ -91,12 +92,6 @@ private:
 
 	// what function the program is currently looking at specifically.
 	Function* func = nullptr;
-
-	/// @brief flag for synchronization
-	bool *startMoeka;
-
-	// function that calls moeka->start() with a boolean flag for synchronization
-	//void start(bool* flag);
 
 	// function screen variables.
 	ImFont* font = nullptr;

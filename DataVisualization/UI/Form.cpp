@@ -1,7 +1,16 @@
 #include "Form.h"
 
+
 std::vector<Function*> Form::functionList{};
 Function* Form::comparisonFunction = nullptr;
+
+std::mutex turnFlag; // mutex to synchronize between UI and backend doing the questioning
+// global variable, we use this because the draw interview function is called like 1000 times a second rendering the screen. so we can't just use the lock call by itself.
+bool isLockedAlready = false;
+// this flag is set by the moeka thread when we are done asking questions.
+bool interviewOver = false;
+int currentClass = -1; // the current clas we are going to pass around between front and back end
+dvector* datapoint = nullptr;
 
 // Define the global variables here (allocate memory)
 int classCount = 16;                      
@@ -27,10 +36,6 @@ Form::Form () {
 	std::fill(interview.pilotAnswers.begin(), interview.pilotAnswers.end(), 0);
 	func->trueAttributes = new std::vector<int>(func->attributeCount, -1);
 
-
-	// synchronization flag
-	startMoeka = new bool(true);
-
 	// load all files from the models folder
 	for (auto a : std::filesystem::directory_iterator(basePath)) {
 		files.push_back(a.path().string().erase(0, basePath.length() + 1));
@@ -48,7 +53,6 @@ Form::~Form () {
 		}
 		delete(&a);
 	}
-	delete (startMoeka);
 }
 
 // base for drawing the form, which form screen it renders is dependent on the 'current' 
@@ -485,8 +489,8 @@ void Form::drawLoad () {
 	ImGui::End();
 }
 
-void start(moeka* edm, bool* flag) {
-	(*edm).start(flag);
+void startBackend(moeka* edm) {
+	(*edm).start(&turnFlag, &interviewOver, &currentClass);
 }
 
 // draws a screen containing the pilot questions defined in a csv.
@@ -619,7 +623,6 @@ void Form::drawInterviewPilot () {
 
 		//std::vector<int> decisions = interview.dt.getDecision(interview.pilotAnswers);
 		std::vector<int>decisions{};
-		//decisions.resize(interview.pilotAnswers.size(), 0);
 		decisions.resize(8, 0); // pilot questions are not properly being created, thus pilot answers aren't either. This stems from deicions table.
 		std::vector<std::string> attrNames;
 
@@ -630,12 +633,12 @@ void Form::drawInterviewPilot () {
 		int functionKV = 2; 
 
 		int staticInterChainOrder = 1; // 0 default, 1 SHCF, 2 LHCF, 3 LSO
-		bool chainJump = -1;
+		bool chainJump = true;			// using chain jumping, since it is "almost never worse" so it's the default. 
 
 		// TODO: user needs to select lowest acceptable datapoint from UI, then that is sent into moeka object init function
 		bool majority = -1;
 
-		int topBottomOrBinarySearch = -1;
+		int topBottomOrBinarySearch = 1;
 
 		// TODO: implement this in decision table instead of hardcode? save last line of DT and getDecision should return above variables instead?
 		// its just kind of weird to have DT when these if statements are needed anyway 
@@ -682,9 +685,10 @@ void Form::drawInterviewPilot () {
 			chainJump, majority, topBottomOrBinarySearch);
 
 		// now, need to start thread either in new functionor in drawInterview...
-		std::thread thr(start, edm, startMoeka);
+		// we will use the mutex to determine whos turn it is. 
+		// the turn flip flops when we have input a datapoint
+		std::thread thr(startBackend, edm);
 		thr.detach();
-
 		current = INTERVIEW;
 	//}
 
@@ -696,11 +700,13 @@ void Form::drawInterviewPilot () {
 	*/
 	//
 
+	// end of the cause and effect screen
 	//ImGui::End();
 }
 
 // draws the interview screen, where we collect datapoint information from the user.
 void Form::drawInterview () {
+	
 	// preamble variables/settings
 	ImGui::Begin("##", &open, flags);
 	ImGui::SetWindowSize(ImVec2(config::windowX * .75f, config::windowY * .085f * func->attributeCount));
@@ -708,41 +714,23 @@ void Form::drawInterview () {
 	ImGui::SetWindowPos(ImVec2(window.x - (config::windowX * .625f), config::windowY * .4f));
 	ImGui::PushFont(font);
 
-	dvector* datapoint = nullptr;
+	// lock it if we haven't already. update the current datapoint to the new one
+	if (!isLockedAlready) {
 
-	bool end = false;
+		// wait for the datapoint to be ready in the other thread if this is the first time around
+		while (edm->currentDatapoint == nullptr) {
+			Sleep(100);
+		}
 
-	while (true)
-	{
-		Sleep(100);
-		// continue interview UI thread
-		if (!*startMoeka && edm-> currentDatapoint->_class == -1)
-		{
-			datapoint = edm->currentDatapoint; // interview.datapoints[interview.hanselChainIndex][interview.datapointIndex];
-			break;
-		}
-		// interview is done
-		else if (!*startMoeka && edm->currentDatapoint->_class != -1)
-		{
-			action = state::PREP;
-			open = !open;
-			end = true;
-			break;
-		}
-		
-		/*
-		// wait for background thread to fetch next interview question
-		else
-		{
-			//std::cout << "UI: waiting for moeka thread..." << std::endl;
-			Sleep(200);
-		}
-		*/
+		turnFlag.lock();
+		isLockedAlready = true;
+
+		// update the current datapoint
+		datapoint = edm->currentDatapoint;
 	}
-	
 
 	// window for getting the datapoint from the user
-	if (!end)
+	if (!interviewOver)
 	{
 		ImGui::SetCursorPosX(window.x * .5f - ImGui::CalcTextSize("Input a class for this datapoint.").x * .5f);
 		ImGui::Text("Input a target value (classification) for the datapoint.");
@@ -755,9 +743,6 @@ void Form::drawInterview () {
 			// Print attribute name instead of just the numbers...
 			ImGui::Text("%s: %d", func->attributeNames.at(a), datapoint->dataPoint.at(a));
 		}
-		
-		// Retain currentClass across frames
-		static int currentClass = -1;
 
 		// using up and down to navigate the drop down menu
 		if (ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
@@ -778,7 +763,7 @@ void Form::drawInterview () {
 				const char* itemLabel = (i == func->targetAttributeCount) ? "N/A" : func->targetAttributeNames[i];
 
 				if (ImGui::Selectable(itemLabel, isSelected)) {
-					currentClass = (i == func->targetAttributeCount) ? -1 : i;
+					currentClass = (i == func->targetAttributeCount) ? -1 : i; // if this is equal, it means we've chosen not available
 					previewLabel = (currentClass == -1) ? "N/A" : func->targetAttributeNames[currentClass];
 				}
 
@@ -795,9 +780,12 @@ void Form::drawInterview () {
 		ImGui::SetCursorPosX(window.x * .56f - buttonSize.x);
 
 		if (ImGui::Button("Next##", buttonSize) || ImGui::IsKeyPressed(ImGuiKey_Enter)) {
-			interview._class = currentClass;
-			edm->currentClass = &interview._class;
-			*startMoeka = true;
+			
+			// unlock the turn flag so that we can pass our information to the back end in coreAlgorithms
+			*edm->currentClass = currentClass;
+			turnFlag.unlock();
+			isLockedAlready = false;
+			Sleep(200);
 		}
 
 		ImGui::PopFont();
@@ -810,6 +798,10 @@ void Form::drawInterview () {
 	// when the interview is done, as detetermined by the moeka thread
 	else
 	{
+
+		action = state::PREP;
+		open = !open;
+
 		ImGui::PopFont();
 
 		// add model to model list
@@ -817,6 +809,7 @@ void Form::drawInterview () {
 		func->initializeHanselChains();
 
 		// now that we are starting the hansel chains, we can copy over the information so that window can use it in displaying
+		// these can be refactored out if we use form.getFunc or whatever in window.cpp 
 		classCount = func->targetAttributeCount;
 		classNames = func->targetAttributeNames;
 

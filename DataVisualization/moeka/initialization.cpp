@@ -277,7 +277,7 @@ std::vector<int> moeka::initFromUI(int attributeCount, std::vector<std::string> 
 		}
 	}
 
-	// TODO: change majority to work as written
+	this->chainJump = chainJump;
 
 	return genericParentOrChildList;
 }
