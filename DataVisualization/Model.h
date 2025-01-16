@@ -11,9 +11,8 @@ class Model : public Drawable {
 public:
 	Model();
 	~Model();
-
-	void addColumn (std::vector<int>* values);
-	Section* createSections (std::vector<int>* values);
+	void addColumn (std::vector<int>* values, std::vector<std::vector<int>>* points);
+	Section* createSections (std::vector<int>* values, std::vector<std::vector<int>>* points);
 	void draw ();
 	Drawable* selected (GLFWwindow* window);
 	void setTranslation(float dx, float dy) override;

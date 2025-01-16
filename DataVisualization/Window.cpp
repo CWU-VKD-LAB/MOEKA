@@ -257,9 +257,15 @@ void Window::createOptions(Texture& texture) {
         ImGui::SetWindowSize(ImVec2(200.0f, 150.0f));
 
         int c = reinterpret_cast<Bar*>(Window::s)->classVal;
+        std::vector<int> point = reinterpret_cast<Bar*>(Window::s)->datapoint;
         std::string text = "Classified As:\n ";
         text += (c == -1) ? "Unavailable" : classNames[c];
-
+		text += "\n";
+		text += "Data Point:\n";
+		for (int i = 0; i < point.size(); i++) {
+			text += std::to_string(point[i]);
+			text += " ";
+		}
         ImGui::Text(text.c_str());
         ImGui::End();
     }
@@ -561,7 +567,7 @@ void Window::draw () {
 
 // VERY nasty looking but it gets the right shape.
 void Window::addModelFromFunctionForm() {
-    const auto classIndex = this->form.getFunc()->hanselChains->dimension; // maybe needs to be -1????
+    const auto classIndex = this->form.getFunc()->hanselChains->dimension - 1; // maybe needs to be -1????
     Model* m = new Model();
 
     for (int i = this->form.getFunc()->hanselChains->hanselChainSet.size() - 1; i >= 0; i--)
@@ -569,13 +575,15 @@ void Window::addModelFromFunctionForm() {
         const auto& chain = this->form.getFunc()->hanselChains->hanselChainSet[i];
 
         std::vector<int> classes;
+        std::vector<std::vector<int>> pointsInThisChain;
 
         for (const auto& e : chain)
         {
             classes.push_back(e[classIndex]);
+            pointsInThisChain.push_back(e);
         }
 
-        m->addColumn(&classes);
+        m->addColumn(&classes, &pointsInThisChain);
     }
 
     m->fitToScreen();
@@ -589,7 +597,7 @@ void Window::addModelFromCompareForm()
 
     for (auto c : *form.getCompare().comparisons)
     {
-        m->addColumn(&c);
+        m->addColumn(&c, nullptr);
     }
 
     m->fitToScreen();

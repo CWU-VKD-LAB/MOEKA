@@ -1,8 +1,8 @@
 #include "Model.h"
 
 // adds a column to the model
-void Model::addColumn(std::vector<int>* values) {
-	Section* column = createSections(values);
+void Model::addColumn(std::vector<int>* values, std::vector<std::vector<int>>* points) {
+	Section* column = createSections(values, points);
 
 	// Set the translation directly without modifying stride
 	column->setTranslation(getX(), getY());
@@ -13,17 +13,17 @@ void Model::addColumn(std::vector<int>* values) {
 
 // recursively creates sections based on the length of the values list.
 // if the size is greater than the compressBarAmount, then it will split the list.
-Section* Model::createSections(std::vector<int>* values) {
+Section* Model::createSections(std::vector<int>* values, std::vector<std::vector<int>>* points) {
 	// Create a new Section
 	Section* s = new Section();
 
-	// Add a Bar for each value in the vector
-	for (auto a : *values) {
-		s->addChild(new Bar(a));
+	// add a new bar with it's class and corresponding data point
+	for (int i = 0; i < values->size(); i++) {
+		s->addChild(new Bar(values->at(i), &points->at(i)));
 	}
+
 	return s;
 }
-
 
 // creates an empty model
 Model::Model () {

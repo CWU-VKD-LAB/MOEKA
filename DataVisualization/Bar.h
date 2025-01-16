@@ -7,8 +7,9 @@ private:
 	ImVec4 individualColor {1.0f, 1.0f, 1.0f, 1.0f};
 	
 public:
-	Bar (int classValue = 0);
+	Bar (int classValue = 0, std::vector<int>* p = nullptr);
 	int classVal = 0;
+	std::vector<int> datapoint{};
 	int inline getChainNumber () {return chainNumber;};
 	void toggleIndividualColor () {
 		useIndividualColor = !useIndividualColor;

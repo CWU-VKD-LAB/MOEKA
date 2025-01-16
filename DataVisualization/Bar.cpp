@@ -4,10 +4,13 @@
 ImVec4 INVALID_COLOR = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 // creates a bar object that stores its class value and color.
-Bar::Bar(int classValue): Shape{config::barWidth, config::barHeight} {
+Bar::Bar(int classValue, std::vector<int>* p) : Shape{config::barWidth, config::barHeight} {
+	
 	classVal = classValue;
 	// if classVal = -1, we are going to use black or some placeholder color for NA color. 
 	color = (classVal == -1) ? &INVALID_COLOR : &config::classColors[classVal];
+	datapoint = *p;
+	
 	// shape.h field that tells us if the shape is a bar. yes, it looks dumb, but it was an easier than
 	// dealing with casting pointers and such.
 	isBar = true;

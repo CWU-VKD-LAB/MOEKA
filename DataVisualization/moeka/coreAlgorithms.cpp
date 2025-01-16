@@ -21,9 +21,6 @@ std::vector<std::vector<dvector>> moeka::genChains(int num, int vector_dimension
 					b[i - 1] = chains.at(j)[k][l].dataPoint[i]; // used to be for std::vector: b[i] = chains.at(j)[k][l][i - 1];
 				}
 
-				// doen't work
-				//std::reverse(b.begin(), b.end()); // its ugly, but i couldnt figure out how to do this in the immediete above code in the 10 min i tried. not as simple as it looks?
-
 				//b.setLevel();
 				dvector c;
 				c.dataPoint = b;
