@@ -261,8 +261,10 @@ void Window::createOptions(Texture& texture) {
         std::string text = "Classified As:\n ";
         text += (c == -1) ? "Unavailable" : classNames[c];
 		text += "\n";
-		text += "Data Point:\n";
-		for (int i = 0; i < point.size(); i++) {
+		
+        text += "Data Point:\n";
+        // size - 1 because we are storing the class at the end of the point. 
+		for (int i = 0; i < point.size() - 1; i++) {
 			text += std::to_string(point[i]);
 			text += " ";
 		}

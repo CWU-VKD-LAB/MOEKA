@@ -92,7 +92,7 @@ std::vector<std::vector<dvector>> moeka::genChains(int num, int vector_dimension
 	return chainsTogether = chains.at(0);
 }
 
- 
+
 void moeka::calculateHanselChains(int vector_dimension)
 {
 	// For n dimensions, iterate through to generate chains and
