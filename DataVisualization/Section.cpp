@@ -1,4 +1,5 @@
 #include "Section.h"
+#include "Bar.h" // so that we can reference the Bar's draw function
 
 // set a default color for the section after we call Shape's constructor
 Section::Section (): Shape (0, 0) {
@@ -18,14 +19,14 @@ Section::~Section () {
 // adds a drawable object to this objects managedList, then calculates what this objects compressed color should be.
 void Section::addChild (Drawable* child) {
 	managedList.push_back(child);
+
 	// for x/y, we calculate the translation by using its current x/y, the stride x/y, half this objects width/height, and half the child drawables width/height.
+	strideX += child->getWidth() + (paddingX * totalScaleX);
+	strideY += child->getHeight() + (paddingY * totalScaleY);
+
 	child->setTranslation(strideX + getX() - (getWidth() * 0.5f) + (child->getWidth() * 0.5f), strideY + getY() - (getHeight() * 0.5f) + (child->getHeight() * 0.5f));
-	if (horizontal) {
-		strideX += child->getWidth() + paddingX;
-	}
-	else {
-		strideY += child->getHeight() + paddingY;
-	}
+
+
 	
 	// average color for background
 	color->x = 0.0f;
@@ -88,20 +89,17 @@ void Section::setTranslation (float dx, float dy) {
 	Drawable* temp;
 
 	// for each child, set its position in this container.
-	for (int a = 0; a < managedList.size(); a++) {
+	for (int a = managedList.size() - 1; a >= 0; a--) {
+		//printf("strideX: %f, strideY: %f\n", strideX, strideY);
+
 		temp = managedList.at(a);
 		if (temp == nullptr) {
 			continue;
 		}
 		// we calculate the translation by using its current x/y, the stride x/y, half this objects width/height, and half the child drawables width/height.
 		temp->setTranslation(strideX + x - (getWidth() * 0.5f) + (temp->getWidth() * 0.5f), strideY + y - (getHeight() * 0.5f) + (temp->getHeight() * 0.5f));
-		if (horizontal) {
-			strideX += temp->getWidth()+(paddingX*totalScaleX);
-		}
-		else {
-			strideY += temp->getHeight()+(paddingY*totalScaleY);
-
-		}
+		// increase our strideY because we are drawing the bar top down. 
+		strideY += temp->getHeight() + (paddingY);
 	}
 }
 
@@ -115,8 +113,9 @@ void Section::setScale (float scaleX, float scaleY) {
 	scaleBounds(scaleX, scaleY);
 
 	for (auto a : managedList) {
+		// sets the scale of a bar in our section
 		a->setScale(scaleX, scaleY);
-		compress = a->getWidth() <= config::compressValue;
+		//compress = a->getWidth() <= config::compressValue;
 	}
 	setTranslation(getX(), getY());
 }
@@ -130,7 +129,7 @@ void Section::setScaleX(float scale) {
 
 	for (auto a : managedList) {
 		a->setScale(totalScaleX, totalScaleY);
-		compress = a->getWidth() <= config::compressValue;
+		//compress = a->getWidth() <= config::compressValue;
 	}
 	setTranslation(getX(), getY());
 }
@@ -144,7 +143,7 @@ void Section::setScaleY(float scale) {
 
 	for (auto a : managedList) {
 		a->setScale(totalScaleX, totalScaleY);
-		compress = a->getWidth() <= config::compressValue;
+		//compress = a->getWidth() <= config::compressValue;
 	}
 	setTranslation(getX(), getY());
 }
@@ -153,27 +152,11 @@ void Section::setScaleY(float scale) {
 void Section::draw () {
 	// if we are compressing this section, then we need to make sure we have the average color of its children, and have
 	// open GL draw that color in the shape of this section.
-	if (compress) {
-		color->x = 0;
-		color->y = 0;
-		color->w = 0;
-		color->z = 0;
-		for (auto a : managedList) {
-			color->x += a->getR();
-			color->y += a->getG();
-			color->z += a->getB();
-			color->w += a->getA();
+	for (auto b : managedList) {
+		// cast it as a bar to render it. 
+		if (Bar* bar = dynamic_cast<Bar*>(b)) {
+			bar->draw(); 
 		}
-		color->x /= (float)managedList.size();
-		color->y /= (float)managedList.size();
-		color->z /= (float)managedList.size();
-		color->w /= (float)managedList.size();
-		bind();
-		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-		return;
-	}
-	for (auto a : managedList) {
-		a->draw();
 	}
 }
 

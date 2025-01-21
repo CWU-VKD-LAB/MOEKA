@@ -2,18 +2,7 @@
 
 // adds a column to the model
 void Model::addColumn(std::vector<int>* values, std::vector<std::vector<int>>* points) {
-	Section* column = createSections(values, points);
 
-	// Set the translation directly without modifying stride
-	column->setTranslation(getX(), getY());
-
-	// Add the column to the list
-	list.push_back(column);
-}
-
-// recursively creates sections based on the length of the values list.
-// if the size is greater than the compressBarAmount, then it will split the list.
-Section* Model::createSections(std::vector<int>* values, std::vector<std::vector<int>>* points) {
 	// Create a new Section
 	Section* s = new Section();
 
@@ -22,7 +11,8 @@ Section* Model::createSections(std::vector<int>* values, std::vector<std::vector
 		s->addChild(new Bar(values->at(i), &points->at(i)));
 	}
 
-	return s;
+	// Add the column to the list.
+	list.push_back(s);
 }
 
 // creates an empty model
@@ -41,8 +31,8 @@ Model::~Model () {
 	}
 }
 
-// draw this object
-void Model::draw () {
+// draw this model by drawing all the sections we have stored in the list. thus this is function calling the section draw function on everyone in the list.
+void Model::draw() {
 	for (auto a : list) {
 		a->draw();
 	}
@@ -77,21 +67,15 @@ Drawable* Model::selected (GLFWwindow* window) {
 }
 
 // sets the translation of the model and all its children, enforcing formatting.
-void Model::setTranslation (float dx, float dy) {
+void Model::setTranslation(float dx, float dy) {
 	x = dx;
 	y = dy;
-	stride = 0;
-	int pos = 0;
+
+	float currentX = dx;  // Start from the base x position on the left side of the screen.
 	for (auto a : list) {
-		int side = 0;
-		if (pos != 0) {
-			side = pos % 2 == 0 ? -1 : 1;
-		}
-		if (side == 1) {
-			stride += a->getWidth() + padding;
-		}
-		a->setTranslation(dx + stride * side, dy);
-		pos++;
+		// calls the SECTION setTranslation function
+		a->Section::setTranslation(currentX, dy);
+		currentX += a->getWidth() + padding;  // Increment by the width and padding
 	}
 }
 
@@ -104,7 +88,7 @@ void Model::setScale (float scaleX, float scaleY) {
 	for (auto a : list) {
 		a->setScale(scaleX, scaleY);
 	}
-	setTranslation(getX(), getY());
+	//setTranslation(getX(), getY());
 }
 
 // sets the scaleX of the model
@@ -130,32 +114,29 @@ void Model::setScaleY(float scale) {
 }
 
 void Model::fitToScreen() {
+	
 	// Calculate the total width and height of the model based on the bars' sizes.
-	float totalWidth = 0.0f;
-	float totalHeight = 0.0f;
-
-	// Iterate through the list of sections (list) and calculate the total width and maximum height.
+	float width = 0.0f;
+	float largestHeight = 0.0f;
+   // Iterate through the list of sections (list) and calculate the total height and maximum width. (They should all be the same width though...)
 	for (auto a : list) {
-		float sectionWidth = 0.0f;
-		float sectionHeight = 0.0f;
+		float totalHeight = 0;
+		float w = 0;
 
 		for (auto b : a->managedList) {
-			sectionWidth += b->getWidth();
-			sectionHeight = std::max(sectionHeight, b->getHeight());
+			totalHeight += b->getHeight();
+			w = std::max(b->getWidth(), w);
 		}
-
-		totalWidth += sectionWidth;
-		totalHeight = std::max(totalHeight, sectionHeight);
+		width += w;
+		largestHeight = std::max(largestHeight, totalHeight);			
 	}
 
-	// Scale the model to exactly fit the window
-	float scaleX = std::min(1.0f, config::windowX / totalWidth);
-	float scaleY = std::min(1.0f, config::windowY / totalHeight);
-
-	// Set the scale for the model to fit the window size.
-	setScale(scaleX, scaleY);
-
-	// After scaling, center the model in the window.
-	setTranslation(config::windowX / 2.0f, config::windowY / 2.0f);
+	float ratioX = config::windowX / width;
+	float ratioY = config::windowY / largestHeight;
+    // set the scale based on the calculated ratios and set the translation to the center of the screen.
+	setScale(ratioX, ratioY);
+	
+	setTranslation(config::windowX / 8.0f, (config::windowY / 2.0f));
+	totalScaleX = 1;
+	totalScaleY = 1;
 }
-

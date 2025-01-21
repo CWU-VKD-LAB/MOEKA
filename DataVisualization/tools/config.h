@@ -12,8 +12,8 @@ namespace config {
 	const float buttonSize = 32.f;
 
 	// Bar specific
-	const int compressBarAmount = 30;
-	const int compressValue = 1;
+	//const int compressBarAmount = 30;
+	//const int compressValue = 1;
 	const float barWidth = 25.0f;
 	const float barHeight = 100.0f;
 	const int maxClassValue = 16;				// hard code to have more possibilities than our slider possibly can, and we can change from here if needed. 

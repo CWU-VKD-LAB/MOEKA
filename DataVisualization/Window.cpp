@@ -259,7 +259,7 @@ void Window::createOptions(Texture& texture) {
         int c = reinterpret_cast<Bar*>(Window::s)->classVal;
         std::vector<int> point = reinterpret_cast<Bar*>(Window::s)->datapoint;
         std::string text = "Classified As:\n ";
-        text += (c == -1) ? "Unavailable" : classNames[c];
+        text += (c == classNames.size()) ? "Unavailable" : classNames[c];
 		text += "\n";
 		
         text += "Data Point:\n";
@@ -569,7 +569,8 @@ void Window::draw () {
 
 // VERY nasty looking but it gets the right shape.
 void Window::addModelFromFunctionForm() {
-    const auto classIndex = this->form.getFunc()->hanselChains->dimension; // maybe needs to be -1????
+    
+    const auto classIndex = this->form.getFunc()->hanselChains->dimension;
     Model* m = new Model();
 
     auto& hanselChains = this->form.getFunc()->hanselChains->hanselChainSet;
@@ -581,26 +582,14 @@ void Window::addModelFromFunctionForm() {
             return a.size() > b.size(); // Sort by size (largest first)
         });
 
-    // Step 2: Create a diamond-like arrangement by placing chains symmetrically
     std::vector<std::vector<std::vector<int>>> diamondChains;
-    size_t middleIndex = sortedChains.size() / 2; // Find the middle
-
-    // Place the largest chain (middle one) first
-    diamondChains.push_back(sortedChains[middleIndex]);
-
-    // Now, alternate chains around the middle
-    int leftIndex = middleIndex - 1;
-    int rightIndex = middleIndex + 1;
-
-    while (leftIndex >= 0 || rightIndex < sortedChains.size()) {
-        if (leftIndex >= 0) {
-            diamondChains.insert(diamondChains.begin(), sortedChains[leftIndex]);
-            leftIndex--;
-        }
-        if (rightIndex < sortedChains.size()) {
-            diamondChains.push_back(sortedChains[rightIndex]);
-            rightIndex++;
-        }
+    int chainIndex = 0;
+    while(chainIndex < sortedChains.size()) {
+        // since they're sorted with the biggest first, we just push the first to the back, then go in front, then behind and so on.
+		if (chainIndex % 2 == 0)
+            diamondChains.push_back(sortedChains[chainIndex++]);
+        else
+            diamondChains.insert(diamondChains.begin(), sortedChains[chainIndex++]);
     }
 
     // Step 3: Add chains to the model for rendering
