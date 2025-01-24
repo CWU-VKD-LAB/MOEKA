@@ -4,7 +4,7 @@
 ImVec4 INVALID_COLOR = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 // creates a bar object that stores its class value and color.
-Bar::Bar(int classValue, std::vector<int>* p) : Shape{config::barWidth, config::barHeight} {
+Bar::Bar(int classValue, std::vector<int>* p, float width, float height) : Shape{width, height} {
 	
 	classVal = classValue;
 	// if classVal = -1, we are going to use black or some placeholder color for NA color. 

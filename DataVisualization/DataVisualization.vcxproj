@@ -160,13 +160,11 @@
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="HanselChains.cpp" />
     <ClCompile Include="moeka\hierarchyDriver.cpp" />
-    <ClCompile Include="moeka\main.cpp" />
     <ClCompile Include="moeka\initialization.cpp" />
     <ClCompile Include="moeka\functionChanges.cpp" />
     <ClCompile Include="moeka\graphOrders.cpp" />
     <ClCompile Include="moeka\coreAlgorithms.cpp" />
     <ClCompile Include="moeka\oracle.cpp" />
-    <ClCompile Include="Section.cpp" />
     <ClCompile Include="glm\glm\detail\glm.cpp" />
     <ClCompile Include="glm\glm\glm.cppm" />
     <ClCompile Include="Model.cpp" />
@@ -201,7 +199,6 @@
     <ClInclude Include="moeka\graph.h" />
     <ClInclude Include="moeka\hierarchyDriver.h" />
     <ClInclude Include="moeka\moeka.h" />
-    <ClInclude Include="Section.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="glm\glm\common.hpp" />
     <ClInclude Include="glm\glm\detail\compute_common.hpp" />

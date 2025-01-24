@@ -42,9 +42,9 @@ Window::Window () {
     
     initImGui();
 
+    // TODO: replace with alice's random colors algorithm. 
     for (int a = 0; a < classCount; a++) {
         float val = 0.75f * (((float)a+1)/(config::maxClassValue+1));
-        //config::classColors.insert(config::classColors.end(), ImVec4{val, val, val, 1.0f});
         config::classColors.push_back(ImVec4{ val,val,val,1.0f });
     }
 }
@@ -567,13 +567,11 @@ void Window::draw () {
     }
 }
 
-// VERY nasty looking but it gets the right shape.
-void Window::addModelFromFunctionForm() {
-    
-    const auto classIndex = this->form.getFunc()->hanselChains->dimension;
-    Model* m = new Model();
+void Window::renderHanselChains() {
 
+    // our three D vector of hansel chains
     auto& hanselChains = this->form.getFunc()->hanselChains->hanselChainSet;
+    const auto classIndex = this->form.getFunc()->hanselChains->dimension;
 
     // Step 1: Sort chains by their lengths (largest first)
     std::vector<std::vector<std::vector<int>>> sortedChains = hanselChains;
@@ -582,17 +580,31 @@ void Window::addModelFromFunctionForm() {
             return a.size() > b.size(); // Sort by size (largest first)
         });
 
+    // now we put the chains into a vector so they form the nice diamond shape.
     std::vector<std::vector<std::vector<int>>> diamondChains;
     int chainIndex = 0;
-    while(chainIndex < sortedChains.size()) {
+    int maxLength = 0;
+    while (chainIndex < sortedChains.size()) {
+        
+        // skim the length of the longest one to use in a second
+        maxLength = sortedChains[chainIndex].size() > maxLength ? sortedChains[chainIndex].size() : maxLength;
+
         // since they're sorted with the biggest first, we just push the first to the back, then go in front, then behind and so on.
-		if (chainIndex % 2 == 0)
+        if (chainIndex % 2 == 0)
             diamondChains.push_back(sortedChains[chainIndex++]);
         else
             diamondChains.insert(diamondChains.begin(), sortedChains[chainIndex++]);
     }
 
-    // Step 3: Add chains to the model for rendering
+    // now that we have built our columns, we simply render them
+    // step one, determine how wide each column renders. This is as simple as windowX / number of columns.
+    float widthOfEachColumn = config::windowX / diamondChains.size();
+
+    // step two, determine how tall to make each box. this is as simple as windowY / length of longest chain
+    float boxHeight = config::windowY * .8f / maxLength;
+
+    // Now, we render each ccolumn of the hansel chain set one by one. no calls to 12 other files. right here.
+    std::vector<std::vector<Drawable*>> columnsInModel{};
     for (const auto& chain : diamondChains)
     {
         std::vector<int> classes;
@@ -603,25 +615,49 @@ void Window::addModelFromFunctionForm() {
             classes.push_back(e[classIndex]);
             pointsInThisChain.push_back(e);
         }
-        m->addColumn(&classes, &pointsInThisChain);
+
+        std::vector<Drawable*> pointsInThisColumn{};
+        for (int i = pointsInThisChain.size() - 1; i >= 0; i--) {
+            pointsInThisColumn.push_back(new Bar(classes.at(i), &pointsInThisChain[i], widthOfEachColumn, boxHeight));
+        }
+        columnsInModel.push_back(pointsInThisColumn);
     }
 
-    m->fitToScreen();
+    float padding = 1.0f;
+	// step three, render each column
+
+    // we use a model as a wrapper to hold all the bars. we tell each bar exactly where to go, and later just call draw on them. 
+    // much simpler than adding bars to sections, to a model. 
+    Model *m = new Model();
+
+    // Step 1: Find the tallest column
+    int maxColumnHeight = 0;
+    for (int i = 0; i < columnsInModel.size(); i++) {
+        maxColumnHeight = std::max(maxColumnHeight, (int)columnsInModel.at(i).size());
+    }
+
+    // iterate through all the columns, and add their bars to the model now. 
+    for (int i = 0; i < columnsInModel.size(); i++) {
+        std::vector<Drawable*> pointsInThisColumn = columnsInModel.at(i);
+
+        int heightDifference = maxColumnHeight - pointsInThisColumn.size();
+        int startHeight = heightDifference / 2;  // Create the staggered effect
+        startHeight++; // shift it down one box height so that we can universally slide the model down just a bit to fit the screen nicely.
+
+        // Render each point in this column
+        for (int j = 0; j < pointsInThisColumn.size(); j++) {
+            Bar* thisBar = (Bar*)pointsInThisColumn.at(j);
+            thisBar->setTranslation(widthOfEachColumn * i + padding,
+                (startHeight + j) * boxHeight + padding);
+
+            // Add the box to the list in our model.
+            m->list.push_back(thisBar);
+        }
+    }
+
+    // add our model to the window's list of drawables and render it.
     this->addToRender(m);
     this->form.addModel = !this->form.addModel;
-}
-
-void Window::addModelFromCompareForm()
-{
-    Model* m = new Model();
-
-    for (auto c : *form.getCompare().comparisons)
-    {
-        m->addColumn(&c, nullptr);
-    }
-
-    m->fitToScreen();
-    this->addToRender(m);
 }
 
 // when a button is pressed, it calls this function with a "val" equal to which button in the window is pressed.

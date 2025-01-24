@@ -34,7 +34,7 @@ private:
 	inline static ImFont* font = nullptr;
 	inline static ImFont* monoFont = nullptr;
 	inline static ImGuiIO io;
-	inline static ImVec2 scaleBy{.4f, .4f};
+	inline static ImVec2 scaleBy{.1f, .1f};
 public:
 	static Form form;
 	static Drawable* s;
@@ -50,10 +50,7 @@ public:
 	void drawImGuiWindow(Texture& texture);
 	void draw ();
 
-	void addModelFromFunctionForm();
-
-	void addModelFromCompareForm();
-
+	void renderHanselChains();
 	static void addToRender (Drawable* obj) {
 		Window::managedList.insert(Window::managedList.end(), obj);
 	}

@@ -15,6 +15,7 @@ dvector* datapoint = nullptr;
 // Define the global variables here (allocate memory)
 int classCount = 16;                      
 std::vector<char*> classNames;
+int dimension = 0;
 
 // creates a form object, that acts as a root for all the form screens. a list of the managed screens is under the 
 // 'state' enumeration in form.h 
@@ -812,6 +813,7 @@ void Form::drawInterview () {
 		// these can be refactored out if we use form.getFunc or whatever in window.cpp 
 		classCount = func->targetAttributeCount;
 		classNames = func->targetAttributeNames;
+		dimension = func->attributeCount;
 
 		// TODO: move to hansel chain class?
 		func->hanselChains = new HanselChains(func);
