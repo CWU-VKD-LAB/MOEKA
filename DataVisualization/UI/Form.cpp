@@ -120,6 +120,19 @@ void Form::drawIntro () {
 }
 
 /// window for setting an ML and dataset
+void populateFilePaths(const std::string& directory, std::vector<std::string>& filePaths) {
+	try {
+		for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+			if (entry.is_regular_file()) {
+				filePaths.push_back(entry.path().string());
+			}
+		}
+	}
+	catch (const std::filesystem::filesystem_error& e) {
+		std::cerr << "Error accessing directory: " << e.what() << std::endl;
+	}
+}
+
 void Form::drawML () {
 	ImGui::Begin("Create from ML", &open, flags);
 	ImVec2 window = ImGui::GetWindowSize();
@@ -127,7 +140,8 @@ void Form::drawML () {
 	ImGui::SetWindowPos(ImVec2(config::windowX * .5f - window.x * .5f, config::windowY * .5f - window.y * .5f));
 	ImGui::PushFont(font);
 
-
+	// choosing which model to use dropdown menu.
+	populateFilePaths(ml.mlModelDirectory, ml.mlFilePaths);
 	if (ImGui::BeginCombo("ML model", ml.mlFilePaths[ml.mlIndex].c_str())) {
 		for (int a = 0; a < ml.mlFilePaths.size(); a++) {
 			if (ImGui::Selectable(ml.mlFilePaths[a].c_str(), ml.mlIndex == a)) {
@@ -156,6 +170,9 @@ void Form::drawML () {
 		ml.mlSelected = ml.ofn.lpstrFile;
 	}
 
+
+	// populate the dataset list by using the dFilePaths vector.
+	populateFilePaths(ml.datasetDirectory, ml.dFilePaths);
 	if (ImGui::BeginCombo("Dataset", ml.dFilePaths[ml.dIndex].c_str())) {
 		for (int a = 0; a < ml.dFilePaths.size(); a++) {
 			if (ImGui::Selectable(ml.dFilePaths[a].c_str(), ml.dIndex == a)) {
@@ -166,30 +183,12 @@ void Form::drawML () {
 		ImGui::EndCombo();
 	}
 
-	ImGui::Separator();
 
-	// set K Values.
-	ImGui::SetCursorPosX(ImGui::GetWindowSize().x * .5f - (ImGui::CalcTextSize("Amount of Attributes: ").x * .5f));
-	ImGui::Text("Amount of Attributes: ");
-	ImGui::SetNextItemWidth(ImGui::GetWindowSize().x - ImGui::GetStyle().WindowPadding.x * 2.0f);
-	ImGui::SliderInt("##amtSlider", &func->attributeCount, 2, config::defaultAmount);
-
-	ImGui::BeginChild("##", ImVec2{ ImGui::GetWindowSize().x - ImGui::GetStyle().WindowPadding.x * 2.0f, window.y - ImGui::GetCursorPosY() - (font->FontSize * 2) }, ImGuiChildFlags_None, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-	for (int a = 0; a < func->attributeCount; a++) {
-		ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .28f);
-		ImGui::InputText(std::string("##Text").append(std::to_string(a)).c_str(), func->attributeNames.at(a), 128);
-		ImGui::SetNextItemWidth(ImGui::GetWindowSize().x * .66f);
-		ImGui::SameLine(ImGui::GetWindowSize().x * .3f);
-		ImGui::SliderInt(std::string("##").append(std::to_string(a)).c_str(),
-			&func->kValues.data()[a], 2, 10);
-	}
-	ImGui::EndChild();
-	ImGui::Separator();
-
-
+	// TODO: put the logic here lmao. 
 	ImGui::SetCursorPosX(window.x * .8f - ImGui::GetStyle().WindowPadding.x);
 	if (ImGui::Button("Next##asdf", ImVec2{window.x * .2f, (font->FontSize * 2) - (ImGui::GetStyle().WindowPadding.y * 2.0f)})) {
 		// Logic goes here.
+		printf("\nMADE IT TO NEXT BUTTON!!!!\n");
 	}
 
 	ImGui::PopFont();

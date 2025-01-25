@@ -51,13 +51,15 @@ struct MLs {
 	OPENFILENAMEA ofn;
 	/// selected is the name of the file as a string, but not the path towards it.
 	//ml
+	std::string mlModelDirectory = "..\\DataVisualization\\moeka\\ML_Oracles";
 	std::vector<std::string> mlFilePaths{};
-	std::string mlSelected; // ..\\DataVisualization\\mlModels
+	std::string mlSelected;
 	int mlIndex = 0;
 
 	//dataset
+	std::string datasetDirectory = "..\\DataVisualization\\datasets";
 	std::vector<std::string> dFilePaths{};
-	std::string dSelected; // ..\\DataVisualization\\datasets
+	std::string dSelected;
 	int dIndex = 0;
 };
 
