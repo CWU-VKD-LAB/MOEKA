@@ -12,7 +12,7 @@ bool interviewOver = false;
 int currentClass = -1; // the current clas we are going to pass around between front and back end
 dvector* datapoint = nullptr;
 
-// Define the global variables here (allocate memory)
+// Define the global variables here (allocate memory) these are used in the window functionality.
 int classCount = 16;                      
 std::vector<char*> classNames;
 int dimension = 0;
@@ -119,7 +119,7 @@ void Form::drawIntro () {
 	ImGui::End();
 }
 
-/// window for setting an ML and dataset
+/// populates a vector of strings with the file names of the given directory argument.
 void populateFilePaths(const std::string& directory, std::vector<std::string>& filePaths) {
 	try {
 		for (const auto& entry : std::filesystem::directory_iterator(directory)) {
@@ -141,11 +141,11 @@ void Form::drawML () {
 	ImGui::PushFont(font);
 
 	// choosing which model to use dropdown menu.
-	populateFilePaths(ml.mlModelDirectory, ml.mlFilePaths);
-	if (ImGui::BeginCombo("ML model", ml.mlFilePaths[ml.mlIndex].c_str())) {
-		for (int a = 0; a < ml.mlFilePaths.size(); a++) {
-			if (ImGui::Selectable(ml.mlFilePaths[a].c_str(), ml.mlIndex == a)) {
-				ml.mlSelected = ml.mlFilePaths[a];
+
+	if (ImGui::BeginCombo("ML model", ml.mlModelNames[ml.mlIndex].c_str())) {
+		for (int a = 0; a < ml.mlModelNames.size(); a++) {
+			if (ImGui::Selectable(ml.mlModelNames[a].c_str(), ml.mlIndex == a)) {
+				ml.mlSelected = ml.mlModelNames[a];
 				ml.mlIndex = a;
 			}
 		}
@@ -183,12 +183,16 @@ void Form::drawML () {
 		ImGui::EndCombo();
 	}
 
+	// needs to close this window, and run that model with that dataset.
+	// there is some kind of functionality somewhere to do this, but we can do it very easily. 
+	// then we get those results back from wherever they go, and render them by just assigning them to the hansel chains pointer.
+	// TOOD: make a pointer in the window for hansel chains, and then we can very easily reuse that rendering functionality.
 
-	// TODO: put the logic here lmao. 
 	ImGui::SetCursorPosX(window.x * .8f - ImGui::GetStyle().WindowPadding.x);
 	if (ImGui::Button("Next##asdf", ImVec2{window.x * .2f, (font->FontSize * 2) - (ImGui::GetStyle().WindowPadding.y * 2.0f)})) {
-		// Logic goes here.
-		printf("\nMADE IT TO NEXT BUTTON!!!!\n");
+		edm = new moeka('x');
+		edm->initForML(ml.mlSelected, ml.dSelected);
+		edm->start();
 	}
 
 	ImGui::PopFont();
@@ -686,13 +690,11 @@ void Form::drawInterviewPilot () {
 
 		// now, need to start thread either in new functionor in drawInterview...
 		// we will use the mutex to determine whos turn it is. 
-		// the turn flip flops when we have input a datapoint
 		std::thread thr(startBackend, edm);
 		thr.detach();
 		current = INTERVIEW;
 	//}
 
-	// NO IDEA WHAT THIS COULD BE DOING.
 	/*
 	if (disable) {
 		ImGui::EndDisabled();

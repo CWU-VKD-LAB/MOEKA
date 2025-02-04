@@ -165,7 +165,6 @@ void moeka::start()
 		// send file to python program for ML classification
 		// write to new file here
 		// since answers are sorted, can calculate where the correct answer is based on the location fo question in hanselChainSet[i][j]
-		// 
 		askFromOracleMLFile();
 	}
 
@@ -306,7 +305,8 @@ void moeka::start()
 	}
 
 	// set the end flag so we can be done. Form.cpp is listening to this one here. 
-	*endFlag = true;
+	if(this->endFlag)
+		*endFlag = true;
 
 }
 

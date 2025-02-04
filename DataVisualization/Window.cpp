@@ -380,12 +380,8 @@ void Window::createOptions(Texture& texture) {
     if (ImGui::Button("ML", buttonSize)) {
         form.current = state::ML;
         form.openWindow();
-        std::string path = "..\\DataVisualization\\mlModels";
-        for (const auto& entry : std::filesystem::directory_iterator(path)) {
-            std::string temp = entry.path().string();
-            form.ml.mlFilePaths.push_back(temp.replace(temp.begin(), temp.begin() + 2, ""));
-        }
     }
+
     ImGui::End();
 }
 

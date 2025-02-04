@@ -61,7 +61,7 @@ public:
 	/// @brief only ask from oracle ML without assigning all possibilities
 	bool askOracleML = false;
 
-	/// @brief path to ML model
+	/// @brief path to ML model which has been BUILT already by running ML on dataset.
 	std::string oracleML_path = "moeka\\ML_Oracles\\LinearDiscriminantAnalysis.sav";
 
 	/// @brief path to ML model loading and predicting function
@@ -75,17 +75,12 @@ public:
 	bool useRealOrdinalNormalizedDatasetToTestFunction = false;
 
 	/// @brief path to real ordinal normalized dataset
-	std::string realOrdinalNormalizedDataset = "D:\\.School\\Work\\Github DataVisualization\\DataVisualization\\DataVisualization\\moeka\\ML_Oracles\\heart_failure_ordinal_normalization.csv";
+	std::string realOrdinalNormalizedDataset = "..moeka\\ML_Oracles\\heart_failure_ordinal_normalization.csv";
 	///
 	/// flags for machine learning end
 
-
-
-
 	/// @brief set of Hansel Chains
 	std::vector<std::vector<dvector>> hanselChainSet;
-
-
 
 	/// TODO: create functions for console input for Min acceptable datapoint and known low units. 
 	/// These orders currently have to be compiled below
@@ -200,7 +195,8 @@ public:
 	std::vector<int> initFromUI(int attributeCount, std::vector<std::string> attributes, std::vector<int> kValues, int functionKV, int staticInterChainOrder,
 		std::vector<int> trueAttributes, bool chainJump, bool majority, bool topBottomOrBinarySearch);
 
-
+	// initialize the Moeka guy for an ML version now. Asks questions in the same way, but doesn't prompt the user, instead just quizzes the computer man.
+	std::vector<int> initForML(std::string mlPath, std::string datasetPath);
 
 	/// @brief start expert data mining sequence
 	void start();
@@ -242,8 +238,12 @@ private:
 	/// @brief of the real dataset, if applicable
 	std::vector<std::string> real_attributes;
 
+	// refactored flags for synchronizing between front and back end
 	std::mutex* turnFlag = nullptr;
 	bool *endFlag = nullptr;
+
+	// flag to determine whether we are using ML expert or real expert
+	bool *mlFlag = nullptr;
 
 	/// @brief check whether each Chain has been ordered when user is manually ordering them
 	std::vector<bool> chainsVisited;

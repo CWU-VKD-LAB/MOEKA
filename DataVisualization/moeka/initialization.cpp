@@ -279,9 +279,29 @@ std::vector<int> moeka::initFromUI(int attributeCount, std::vector<std::string> 
 
 	this->chainJump = chainJump;
 
-	return genericParentOrChildList;
+	return genericParentOrChildList;	
 }
 
+std::vector<int> moeka::initForML(std::string classifierName, std::string datasetPath) {
+	this->askOracleML = true;
+
+	// Get the base name of the dataset.
+
+	// Construct the expected output model filename.
+	// This matches the dynamic naming scheme in your Python code.
+	this->oracleML_path = "moeka\\ML_Oracles\\" + datasetPath + "_" + classifierName + ".sav";
+
+	// Construct the command to run the Python script.
+	// The new Python script expects the dataset path as the first argument
+	// and the classifier name as the second.
+	std::string command = "python moeka\\ML_Oracles\\makeMLModels.py " + datasetPath + " " + classifierName;
+
+	// Execute the Python script.
+	std::system(command.c_str());
+
+	// Return an empty vector for now (modify as needed).
+	return {};
+}
 
 
 moeka::moeka(char attributeSymbol)

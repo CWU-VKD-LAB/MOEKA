@@ -51,8 +51,19 @@ struct MLs {
 	OPENFILENAMEA ofn;
 	/// selected is the name of the file as a string, but not the path towards it.
 	//ml
-	std::string mlModelDirectory = "..\\DataVisualization\\moeka\\ML_Oracles";
-	std::vector<std::string> mlFilePaths{};
+	std::vector<std::string> mlModelNames{
+	        "DecisionTree",
+		"DecisionTreeMonotone",
+		"RandomForest",
+		"RandomForestMonotone",
+		"LinearDiscriminantAnalysis"
+		//"ExtraTrees",
+		//"ExtraTreesMonotone",
+		//"NeuralNet",
+		//"AdaBoost",
+		//"HistGradBoostClassifier",
+		//"HistGradBoostClassifierMonotone"
+	};
 	std::string mlSelected;
 	int mlIndex = 0;
 

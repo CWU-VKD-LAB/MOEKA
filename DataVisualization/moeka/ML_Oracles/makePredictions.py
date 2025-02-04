@@ -61,10 +61,6 @@ def testViolationOfMonotonicity(modelName, fileName):
     print ("total viol: ", viol)
     print ("viol: ", viol / len(ds))
             
-        
-            
-
-            
 
 #args = [int(arg) for arg in sys.argv[2:]]
 #makePredictionFromFile(sys.argv[1], sys.argv[2])
