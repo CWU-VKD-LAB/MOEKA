@@ -14,6 +14,8 @@ Supervisor: Dr. Boris Kovalerchuk
 #include <algorithm>
 #include <mutex>
 #include <map>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <windows.h>
 #include <shellapi.h>
 #include <unordered_map>
@@ -23,6 +25,7 @@ Supervisor: Dr. Boris Kovalerchuk
 #include <numeric>
 #include "dvector.h"
 #include "graph.h"
+#pragma comment(lib, "Ws2_32.lib") // causes some linking errors without this...
 
 
 struct attribute
@@ -50,8 +53,13 @@ public:
 	///
 	/// flags for synchronization end
 
-
-
+	//variables for when we are running an ML interview in the GUI version
+	bool mlInterview = false; // if this is true, we run the interview like normal, but instead of giving the datapoint to the user, it goes to the python. 
+	int sendingPort = 6969;   // port we will live at in C++
+	int pythonPort = 6968;   // port the python file is going to use. 
+	SOCKET ConnectSocket = INVALID_SOCKET;
+	struct sockaddr_in serverAddr;
+	WSADATA wsaData;
 
 	/// flags for machine learning start
 	/// 
@@ -70,7 +78,6 @@ public:
 
 	// TODO: if doing testing with real file, as take the attributes so that kvalues and such do not have to be entered
 	/// flags for testing function on real world dataset which must be ordinal and normalized in some way so that testing can work.
-	///
 	/// @brief 
 	bool useRealOrdinalNormalizedDatasetToTestFunction = false;
 
@@ -90,12 +97,6 @@ public:
 
 	/// @brief low units that the expert knows from observation, intuition, or data
 	std::vector<std::vector<int>> knownLowUnits = {};
-	// forgot what this one was for{ {0, 0, 1, 0, 0 } };
-		// y1-y5{ {1, 0, 0, 0, 0 }, {0, 1, 0, 0, 0} };
-		//{ {0,1,0} }; // cancer biopsy w1-w3
-		// cancer biopsy x1-x5{ {0, 0, 1, 0, 0 }, {0, 0, 0, 0, 1} };
-
-
 
 	/// @brief needs to be changed for whatever oracle is supposed to be used
 	std::string generatedOraclePath = "";// "MonotoneDataGenerator/diabetesOracleKV.csv"; //kv3_7D_summation.csv //sum10D8T.csv
@@ -196,7 +197,7 @@ public:
 		std::vector<int> trueAttributes, bool chainJump, bool majority, bool topBottomOrBinarySearch);
 
 	// initialize the Moeka guy for an ML version now. Asks questions in the same way, but doesn't prompt the user, instead just quizzes the computer man.
-	std::vector<int> initForML(std::string mlPath, std::string datasetPath);
+	std::vector<int> initForMLInterview(std::string mlPath, std::string datasetPath);
 
 	/// @brief start expert data mining sequence
 	void start();
@@ -407,7 +408,7 @@ private:
 	/// @param i 
 	/// @param j 
 	/// @param vector_class 
-	void chainExpansions(int i, int j, int vector_class);
+	//void chainExpansions(int i, int j, int vector_class);
 
 
 	/// @brief find a dual expansion in a chain

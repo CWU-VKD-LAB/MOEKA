@@ -191,7 +191,7 @@ void Form::drawML () {
 	ImGui::SetCursorPosX(window.x * .8f - ImGui::GetStyle().WindowPadding.x);
 	if (ImGui::Button("Next##asdf", ImVec2{window.x * .2f, (font->FontSize * 2) - (ImGui::GetStyle().WindowPadding.y * 2.0f)})) {
 		edm = new moeka('x');
-		edm->initForML(ml.mlSelected, ml.dSelected);
+		edm->initForMLInterview(ml.mlSelected, ml.dSelected);
 		edm->start();
 	}
 

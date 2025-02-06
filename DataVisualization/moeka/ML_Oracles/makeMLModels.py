@@ -114,6 +114,12 @@ def makeModel(input_file, ordinalValues, output_csv=None):
     df_ordinal.to_csv(output_csv_full, index=False)
     print("Normalized dataset saved to", output_csv_full)
     
+    # Save the ordinal values to a separate file for use by the C++ file.
+    ordinal_values_file = os.path.join(script_dir, base_name + '_ordinal_values.txt')
+    with open(ordinal_values_file, 'w') as f:
+        f.write(','.join(str(val) for val in ordinalValues))
+    print("Ordinal values saved to", ordinal_values_file)
+    
     # lets see what results there are when the ds is ordinal
     # ds = ordinal_mapped_ds
     

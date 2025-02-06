@@ -158,7 +158,7 @@ void moeka::start()
 		// FIX: dimension is already assigned if file is given
 		realData = true;
 	}
-
+	
 	if (askOracleML)
 	{
 		// sort hansel chains and write hansel chains to file (this code should be called in each case of switch)
@@ -167,7 +167,6 @@ void moeka::start()
 		// since answers are sorted, can calculate where the correct answer is based on the location fo question in hanselChainSet[i][j]
 		askFromOracleMLFile();
 	}
-
 	// order vectors and ask questions
 
 	if (chainJump)
@@ -237,7 +236,7 @@ void moeka::start()
 				[](const std::vector<dvector>& a, const std::vector<dvector>& b)
 				{
 					return a.size() > b.size();
-				});;
+				});
 			calculateAllPossibleExpansions();
 			numberAssignment();
 			expandKnownLowUnits();
@@ -307,6 +306,19 @@ void moeka::start()
 	// set the end flag so we can be done. Form.cpp is listening to this one here. 
 	if(this->endFlag)
 		*endFlag = true;
+
+	// shut down the python server. close our socket.
+	if (this->mlInterview)
+	{
+		// Now send the exit flag to shut down the server communication
+		std::string exitMsg = "exit";
+		send(ConnectSocket, exitMsg.c_str(), (int)exitMsg.size(), 0);
+		std::cout << "Sent shutdown flag: " << exitMsg << "\n";
+
+		// Cleanup
+		closesocket(ConnectSocket);
+		WSACleanup();
+	}
 
 }
 
@@ -611,6 +623,40 @@ int moeka::askingOfQuestion(int i, int j)
 				turnFlag->lock();
 				vector_class = *currentClass;
 			}
+			else if (mlInterview) {
+
+				// Send the data	
+				std::string numbers = "10 20 30";
+				int iResult = send(ConnectSocket, numbers.c_str(), (int)numbers.size(), 0);
+				if (iResult == SOCKET_ERROR) {
+					std::cerr << "send failed: " << WSAGetLastError() << "\n";
+					closesocket(ConnectSocket);
+					WSACleanup();
+					throw std::runtime_error("send failed");
+				}
+
+				std::cout << "Sent: " << numbers << "\n";
+
+				// Receive the server's reply
+				char recvbuf[512];
+				iResult = recv(ConnectSocket, recvbuf, 511, 0);
+				if (iResult > 0) {
+					recvbuf[iResult] = '\0'; // null-terminate the string
+					std::cout << "Received: " << recvbuf << "\n";
+				}
+				else if (iResult == 0) {
+					std::cout << "Connection closed by server.\n";
+				}
+				else {
+					std::cerr << "recv failed: " << WSAGetLastError() << "\n";
+				}
+
+				// parse the reply for our number and put it where it goes
+				std::string receivedStr(recvbuf);
+				int result = std::stoi(receivedStr);
+				std::cout << "Converted integer: " << result << std::endl;
+				vector_class = result;
+			}
 			//console version
 			else
 			{
@@ -665,7 +711,7 @@ int moeka::askingOfQuestion(int i, int j)
 
 	if (turnFlag)
 		turnFlag->unlock();
-	
+
 	return vector_class;
 }
 

@@ -282,24 +282,102 @@ std::vector<int> moeka::initFromUI(int attributeCount, std::vector<std::string> 
 	return genericParentOrChildList;	
 }
 
-std::vector<int> moeka::initForML(std::string classifierName, std::string datasetPath) {
-	this->askOracleML = true;
-
-	// Get the base name of the dataset.
+std::vector<int> moeka::initForMLInterview(std::string classifierName, std::string datasetPath) {
+	
+	this->mlInterview = true;
 
 	// Construct the expected output model filename.
-	// This matches the dynamic naming scheme in your Python code.
+	// This matches the dynamic naming scheme in Python code.
 	this->oracleML_path = "moeka\\ML_Oracles\\" + datasetPath + "_" + classifierName + ".sav";
 
 	// Construct the command to run the Python script.
 	// The new Python script expects the dataset path as the first argument
 	// and the classifier name as the second.
+	// creates all the .sav files
 	std::string command = "python moeka\\ML_Oracles\\makeMLModels.py " + datasetPath + " " + classifierName;
 
-	// Execute the Python script.
+	// Execute the Python script which is building our models.
 	std::system(command.c_str());
 
+	this->realOrdinalNormalizedDataset = datasetPath + "ordinal_normalization.csv";
 	// Return an empty vector for now (modify as needed).
+
+	// Specify the directory to search
+	std::filesystem::path directory = "moeka\\ML_Oracles\\";
+	std::filesystem::path savFile;
+
+	// Iterate over the directory entries
+	for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+		// Check if the entry is a regular file and has a .sav extension
+		if (entry.is_regular_file() && entry.path().extension() == ".sav") {
+			savFile = entry.path();
+			break; // Found the file, exit the loop early
+		}
+	}
+
+	if (!savFile.empty()) {
+		std::cout << "Found .sav file: " << savFile << "\n";
+	}
+	else {
+		std::cerr << "No .sav file found in directory " << directory << "\n";
+		throw std::runtime_error("No .sav file found");
+	}
+
+	// now we launch our python server
+	std::string command2 = "python moeka\\ML_Oracles\\MLInterviewServer.py 6969 " + savFile.string();
+	
+	STARTUPINFOA si = { 0 };
+	si.cb = sizeof(si);
+	PROCESS_INFORMATION pi = { 0 };
+
+	// Launch the process asynchronously
+	if (CreateProcessA(
+		NULL,       // No module name (use command line)
+		_strdup(command2.c_str()),    // Command line
+		NULL,       // Process handle not inheritable
+		NULL,       // Thread handle not inheritable
+		FALSE,      // Set handle inheritance to FALSE
+		0,          // No creation flags
+		NULL,       // Use parent's environment block
+		NULL,       // Use parent's starting directory 
+		{ &si },        // Pointer to STARTUPINFOA structure
+		{ &pi })        // Pointer to PROCESS_INFORMATION structure
+		)
+	std::cout << "Python server launched successfully." << std::endl;
+	// Close handles since we don't need them
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+		
+	// Initialize Winsock
+	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (iResult != 0) {
+		std::cerr << "WSAStartup failed: " << iResult << "\n";
+		throw std::runtime_error("WSAStartup failed");
+	}
+
+	// Create a SOCKET for connecting to server
+	ConnectSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (ConnectSocket == INVALID_SOCKET) {
+		std::cerr << "Error at socket(): " << WSAGetLastError() << "\n";
+		WSACleanup();
+		throw std::runtime_error("Error at socket()");
+	}
+
+	// Set up the sockaddr_in structure
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(6968); // just use this port number hardcoded
+
+	// Convert the server address string to a local address
+	inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
+
+	// Connect to server.
+	iResult = connect(ConnectSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+	if (iResult == SOCKET_ERROR) {
+		std::cerr << "Unable to connect to server: " << WSAGetLastError() << "\n";
+		closesocket(ConnectSocket);
+		WSACleanup();
+	}
+
 	return {};
 }
 
