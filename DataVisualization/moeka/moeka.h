@@ -55,17 +55,10 @@ public:
 
 	//variables for when we are running an ML interview in the GUI version
 	bool mlInterview = false; // if this is true, we run the interview like normal, but instead of giving the datapoint to the user, it goes to the python. 
-	int sendingPort = 6969;   // port we will live at in C++
-	int pythonPort = 6968;   // port the python file is going to use. 
 	SOCKET ConnectSocket = INVALID_SOCKET;
 	struct sockaddr_in serverAddr;
 	WSADATA wsaData;
 
-	/// flags for machine learning start
-	/// 
-	/// YOU HAVE TO MAKE THE MACHINE LEARNING MODELS BY MANUALLY RUNNING THE PYTHON PROGRAMS IN ML_ORACLES
-	/// THEN YOU CAN USE THE SAV file(s) AND CHANGE the oracleML_Path variable TO USE THE ML MODEL AS AN ORACLE
-	/// 
 	/// @brief only ask from oracle ML without assigning all possibilities
 	bool askOracleML = false;
 
@@ -211,12 +204,21 @@ public:
 	/// @param results the results file
 	void printToFile(std::fstream& results);
 
+	// moved here so we can set it in other files to initialize stuff. rather than being private. 
+	/// @brief by default, this is 2 (a Boolean function), but sometimes it could be a k-value function in the case of nested functions
+	int function_kv = -1;
+
+	// also moved so we can set elsewhere. 
+	/// @brief determine the the number of attributes (dimension) and what those attributes are
+	int dimension = -1;
+
+	/// @brief the name of the attributes of the datapoint
+	std::vector<attribute> attribute_names;
+
 private:
 	// the number of confirmed values in each chain
 	std::vector<int> numConfirmedInChains;
 
-	/// @brief by default, this is 2 (a Boolean function), but sometimes it could be a k-value function in the case of nested functions
-	int function_kv = -1;
 
 	/// @brief the parent function, or attribute, of the current Boolean function, which represents the attribute that the current sub-function is for. E.g. 1 is attribute x1
 	std::string parent_attribute = "";
@@ -278,12 +280,6 @@ private:
 	/// @brief first element is chain, next element is vector, next element is if that vector is visited
 	std::vector<int> majorityVectors;
 
-	/// @brief determine the the number of attributes (dimension) and what those attributes are
-	int dimension = -1;
-
-	/// @brief the name of the attributes of the datapoint
-	std::vector<attribute> attribute_names;
-
 	/// @brief represents what vectors to rectify when adding new attributes
 	std::vector<int> addNewAttributesFor;
 
@@ -293,8 +289,6 @@ private:
 
 	/// @brief truye if nonMonotonicVectors is used
 	bool non_monotone = false;
-
-
 
 
 	/// @brief generates a Hansel Chain from a given dimension and number

@@ -47,22 +47,22 @@ struct Interview {
 	DecisionTable<int> dt{};
 };
 
+// IF MORE MLs ADDED, ADD THEM TO makeMLModels.py DICTIONARY!
 struct MLs {
 	OPENFILENAMEA ofn;
 	/// selected is the name of the file as a string, but not the path towards it.
 	//ml
 	std::vector<std::string> mlModelNames{
-	        "DecisionTree",
-		"DecisionTreeMonotone",
-		"RandomForest",
-		"RandomForestMonotone",
-		"LinearDiscriminantAnalysis"
-		//"ExtraTrees",
-		//"ExtraTreesMonotone",
-		//"NeuralNet",
-		//"AdaBoost",
-		//"HistGradBoostClassifier",
-		//"HistGradBoostClassifierMonotone"
+			"DecisionTree",
+			"DecisionTreeMonotone",
+			"RandomForest",
+			"RandomForestMonotone",
+			"LinearDiscriminantAnalysis",
+			"ExtraTrees",
+			"MLP",
+			"AdaBoost",
+			"HistGradBoostClassifier",
+			"HistGradBoostClassifierMonotone"
 	};
 	std::string mlSelected;
 	int mlIndex = 0;

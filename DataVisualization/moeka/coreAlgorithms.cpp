@@ -626,7 +626,7 @@ int moeka::askingOfQuestion(int i, int j)
 			else if (mlInterview) {
 
 				// Send the data	
-				std::string numbers = "10 20 30";
+				std::string numbers = "1 1 2 2 3 4 5 2 3 3 2 1"; // TODO: STOP HARDCODING. OBVIOUSLY. 
 				int iResult = send(ConnectSocket, numbers.c_str(), (int)numbers.size(), 0);
 				if (iResult == SOCKET_ERROR) {
 					std::cerr << "send failed: " << WSAGetLastError() << "\n";

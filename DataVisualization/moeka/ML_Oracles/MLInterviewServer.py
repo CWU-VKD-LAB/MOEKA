@@ -2,6 +2,7 @@
 import socket
 import sys
 import pickle
+import numpy as np
 
 def main():
 
@@ -10,7 +11,10 @@ def main():
 
     # Create a TCP/IP socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+        
+        # set up our socket. make it reusable so that we don't have to wait for timeouts. 
         try:
+            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             server_socket.bind(('localhost', port))
         except socket.error as e:
             print(f"Failed to bind socket on port {port}: {e}")
@@ -49,9 +53,10 @@ def main():
                     continue  # Wait for the next message
 
                 # Process the numbers using the model's prediction
-                # If your model requires a 2D array, wrap numbers in another list:
-                # prediction = int(model.predict([numbers])[0])
-                prediction = int(model.predict(numbers)[0])
+                # cast as a 2d array even though it's a 1d array.
+                # import numpy as np
+                numbers_array = np.array(numbers).reshape(1, -1)
+                prediction = int(model.predict(numbers_array)[0])
                 print(f"Processed result: {prediction}")
 
                 # Send the result back to the client

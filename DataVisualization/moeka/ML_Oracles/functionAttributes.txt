@@ -1,0 +1,15 @@
+Total classification classes: 2
+
+Attributes and their K values (based on normalized data):
+age: 4
+anaemia: 4
+creatinine_phosphokinase: 4
+diabetes: 4
+ejection_fraction: 4
+high_blood_pressure: 4
+platelets: 4
+serum_creatinine: 4
+serum_sodium: 4
+sex: 4
+smoking: 4
+time: 4
