@@ -8,8 +8,8 @@ Supervisor: Dr. Boris Kovalerchuk
 #define PY_SSIZE_T_CLEAN
 //#include <C:\Users\79har\AppData\Local\Programs\Python\Python310\include\Python.h>
 #include <stdlib.h>
-#include <fstream>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <algorithm>
 #include <mutex>
@@ -499,8 +499,6 @@ private:
 	/// @param boolFuncStrNonSimplified 
 	/// @param include_violation variable which speciied whether or not to include the "fixed" field of the dvector struct
 	void printTable(std::fstream& results, std::vector<int> targets, std::vector<std::string> boolFuncStrSimplified, std::vector<std::string> boolFuncStrNonSimplified, bool include_f_change);
-
-
 
 	/// @brief parse a string by a given delimiter into a vector of ints
 	std::vector<int> parse_input_int(char delimiter, std::string temp);

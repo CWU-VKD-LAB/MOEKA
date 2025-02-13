@@ -376,27 +376,33 @@ std::vector<int> moeka::initForMLInterview(std::string classifierName, std::stri
 	}
 	std::cout << "Connected to server successfully." << std::endl;
 
-
 	printf("C++ client - Connected to server.\n");
 	fflush(stdout); // PRINT NO MATTER WHAT
 	
-	
-	
-	// TODO: get the names, k values, and dimension from python. functionKV is how many target attributes we have. need that too.
-	// init attributes and k-values
-	this->attribute_names.resize(4);
-	this->dimension = 4; // attribute count
-	this->function_kv = 3; // just hard code the number of target classes. 
-
-	for (size_t i = 0; i < dimension; i++)
-	{
-		//attribute_names[i].kv = kValues[i];
-		//attribute_names[i].name = attributeSymbol + std::to_string(i + 1);
-		attribute_names[i].kv = 4;
-		attribute_names[i].name = "x" + std::to_string(i + 1);
-
+	// now we read our file from the python that gives us our target classes, k values, and attributes.
+		// Open the file. Replace "attributes.txt" with your filename if needed.
+	std::ifstream inFile("moeka\\ML_Oracles\\functionAttributes.txt");
+	if (!inFile) {
+		throw new std::runtime_error("NO ATTRIBUTES FILE MADE BY PYTHON MAKE ML MODELS PROGRAM");
 	}
 
+	// Read the first integer which represents the number of target classes.
+	inFile >> this->function_kv;
+
+	std::string name;
+	int kVal;
+
+	while (inFile >> name >> kVal) {
+		attribute_names.push_back({name, kVal, -1, -1});
+	}
+	inFile.close();
+
+	// cleanup by deleting the file.
+	std::remove("moeka\\ML_Oracles\\functionAttributes.txt");
+
+	this->dimension = (int)attribute_names.size();
+
+	printf("COMPUTING HANSEL CHAINS\n");
 	// init hansel chains
 	calculateHanselChains(dimension);
 	numChains = (int)hanselChainSet.size();

@@ -14,7 +14,7 @@ public:
 
 	std::vector<int> kValues{};
 	int attributeCount = 2;
-	std::vector<char*> attributeNames{};
+	std::vector<char *> attributeNames{};
 
 	std::vector<int>* clause = nullptr;
 	std::vector<int>* trueAttributes = nullptr;

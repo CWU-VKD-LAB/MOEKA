@@ -142,10 +142,11 @@ void moeka::calculateHanselChains(int vector_dimension)
 	}
 }
 
-
 // CONTAINS ALL THE QUESTION ASKING FUNCTIONS AND THE CHAIN EXPANSION
 void moeka::start()
 {
+
+	printf("STARTING INTERVIEW!!!\n");
 
 	if (parent_attribute != "")
 	{
@@ -333,7 +334,6 @@ void moeka::start(std::mutex *t, bool *endFlag, int *c)
 	start();
 	return;
 }
-
 
 void moeka::staticOrderQuestionsFunc()
 {
@@ -625,8 +625,12 @@ int moeka::askingOfQuestion(int i, int j)
 			}
 			else if (mlInterview) {
 
-				// Send the data	
-				std::string numbers = "1 1 2 2 3 4 5 2 3 3 2 1"; // TODO: STOP HARDCODING. OBVIOUSLY. 
+				currentDatapoint = &hanselChainSet[i][j];
+				std::string numbers = "";
+				for (int att = 0; att < dimension; att++) {
+					numbers.append(std::to_string(hanselChainSet[i][j].dataPoint[att]) + " ");
+				}
+
 				int iResult = send(ConnectSocket, numbers.c_str(), (int)numbers.size(), 0);
 				if (iResult == SOCKET_ERROR) {
 					std::cerr << "send failed: " << WSAGetLastError() << "\n";
@@ -644,11 +648,8 @@ int moeka::askingOfQuestion(int i, int j)
 					recvbuf[iResult] = '\0'; // null-terminate the string
 					std::cout << "Received: " << recvbuf << "\n";
 				}
-				else if (iResult == 0) {
-					std::cout << "Connection closed by server.\n";
-				}
 				else {
-					std::cerr << "recv failed: " << WSAGetLastError() << "\n";
+					throw new std::runtime_error("COMMUNICATION ERROR");
 				}
 
 				// parse the reply for our number and put it where it goes

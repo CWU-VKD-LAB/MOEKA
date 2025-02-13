@@ -171,8 +171,9 @@ void Form::drawML () {
 	}
 
 
-	// populate the dataset list by using the dFilePaths vector.
-	populateFilePaths(ml.datasetDirectory, ml.dFilePaths);
+	// populate the dataset list by using the dFilePaths vector. only once, else it keeps adding stuff into the vector every frame. 
+	if (ml.dFilePaths.size() == 0) 
+		populateFilePaths(ml.datasetDirectory, ml.dFilePaths);
 	if (ImGui::BeginCombo("Dataset", ml.dFilePaths[ml.dIndex].c_str())) {
 		for (int a = 0; a < ml.dFilePaths.size(); a++) {
 			if (ImGui::Selectable(ml.dFilePaths[a].c_str(), ml.dIndex == a)) {
@@ -205,12 +206,28 @@ void Form::drawML () {
 		// add model to model list
 		//create hanselChainSet for function
 		func->initializeHanselChains();
+		// copy over into func->attributeNames our names from the moeka
+		// C++ sucks...
+		for (int i = 0; i < edm->attribute_names.size(); i++) {
+			// Get the original C-string from the std::string.
+			const char* origName = edm->attribute_names[i].name.c_str();
+			// Dynamically allocate a new char array, including space for the null terminator.
+			char* newName = new char[strlen(origName) + 1];
+			// Copy the contents of origName into newName.
+			strcpy_s(newName, strlen(origName) + 1, origName);			// Push the newly allocated string into attributeNames.
+			func->attributeNames.push_back(newName);
+		}
 
 		// now that we are starting the hansel chains, we can copy over the information so that window can use it in displaying
 		// these can be refactored out if we use form.getFunc or whatever in window.cpp 
 		classCount = edm->function_kv;
-		classNames.resize(edm->attribute_names.size());	/// @brief the name of the attributes of the stuff at some point
-		dimension = 2;
+		for (int i = 0; i < edm->function_kv; i++) {
+			char* s = new char[10];
+			sprintf_s(s, 10, "Class: %d", i);
+			classNames.push_back(s);
+		}
+
+		dimension = edm->dimension;
 
 		// TODO: move to hansel chain class?
 		func->hanselChains = new HanselChains(func);
@@ -219,7 +236,6 @@ void Form::drawML () {
 			func->hanselChains->attributes.push_back(edm->attribute_names[i].kv);
 		}
 		func->hanselChains->dimension = edm->dimension;
-		//func->hanselChains->hanselChainContainsLowUnit.reserve(func->hanselChains->hanselChainSet.size());
 
 		std::vector<std::vector<std::vector<int>>> t(edm->hanselChainSet.size()); 
 		// organize them and assign classes such that we can visualize

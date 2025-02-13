@@ -6,8 +6,16 @@ import numpy as np
 
 def main():
 
+    print("PASSED IN FILE", sys.argv[2])
+
     port = int(sys.argv[1])
-    model = pickle.load(open(sys.argv[2], 'rb'))  # args: port, model file
+
+    # Do this:
+    loaded_data = pickle.load(open(sys.argv[2], 'rb'))
+    if isinstance(loaded_data, dict) and 'model' in loaded_data:
+        model = loaded_data['model']
+    else:
+        model = loaded_data
 
     # Create a TCP/IP socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
