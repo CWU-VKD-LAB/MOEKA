@@ -39,6 +39,6 @@ public:
 	void calculateHanselChains(int vector_dimension);
 
 private:
-	std::vector<std::vector<std::vector<int>>> genChains(int num, int vector_dimension, std::unordered_map<int, std::vector<std::vector<std::vector<int>>>> chain);
+	std::vector<std::vector<std::vector<int>>> genChains(int num, int vector_dimension, std::unordered_map<int, std::vector<std::vector<std::vector<int>>>> &chain);
 };
 

@@ -64,12 +64,8 @@ def makeModel(input_file, selected_classifier, output_csv=None, monotonicity=Non
             # Adding 1 for the center bin.
             k = int(pos_bins + neg_bins + 1)
             # Ensure k stays between 2 and 15.
-            k = max(2, min(k, 15))
+            k = max(2, min(k, 8))
         ordinalValues.append(k)
-
-    # cut all the k's to save computation hopefully so we don't need nasa computers.  
-    for k in ordinalValues:
-        k = max(2, k/4)     # ---------------------------------------------------------------------CHANGE OR REMOVE IF YOU WANT TO RUN WITH MAX K UP TO 15. MAY REQUIRE A NASA COMPUTER! 
 
     # set our monotonicity as 1 for all attributes for now. it can be reversed if a feature is not monotonic perhaps.
     monotonicity = [1] * num_features
