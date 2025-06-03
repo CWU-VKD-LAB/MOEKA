@@ -32,22 +32,46 @@ MOEKA solves the problem of efficiently capturing expert knowledge about monoton
 
 ### Prerequisites
 
-- Windows operating system
-- Visual Studio (for building from source)
-- Required dependencies (see Dependencies folder)
+- C++17 compatible compiler
+- CMake 3.15 or higher
+- OpenGL development libraries
+- GLFW3
+- GLEW
+- ImGui
 
 ### Building
 
-1. Clone the repository
-2. Open `DataVisualization.sln` in Visual Studio
-3. Build the solution
+#### Using CMake (Recommended)
+
+```bash
+# Create build directory
+mkdir build && cd build
+
+# Configure
+cmake ..
+
+# Build
+cmake --build .
+```
+
+#### Using Visual Studio (Alternative)
+
+1. Open `MOEKA.sln` in Visual Studio
+2. Build the solution
 
 ### Running
 
 The program can be run in two modes:
 
 1. **Console Mode**: For direct command-line interaction
+   ```bash
+   ./moeka --console
+   ```
+
 2. **GUI Mode**: For visual interface and manipulation
+   ```bash
+   ./moeka
+   ```
 
 ## Usage
 
