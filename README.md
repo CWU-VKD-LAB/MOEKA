@@ -1,15 +1,15 @@
 # MOEKA (Monotone Boolean Function Expert Knowledge Acquisition)
 
-MOEKA is a specialized software system designed for expert knowledge acquisition and representation of monotone Boolean functions. It provides both a command-line interface and a graphical user interface for creating, visualizing, and analyzing monotone Boolean functions.
+MOEKA is a specialized user-interview based software system designed for expert knowledge acquisition and representation of monotone Boolean functions. It provides both a command-line interface and a graphical user interface for creating, visualizing, and analyzing monotone Boolean functions.
 
-## Purpose
+## Software Purpose
 
 MOEKA solves the problem of efficiently capturing expert knowledge about monotone Boolean functions through an interactive process. It uses Hansel chains and various optimization algorithms to minimize the number of questions needed to reconstruct a complete monotone Boolean function from expert knowledge.
 
 ## Key Features
 
 - **Interactive Knowledge Acquisition**: Guides experts through a systematic process of defining monotone Boolean functions
-- **Multiple Interface Options**: 
+- **Multiple Interface Options**:
   - Command-line interface for direct interaction
   - Graphical user interface for visual representation and manipulation
 - **Optimization Algorithms**:
@@ -75,4 +75,4 @@ Please read the LICENSE file for details on our code of conduct and the process 
 
 ## License
 
-This project is licensed under the terms included in the LICENSE file. 
+MOEKA is licensed under the MIT License, allowing free use for both personal and commercial purposes. For full terms, see the `LICENSE` file.
