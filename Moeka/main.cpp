@@ -31,8 +31,6 @@ int main()
     }
     else
     {
-
-        // TODO: implement the printing to file for the fun version of the prorgam.
         init();
     }
 }
@@ -50,12 +48,6 @@ void init () {
         if (w.form.addModel)
         {
             w.renderHanselChains();
-        }
-
-        if (w.form.getCompare().comparisons)
-        {
-            // TODO: implement a real compare form. 
-            //w.addModelFromCompareForm();
         }
 
         w.draw();

@@ -1,7 +1,5 @@
-import sys
 import pickle
 import pandas as pd
-import pathlib
 
 def makePredictionFromDatapoint(name, args):
     args = (args,)
@@ -36,7 +34,7 @@ def testViolationOfMonotonicity(modelName, fileName):
     errors = 0
     viol = 0
     trueVal = 0
-    falseVal = 0
+    # TODO: add the trueFalse value tracking
     
     # perform for 0 index first for efficiency
     prediction = int(loaded_model.predict(ds[0][:-1].reshape(1, -1))[0])
@@ -55,14 +53,9 @@ def testViolationOfMonotonicity(modelName, fileName):
             
         if (ds[i][-1] == 1) and (prediction == 0):
             viol += 1
+            
     print ("acc: ", trueVal / len(ds))
     print ("total errors: ", errors)
     print("error as %: ", errors/ len(ds)) 
     print ("total viol: ", viol)
     print ("viol: ", viol / len(ds))
-            
-
-#args = [int(arg) for arg in sys.argv[2:]]
-#makePredictionFromFile(sys.argv[1], sys.argv[2])
-#makePredictionFromDatapoint("RandomForest.sav", (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
-#makePredictionFromFile("RandomForest.sav", "D:\.School\Work\Github DataVisualization\DataVisualization\DataVisualization\hanselChains.csv")

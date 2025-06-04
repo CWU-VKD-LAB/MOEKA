@@ -68,7 +68,7 @@ struct MLs {
 	int mlIndex = 0;
 
 	//dataset
-	std::string datasetDirectory = "..\\DataVisualization\\datasets";
+	std::string datasetDirectory = "..\\Moeka\\datasets";
 	std::vector<std::string> dFilePaths{};
 	std::string dSelected;
 	int dIndex = 0;
@@ -100,7 +100,7 @@ private:
 	// file reading
 	std::vector<std::string> files{};
 	int selectedFile = -1;
-	std::string basePath = "..\\DataVisualization\\models";
+	std::string basePath = "..\\Moeka\\models";
 
 
 	// what function the program is currently looking at specifically.

@@ -22,7 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{7797b9de-1e7d-41d0-9f01-d439824fc2d5}</ProjectGuid>
-    <RootNamespace>DataVisualization</RootNamespace>
+    <RootNamespace>Moeka</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -177,7 +177,7 @@
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="stb\stb_image.cpp" />
     <ClCompile Include="tools\config.cpp" />
-    <ClCompile Include="DataVisualization.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
     <ClCompile Include="ImGui\imgui_demo.cpp" />
     <ClCompile Include="ImGui\imgui_draw.cpp" />

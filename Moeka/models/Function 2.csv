@@ -1,0 +1,48 @@
+##Function 1
+Attribute 1, Attribute 2, Attribute 3, Attribute 4, Attribute 5, Attribute 6, Attribute 7, Attribute 8, 
+2, 2, 2, 2, 2, 2, 2, 2, 
+8, 4, 
+#sib0
+0, 1, 1, 1, 0, 0, 0, 0, 
+#sib1
+#sib2
+#sib3
+#sib4
+#sib5
+#sib6
+###Function 2-2
+Attribute 1, Attribute 2, 
+2, 2, 
+2, 2, 
+#sib0
+0, 0, 
+1, 1, 
+0, 1, 
+###Function 2-5
+Attribute 1, Attribute 2, 
+2, 2, 
+2, 2, 
+#sib0
+1, 1, 
+0, 1, 
+##Function 2-2
+Attribute 1, Attribute 2, 
+2, 2, 
+2, 2, 
+#sib0
+0, 0, 
+1, 1, 
+0, 1, 
+##Function 3
+Attribute 1, Attribute 2, 
+2, 2, 
+2, 2, 
+#sib0
+0, 0, 
+0, 1, 
+###Function 3-1
+Attribute 1, Attribute 2, 
+2, 2, 
+2, 2, 
+#sib0
+1, 0, 

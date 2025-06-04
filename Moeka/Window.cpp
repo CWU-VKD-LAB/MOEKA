@@ -239,7 +239,11 @@ void Window::createOptions(Texture& texture) {
         if (ImGui::IsItemHovered()) {
             ImGui::BeginTooltip();
             ImGui::Text("Currently non-functional");
-            ImGui::Text(config::options.at(item).c_str());
+            if (item >= 0 && item < config::options.size()) {
+                ImGui::Text(config::options.at(item).c_str());
+            } else {
+                ImGui::Text("Invalid option");
+            }
             ImGui::EndTooltip();
         }
         ImGui::PopID();
@@ -259,7 +263,11 @@ void Window::createOptions(Texture& texture) {
         int c = reinterpret_cast<Bar*>(Window::s)->classVal;
         std::vector<int> point = reinterpret_cast<Bar*>(Window::s)->datapoint;
         std::string text = "Classified As:\n ";
-        text += (c == classNames.size()) ? "Unavailable" : classNames[c];
+        if (c >= 0 && c < classNames.size()) {
+            text += classNames[c];
+        } else {
+            text += "Unavailable";
+        }
 		text += "\n";
 		
         text += "Data Point:\n";
