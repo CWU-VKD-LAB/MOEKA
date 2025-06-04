@@ -8,14 +8,14 @@ MOEKA UI is the User Interface version of the MOEKA software. It provides a visu
 
 When you run the program, you will get a Window that looks like the one below. Each Node is labeled with a number that corresponds to its description.
 
-![Main Program Window](./help/image11.png)
+![Main Program Window](./help_images/image11.png)
 
 1. A window that contains buttons that manipulate the model, such as "Show bush up" and "Change expanded to real elements". As of writing, these buttons do not have functionality.
 
 2. When a Function is loaded into memory, a Tree view representation of the function and its sub functions, clauses, and sibling functions will appear below it in the hierarchy. There are also two buttons that will appear under the function when expanded labelled "Math" and "English" that will show the function as expressed through mathematical notation, and plain english.
 
-   ![Math View](./help/image13.png)
-   ![English View](./help/image14.png)
+   ![Math View](./help_images/image13.png)
+   ![English View](./help_images/image14.png)
 
 3. An introduction window that appears on first time start up, or by pressing the "Open Help" button. This window shows the keybinds involved in the program.
 
@@ -23,20 +23,20 @@ When you run the program, you will get a Window that looks like the one below. E
 
 5. When a model is loaded, some widgets will populate this Window to affect the scaling of the currently focused model.
 
-   ![Model Scaling Widgets](./help/image15.png)
+   ![Model Scaling Widgets](./help_images/image15.png)
 
 6. When there are multiple models loaded into memory, we can swap the selected model using the arrow buttons in this Window.
 
 > **Note:** If you hover a particular bar of data in a Model, you will be shown the bars class value, and you can right click to edit the color of the bar and other bars with the same class.
 >
-> ![Bar Data Hover](./help/image16.png)
-> ![Bar Color Edit](./help/image17.png)
+> ![Bar Data Hover](./help_images/image16.png)
+> ![Bar Color Edit](./help_images/image17.png)
 
 ## Prep Window
 
 When opening the prep window, the program will have a handful of fields pop up:
 
-![Prep Window](./help/image33.png)
+![Prep Window](./help_images/image33.png)
 
 1. The Functions name
 2. Function swapper, for changing the subject of the Prep Window to another function
@@ -53,28 +53,28 @@ When opening the prep window, the program will have a handful of fields pop up:
 
 When in this screen, we will see the following:
 
-![Function Screen](./help/image51.png)
+![Function Screen](./help_images/image51.png)
 
 1. A button to go back to the previous screen
 2. If we have multiple loaded functions, pressing the left and right arrow will swap the focus between them here. If we are loaded into a sub-function, we will also gain the use of the up arrow to go into the parent function
 3. Each attribute defined in the previous window using Amount of Attributes will appear in this table, with radio buttons equal to the amount specified in the slider relating to the attribute. The selected values is for the next clause to be added. If a clause was loaded, then that clauses values will be displayed instead
 4. A box that contains all the Clauses that this function contains. Pressing Load will change the focus of the Table above, while pressing X will delete the clause
 
-   ![Clauses Box](./help/image52.png)
+   ![Clauses Box](./help_images/image52.png)
 
 5. A box that contains all the Sibling functions this function has, which is pre-calculated using the value of "Amount of Target Attributes" minus 1
 
-   ![Sibling Functions Box](./help/image53.png)
+   ![Sibling Functions Box](./help_images/image53.png)
 
 6. A box that contains all the sub functions this function has, which is pre-calculated using the value of "Amount of Attributes". The sub functions come undefined until the user defines them
 
-   ![Sub Functions Box](./help/image54.png)
+   ![Sub Functions Box](./help_images/image54.png)
 
 7. The button to add a clause to the function. This button changes to "Update Clause" when a clause has been loaded into memory, for clarity
 8. Adds a sibling function to the function. This button is not entirely necessary when the sibling functions are already pre-calculated
 9. Attaches a sub function definition to this function at a specified attribute. Select the attribute to add the definition for, then press Select. The program will load into that subfunction automatically
 
-   ![Sub Function Definition](./help/image55.png)
+   ![Sub Function Definition](./help_images/image55.png)
 
 10. Finish up the Function screen and create a model of the function. This button is greyed out if there is no defined clauses
 
