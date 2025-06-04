@@ -24,9 +24,9 @@ description.
     and "English" that will show the function as expressed through
     mathematical notation, and plain english.\
     ![A black screen with white text Description automatically
-    generated](./help/media/image13.tmp)\
+    generated](./help/media/image13.png)\
     ![A black screen with white text Description automatically
-    generated](./help/media/image14.tmp)
+    generated](./help/media/image14.png)
 
 3)  An introduction window that appears on first time start up, or by
     pressing the "Open Help" button. This window shows the keybinds
@@ -39,7 +39,7 @@ description.
 
 5)  When a model is loaded, some widgets will populate this Window to
     affect the scaling of the currently focused model.\
-    ![](./help/media/image15.tmp)
+    ![](./help/media/image15.png)
 
 6)  When there are multiple models loaded into memory, we can swap the
     selected model using the arrow buttons in this Window.
@@ -49,9 +49,9 @@ description.
 > the color of the bar and other bars with the same class.
 >
 > ![A screen shot of a computer Description automatically
-> generated](./help/media/image16.tmp)![A screenshot of a computer Description
+> generated](./help/media/image16.png)![A screenshot of a computer Description
 > automatically
-> generated](./help/media/image17.tmp)
+> generated](./help/media/image17.png)
 
 ## Prep Window:
 
@@ -59,7 +59,7 @@ When opening the prep window, the program will have a handful of fields
 pop up:
 
 ![A screenshot of a computer Description automatically
-generated](./help/media/image33.tmp)
+generated](./help/media/image33.png)
 
 1)  The Functions name
 
@@ -98,7 +98,7 @@ generated](./help/media/image33.tmp)
 
 When in this screen, we will see the following:
 
-![](./help/media/image51.tmp)
+![](./help/media/image51.png)
 
 1)  A button to go back to the previous screen.
 
@@ -118,20 +118,20 @@ When in this screen, we will see the following:
     pressing X will delete the clause.\
     ![A black rectangular object with a black border Description
     automatically
-    generated](./help/media/image52.tmp)
+    generated](./help/media/image52.png)
 
 5)  A box that contains all the Sibling functions this function has,
     which is pre-calculated using the value of "Amount of Target
     Attributes" minus 1.\
     ![A black rectangular object with a black border Description
     automatically
-    generated](./help/media/image53.tmp)
+    generated](./help/media/image53.png)
 
 6)  A box that contains all the sub functions this function has, which
     is pre-calculated using the value of "Amount of Attributes". The sub
     functions come undefined until the user defines them.\
     ![A screen shot of a computer Description automatically
-    generated](./help/media/image54.tmp)
+    generated](./help/media/image54.png)
 
 7)  The button to add a clause to the function. This button changes to
     "Update Clause" when a clause has been loaded into memory, for
@@ -145,7 +145,7 @@ When in this screen, we will see the following:
     press Select. The program will load into that subfunction
     automatically.\
     ![A screenshot of a computer program Description automatically
-    generated](./help/media/image55.tmp)
+    generated](./help/media/image55.png)
 
 10) Finish up the Function screen and create a model of the function.
     This button is greyed out if there is no defined clauses.
