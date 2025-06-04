@@ -5,6 +5,13 @@
 
 .vscode/
 
+# Word files are not needed in the repo these are just for personal reference
+.doc
+.docx
+
+# PDF files are not needed in the repo these are just for personal reference
+.pdf
+
 # User-specific files
 *.rsuser
 *.suo
