@@ -19,6 +19,7 @@ Supervisor: Dr. Boris Kovalerchuk
 #include <windows.h>
 #include <shellapi.h>
 #include <unordered_map>
+#include <unordered_set>
 #include <iomanip>
 #include <filesystem>
 #include <array>
@@ -387,7 +388,7 @@ private:
 	/// @param vector_class 
 	/// @param visited_map since multiple sources 
 	/// @return true when recursion should be used. false otherwise
-	void checkUp(int i, int j, int vector_class, std::map<int, std::vector<int>>*);
+	void checkUp(int i, int j, int vector_class, std::unordered_map<int, std::unordered_set<int>>* visited_map);
 
 
 	/// @brief check down expansions. 
@@ -395,7 +396,7 @@ private:
 	/// @param j 
 	/// @param vector_class 
 	/// @return true if recursion should be used. false otherwise
-	void checkDown(int i, int j, int vector_class, std::map<int, std::vector<int>>*);
+	void checkDown(int i, int j, int vector_class, std::unordered_map<int, std::unordered_set<int>>* visited_map);
 
 	
 	/// @brief expand an entire chain

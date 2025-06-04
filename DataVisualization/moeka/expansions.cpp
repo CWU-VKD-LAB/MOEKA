@@ -14,6 +14,9 @@
  */
 
 #include "moeka.h"
+#include <unordered_map>
+#include <unordered_set>
+#include <omp.h>
 
 /**
  * @brief Calculates all possible expansions for each vector in the Hansel chain set
@@ -104,49 +107,62 @@ void moeka::possibleExpansions(int newValue, int i, int j, int p, int startChain
  */
 void moeka::checkExpansions(int vector_class, int i, int j)
 {
-	// use dynamic programming solution to not keep checking stuff
-	std::map<int, std::vector<int>>* visited_map = new std::map<int, std::vector<int>>;
+	// Use a more efficient data structure for visited tracking
+	// Using unordered_map for O(1) lookups instead of map
+	std::unordered_map<int, std::unordered_set<int>> visited_map;
+
+	// Pre-allocate space for visited sets to avoid reallocations
+	for (int k = 0; k < numChains; k++) {
+		visited_map[k].reserve(hanselChainSet[k].size());
+	}
 
 	if (function_kv == 2)
 	{
 		if (vector_class)
 		{
-			checkUp(i, j, vector_class, visited_map);
+			checkUp(i, j, vector_class, &visited_map);
 		}
 		else
 		{
-			checkDown(i, j, vector_class, visited_map);
+			checkDown(i, j, vector_class, &visited_map);
 		}
 	}
 	else if (function_kv > 2)
 	{
 		if (vector_class == function_kv - 1)
 		{
-			checkUp(i, j, vector_class, visited_map);
+			checkUp(i, j, vector_class, &visited_map);
 		}
 		else if (vector_class == 0)
 		{
-			checkDown(i, j, vector_class, visited_map);
+			checkDown(i, j, vector_class, &visited_map);
 		}
 		else
 		{
-			checkUp(i, j, vector_class, visited_map);
-			checkDown(i, j, vector_class, visited_map);
+			// For middle classes, check both directions in parallel
+			#pragma omp parallel sections
+			{
+				#pragma omp section
+				{
+					checkUp(i, j, vector_class, &visited_map);
+				}
+				#pragma omp section
+				{
+					checkDown(i, j, vector_class, &visited_map);
+				}
+			}
 		}
 	}
 
-	// now go through and find any dual expansions
+	// Process dual expansions only for chains that need it
 	for (int k = 0; k < numChains; k++)
 	{
-		int s = (int)hanselChainSet[k].size();
-
+		const int s = (int)hanselChainSet[k].size();
 		if (numConfirmedInChains[k] <= s - 2 && s > 2)
 		{
 			findDualExpansion(k);
 		}
 	}
-
-	delete visited_map;
 }
 
 /**
@@ -170,25 +186,20 @@ void moeka::expandUp(int i, int j, dvector* vector, int vector_class)
 		vector->_class = vector_class;
 		vector->visited = true;
 	}
-
-	// if vector class is greater than the current class even though the previous was already visited
-	// the vector class must be "greater than or equal" to in this case
 	else if (vector_class > vector->_class && !vector->lessThan && !vector->asked)
 	{
-		// delete the pointer to this vector in the vector that expanded this one
-		std::erase(vector->expanded_by->up_expansions, vector);
+		// Use erase-remove idiom instead of std::erase
+		auto& expansions = vector->expanded_by->up_expansions;
+		expansions.erase(std::remove(expansions.begin(), expansions.end(), vector), expansions.end());
 
-		// reassign expanded by
-		// don't need to mark as visited
 		vector->expanded_by = &hanselChainSet[i][j];
 		vector->_class = vector_class;
 	}
 
-	// the vector is a strong value if it is maximum function kv and was up expanded
 	if (vector->_class == function_kv - 1)
 	{
 		vector->weak = false;
-		vector->confirmed = true; // always confirmed when Boolean
+		vector->confirmed = true;
 		numConfirmedInChains[vector->number.first - 1]++;
 	}
 }
@@ -204,32 +215,44 @@ void moeka::expandUp(int i, int j, dvector* vector, int vector_class)
  * Recursively processes upward expansions while maintaining a visited map
  * to prevent infinite recursion and cycles.
  */
-void moeka::checkUp(int i, int j, int vector_class, std::map<int, std::vector<int>>* visited_map)
+void moeka::checkUp(int i, int j, int vector_class, std::unordered_map<int, std::unordered_set<int>>* visited_map)
 {
+	// Pre-allocate vector for expandable vectors to avoid reallocations
+	std::vector<dvector*> expandable_vectors;
+	expandable_vectors.reserve(hanselChainSet[i][j].up_expandable.size());
+
 	for (auto vector : hanselChainSet[i][j].up_expandable)
 	{
 		int e_i = vector->number.first - 1;
 		int e_j = vector->number.second - 1;
-		// base case
-		// if vector is not in visited map, then recurse
+
+		// Use O(1) lookup with unordered_set
 		if (visited_map->find(e_i) == visited_map->end() ||
-			!std::binary_search(visited_map->at(e_i).begin(), visited_map->at(e_i).end(), e_j))
+			visited_map->at(e_i).find(e_j) == visited_map->at(e_i).end())
 		{
-			expandUp(i, j, vector, vector_class);
-
-			// insert expanded vector into map
-			if (visited_map->find(e_i) == visited_map->end())
-			{
-				visited_map->insert(std::pair<int, std::vector<int>>(e_i, std::vector<int>{e_j}));
-			}
-			else
-			{
-				visited_map->at(e_i).push_back(e_j);
-			}
-
-			// recurse on expanded vector
-			checkUp(e_i, e_j, vector->_class, visited_map);
+			expandable_vectors.push_back(vector);
 		}
+	}
+
+	// Process all valid expansions
+	for (auto vector : expandable_vectors)
+	{
+		int e_i = vector->number.first - 1;
+		int e_j = vector->number.second - 1;
+
+		expandUp(i, j, vector, vector_class);
+
+		// Insert into visited set
+		if (visited_map->find(e_i) == visited_map->end())
+		{
+			visited_map->emplace(e_i, std::unordered_set<int>{e_j});
+		}
+		else
+		{
+			visited_map->at(e_i).insert(e_j);
+		}
+
+		checkUp(e_i, e_j, vector->_class, visited_map);
 	}
 }
 
@@ -253,27 +276,22 @@ void moeka::expandDown(int i, int j, dvector* vector, int vector_class)
 		vector->expanded_by = &hanselChainSet[i][j];
 		vector->_class = vector_class;
 		vector->visited = true;
-		vector->lessThan = true; // mark as "less than or equal to" for the vector class
+		vector->lessThan = true;
 	}
-
-	// if vector class is less than the current class even though the previous was already visited
-	// the vector class must be "less than or equal to", in this case.
 	else if (vector_class < vector->_class && vector->lessThan && !vector->asked)
 	{
-		// delete the pointer to this vector in the vector that expanded this one
-		std::erase(vector->expanded_by->down_expansions, vector);
+		// Use erase-remove idiom instead of std::erase
+		auto& expansions = vector->expanded_by->down_expansions;
+		expansions.erase(std::remove(expansions.begin(), expansions.end(), vector), expansions.end());
 
-		// reassign expanded by
-		// don't need to mark as visited
 		vector->expanded_by = &hanselChainSet[i][j];
 		vector->_class = vector_class;
 	}
 
-	// the vector is a strong value if is 0 and was down expanded
 	if (vector->_class == 0)
 	{
 		vector->weak = false;
-		vector->confirmed = true; // always confirmed when Boolean
+		vector->confirmed = true;
 		numConfirmedInChains[vector->number.first - 1]++;
 	}
 }
@@ -289,35 +307,44 @@ void moeka::expandDown(int i, int j, dvector* vector, int vector_class)
  * Recursively processes downward expansions while maintaining a visited map
  * to prevent infinite recursion and cycles.
  */
-void moeka::checkDown(int i, int j, int vector_class, std::map<int, std::vector<int>>* visited_map)
+void moeka::checkDown(int i, int j, int vector_class, std::unordered_map<int, std::unordered_set<int>>* visited_map)
 {
+	// Pre-allocate vector for expandable vectors to avoid reallocations
+	std::vector<dvector*> expandable_vectors;
+	expandable_vectors.reserve(hanselChainSet[i][j].down_expandable.size());
+
 	for (auto vector : hanselChainSet[i][j].down_expandable)
 	{
-		// update i and j with location for expanded vector
 		int e_i = vector->number.first - 1;
 		int e_j = vector->number.second - 1;
 
-		// base case
-		// if vector is not in visited map, then recurse
+		// Use O(1) lookup with unordered_set
 		if (visited_map->find(e_i) == visited_map->end() ||
-			!std::binary_search(visited_map->at(e_i).begin(), visited_map->at(e_i).end(), e_j))
+			visited_map->at(e_i).find(e_j) == visited_map->at(e_i).end())
 		{
-			expandDown(i, j, vector, vector_class);
-
-			// insert expanded vector into map
-			if (visited_map->find(e_i) == visited_map->end())
-			{
-				// make new vector in the map for hansel chain at e_i 
-				visited_map->insert(std::pair<int, std::vector<int>>(e_i, std::vector<int>{e_j}));
-			}
-			else
-			{
-				// insert into existing hansel chain
-				visited_map->at(e_i).push_back(e_j);
-			}
-
-			checkDown(e_i, e_j, vector->_class, visited_map);
+			expandable_vectors.push_back(vector);
 		}
+	}
+
+	// Process all valid expansions
+	for (auto vector : expandable_vectors)
+	{
+		int e_i = vector->number.first - 1;
+		int e_j = vector->number.second - 1;
+
+		expandDown(i, j, vector, vector_class);
+
+		// Insert into visited set
+		if (visited_map->find(e_i) == visited_map->end())
+		{
+			visited_map->emplace(e_i, std::unordered_set<int>{e_j});
+		}
+		else
+		{
+			visited_map->at(e_i).insert(e_j);
+		}
+
+		checkDown(e_i, e_j, vector->_class, visited_map);
 	}
 }
 
