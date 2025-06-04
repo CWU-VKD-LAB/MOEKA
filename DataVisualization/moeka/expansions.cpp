@@ -1,9 +1,27 @@
+/**
+ * @file expansions.cpp
+ * @brief Implementation of expansion-related algorithms for MOEKA
+ * 
+ * This file contains algorithms for handling expansions in the MOEKA system.
+ * It includes functionality for:
+ * - Calculating all possible expansions
+ * - Handling upward and downward expansions
+ * - Managing dual expansions between datapoints
+ * - Checking and validating expansions
+ * 
+ * Note: This file specifically handles expansion algorithms that are not
+ * related to function changes (f-changes) or order-based modifications.
+ */
+
 #include "moeka.h"
 
-// any algorithms to do with expansions, and not expansions that are changed due to function changes (f-changes)
-// or some type of order are included here
-
-
+/**
+ * @brief Calculates all possible expansions for each vector in the Hansel chain set
+ * 
+ * Iterates through all vectors in the Hansel chain set and calculates possible
+ * expansions for each attribute value. This is the main entry point for expansion
+ * calculations.
+ */
 void moeka::calculateAllPossibleExpansions()
 {
 	for (int i = 0; i < (int)hanselChainSet.size(); i++)
@@ -22,7 +40,18 @@ void moeka::calculateAllPossibleExpansions()
 	}
 }
 
-
+/**
+ * @brief Calculates possible expansions for a specific vector and attribute
+ * 
+ * @param newValue The new value to check for expansion
+ * @param i Index of the Hansel chain
+ * @param j Index of the vector within the chain
+ * @param p Index of the attribute being modified
+ * @param startChain Starting chain index for searching expansions
+ * 
+ * Determines if a vector can be expanded by changing an attribute value,
+ * and if so, adds it to either up_expandable or down_expandable lists.
+ */
 void moeka::possibleExpansions(int newValue, int i, int j, int p, int startChain)
 {
 	int oldValue = hanselChainSet[i][j].dataPoint[p];
@@ -62,7 +91,17 @@ void moeka::possibleExpansions(int newValue, int i, int j, int p, int startChain
 	}
 }
 
-
+/**
+ * @brief Checks and processes expansions for a given vector
+ * 
+ * @param vector_class The class value of the vector
+ * @param i Index of the Hansel chain
+ * @param j Index of the vector within the chain
+ * 
+ * Uses dynamic programming to check expansions in both upward and downward
+ * directions based on the vector's class value. Also handles dual expansions
+ * for confirmed vectors.
+ */
 void moeka::checkExpansions(int vector_class, int i, int j)
 {
 	// use dynamic programming solution to not keep checking stuff
@@ -110,7 +149,18 @@ void moeka::checkExpansions(int vector_class, int i, int j)
 	delete visited_map;
 }
 
-
+/**
+ * @brief Expands a vector upward in the class hierarchy
+ * 
+ * @param i Index of the Hansel chain
+ * @param j Index of the vector within the chain
+ * @param vector Pointer to the vector being expanded
+ * @param vector_class The class value to assign to the expanded vector
+ * 
+ * Handles upward expansion of vectors, marking them as visited and updating
+ * their class values. Also handles cases where vectors need to be re-expanded
+ * with a higher class value.
+ */
 void moeka::expandUp(int i, int j, dvector* vector, int vector_class)
 {
 	if (!vector->visited)
@@ -143,7 +193,17 @@ void moeka::expandUp(int i, int j, dvector* vector, int vector_class)
 	}
 }
 
-
+/**
+ * @brief Recursively checks upward expansions from a given vector
+ * 
+ * @param i Index of the Hansel chain
+ * @param j Index of the vector within the chain
+ * @param vector_class The class value to propagate
+ * @param visited_map Map tracking visited vectors to prevent cycles
+ * 
+ * Recursively processes upward expansions while maintaining a visited map
+ * to prevent infinite recursion and cycles.
+ */
 void moeka::checkUp(int i, int j, int vector_class, std::map<int, std::vector<int>>* visited_map)
 {
 	for (auto vector : hanselChainSet[i][j].up_expandable)
@@ -173,7 +233,18 @@ void moeka::checkUp(int i, int j, int vector_class, std::map<int, std::vector<in
 	}
 }
 
-
+/**
+ * @brief Expands a vector downward in the class hierarchy
+ * 
+ * @param i Index of the Hansel chain
+ * @param j Index of the vector within the chain
+ * @param vector Pointer to the vector being expanded
+ * @param vector_class The class value to assign to the expanded vector
+ * 
+ * Handles downward expansion of vectors, marking them as visited and updating
+ * their class values. Also handles cases where vectors need to be re-expanded
+ * with a lower class value.
+ */
 void moeka::expandDown(int i, int j, dvector* vector, int vector_class)
 {
 	if (!vector->visited)
@@ -207,7 +278,17 @@ void moeka::expandDown(int i, int j, dvector* vector, int vector_class)
 	}
 }
 
-
+/**
+ * @brief Recursively checks downward expansions from a given vector
+ * 
+ * @param i Index of the Hansel chain
+ * @param j Index of the vector within the chain
+ * @param vector_class The class value to propagate
+ * @param visited_map Map tracking visited vectors to prevent cycles
+ * 
+ * Recursively processes downward expansions while maintaining a visited map
+ * to prevent infinite recursion and cycles.
+ */
 void moeka::checkDown(int i, int j, int vector_class, std::map<int, std::vector<int>>* visited_map)
 {
 	for (auto vector : hanselChainSet[i][j].down_expandable)
@@ -240,9 +321,15 @@ void moeka::checkDown(int i, int j, int vector_class, std::map<int, std::vector<
 	}
 }
 
-
-/// @brief expansions BETWEEN two datapoints/vectors instead of FROM a single vector
-/// @param i 
+/**
+ * @brief Finds potential dual expansions in a Hansel chain
+ * 
+ * @param i Index of the Hansel chain to check
+ * 
+ * Searches for pairs of confirmed vectors with the same class value that
+ * can be used to expand vectors between them. This is used to fill in
+ * unconfirmed vectors between two confirmed vectors of the same class.
+ */
 void moeka::findDualExpansion(int i)
 {
 	int chainSize = (int)hanselChainSet[i].size();
@@ -276,7 +363,16 @@ void moeka::findDualExpansion(int i)
 	}
 }
 
-
+/**
+ * @brief Performs dual expansion between two vectors
+ * 
+ * @param i Index of the Hansel chain
+ * @param l Left boundary vector index
+ * @param r Right boundary vector index
+ * 
+ * Expands all unconfirmed vectors between two confirmed vectors of the same
+ * class, assigning them the same class value and marking them as confirmed.
+ */
 void moeka::dualExpansion(int i, int l, int r)
 {
 	// j is for current to-be-expanded vector
