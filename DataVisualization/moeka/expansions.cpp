@@ -17,10 +17,6 @@ void moeka::calculateAllPossibleExpansions()
 				{
 					possibleExpansions(d, i, j, p, 0);
 				}
-
-				// used to be just this for boolean
-				//possibleExpansions(1, i, j, p, 0);
-				//possibleExpansions(0, i, j, p, 0);
 			}
 		}
 	}
@@ -61,23 +57,6 @@ void moeka::possibleExpansions(int newValue, int i, int j, int p, int startChain
 
 					return;
 				}
-
-				// this is obsolete now
-				/*else if (expanded.dataPoint == hanselChainSet[hc][v].dataPoint && &hanselChainSet[hc][v] != &hanselChainSet[i][j]) // if oldVector is visited, then add to "unused" expansions
-				{
-					// if newValue is greater than the oldValue, it means that it is an expansion in the positive direction, so the class should be 1.
-					if (newValue > oldValue)
-					{
-						hanselChainSet[i][j].unexpandable_one.push_back(&hanselChainSet[hc][v]);
-					}
-					// if newVlua is less than the oldValue, it measn that the expansion is in the negative direction, so the class should be 0.
-					else
-					{
-						hanselChainSet[i][j].unexpandable_zero.push_back(&hanselChainSet[hc][v]);
-					}
-
-					return;
-				}*/
 			}
 		}
 	}
@@ -328,44 +307,3 @@ void moeka::dualExpansion(int i, int l, int r)
 		}
 	}
 }
-
-
-
-
-
-// experimental/unfinished, never was used for any sort of data collection
-/*void expertDataMining::chainExpansions(int i, int j, int vector_class)
-{
-	if (function_kv = 2)
-	{
-		// expand up
-		if (vector_class)
-		{
-			for (int k = j + 1; k < (int)hanselChainSet[i].size(); k++)
-			{
-				expandUp(i, k - 1, &hanselChainSet[i][k], vector_class);
-			}
-		}
-		// expand down
-		else
-		{
-			for (int k = j - 1; k >= 0; k--)
-			{
-				expandDown(i, k + 1, &hanselChainSet[i][k], vector_class);
-			}
-		}
-	}
-	// expand in both directions
-	else
-	{
-		for (int k = j + 1; k < (int)hanselChainSet[i].size(); k++)
-		{
-			expandUp(i, k - 1, &hanselChainSet[i][k], vector_class);
-		}
-
-		for (int k = j - 1; k >= 0; k--)
-		{
-			expandDown(i, k + 1, &hanselChainSet[i][k], vector_class);
-		}
-	}
-}*/
