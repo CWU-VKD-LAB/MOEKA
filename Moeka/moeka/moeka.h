@@ -216,6 +216,9 @@ public:
 	/// @brief the name of the attributes of the datapoint
 	std::vector<attribute> attribute_names;
 
+	// simple function which just takes the points in our chains and puts them into a map.
+	void buildLookupMap();
+
 private:
 	// the number of confirmed values in each chain
 	std::vector<int> numConfirmedInChains;
@@ -367,7 +370,7 @@ private:
 	/// @param j a vector in the Hansel Chain
 	/// @param p an element in the vector that was determined to be changed
 	/// @param startChain equal to either i for a standard ordering of questions, or 0 for majority vector questions.
-	void possibleExpansions(int newValue, int i, int j, int p, int startChain);
+	void possibleExpansions(int newValue, int i, int j, int p);
 
 
 	/// @brief aux function used to expand a vector upwards

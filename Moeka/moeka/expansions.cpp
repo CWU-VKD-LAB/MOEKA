@@ -18,6 +18,33 @@
 #include <unordered_set>
 #include <omp.h>
 
+// simple hashing function for a point
+struct VectorHash {
+	std::size_t operator()(const std::vector<int>& v) const {
+		std::size_t hash = 0;
+		std::size_t base = 1;
+		for (int x : v) {
+			hash += x * base;
+			base *= 16;
+		}
+		return hash;
+	}
+};
+
+// lookup table for all the datapoints in the dataset.
+std::unordered_map<std::vector<int>, dvector*, VectorHash> datapointLookup;
+
+// simple function which takes all the points in Hansel Chains and puts them into our lookup map.
+void moeka::buildLookupMap() {
+	datapointLookup.clear(); // just in case
+	for (int i = 0; i < hanselChainSet.size(); i++) {
+		for (int j = 0; j < hanselChainSet[i].size(); j++) {
+			datapointLookup[hanselChainSet[i][j].dataPoint] = &hanselChainSet[i][j];
+		}
+	}
+}
+
+
 /**
  * @brief Calculates all possible expansions for each vector in the Hansel chain set
  * 
@@ -27,16 +54,13 @@
  */
 void moeka::calculateAllPossibleExpansions()
 {
-	for (int i = 0; i < (int)hanselChainSet.size(); i++)
-	{
-		for (int j = 0; j < (int)hanselChainSet[i].size(); j++)
-		{
-			for (int p = 0; p < dimension; p++)
-			{
-				// add k-value here
-				for (int d = 0; d < attribute_names[p].kv; d++)
-				{
-					possibleExpansions(d, i, j, p, 0);
+	buildLookupMap(); // initialize fast lookup
+
+	for (int i = 0; i < (int)hanselChainSet.size(); i++) {
+		for (int j = 0; j < (int)hanselChainSet[i].size(); j++) {
+			for (int p = 0; p < dimension; p++) {
+				for (int d = 0; d < attribute_names[p].kv; d++) {
+					possibleExpansions(d, i, j, p);
 				}
 			}
 		}
@@ -55,41 +79,22 @@ void moeka::calculateAllPossibleExpansions()
  * Determines if a vector can be expanded by changing an attribute value,
  * and if so, adds it to either up_expandable or down_expandable lists.
  */
-void moeka::possibleExpansions(int newValue, int i, int j, int p, int startChain)
+void moeka::possibleExpansions(int newValue, int i, int j, int p)
 {
 	int oldValue = hanselChainSet[i][j].dataPoint[p];
+	if (newValue == oldValue) return;
 
-	// possible expansions from successive chains for a given class
-	if (newValue != oldValue)
-	{
-		dvector expanded;
-		expanded.dataPoint = hanselChainSet[i][j].dataPoint;
-		expanded.dataPoint[p] = newValue;
+	dvector expanded = hanselChainSet[i][j]; // copy
+	expanded.dataPoint[p] = newValue;
 
-		// starting in the current chain, search for expanded oldVector
-		for (int hc = startChain; hc < numChains; hc++)
-		{
-			for (int v = (int)hanselChainSet[hc].size() - 1; v >= 0; v--)
-			{
-				// expand the oldVector and mark it as visited
-				// these are "used" expansions
-				if (expanded.dataPoint == hanselChainSet[hc][v].dataPoint && !hanselChainSet[hc][v].visited && &hanselChainSet[hc][v] != &hanselChainSet[i][j]) // comparing memory locations in last clause
-				{
-					// if newValue is greater than the oldValue, it means that it is an expansion in the positive direction, so the class should be 1.
-					if (newValue == oldValue + 1) // used to be just ">"
-					{
-						hanselChainSet[i][j].up_expandable.push_back(&hanselChainSet[hc][v]);
-					}
-
-					// if newValue is less than the oldValue, it measn that the expansion is in the negative direction, so the class should be 0.
-					else if (newValue == oldValue - 1) // used to be just "<", or nothing actually (simply an else statement)
-					{
-						hanselChainSet[i][j].down_expandable.push_back(&hanselChainSet[hc][v]);
-					}
-
-					return;
-				}
-			}
+	auto it = datapointLookup.find(expanded.dataPoint);
+	if (it != datapointLookup.end()) {
+		dvector* match = it->second;
+		if (!match->visited && match != &hanselChainSet[i][j]) {
+			if (newValue == oldValue + 1)
+				hanselChainSet[i][j].up_expandable.push_back(match);
+			else if (newValue == oldValue - 1)
+				hanselChainSet[i][j].down_expandable.push_back(match);
 		}
 	}
 }
