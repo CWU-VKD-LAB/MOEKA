@@ -1,4 +1,4 @@
-#include "moeka.h"
+﻿#include "moeka.h"
 
 
 std::vector<int> moeka::init()
@@ -282,135 +282,133 @@ std::vector<int> moeka::initFromUI(int attributeCount, std::vector<std::string> 
 	return genericParentOrChildList;	
 }
 
+#pragma comment(lib, "Ws2_32.lib")
+
 std::vector<int> moeka::initForMLInterview(std::string classifierName, std::string datasetPath) {
-	
 	this->mlInterview = true;
+	namespace fs = std::filesystem;
 
-	// Construct the expected output model filename.
-	// This matches the dynamic naming scheme in Python code.
-	this->oracleML_path = "moeka\\ML_Oracles\\" + datasetPath + "_" + classifierName + ".sav";
+	// ────────────────────────────────────────────────────────────────────────────
+	//  Define ML_Oracles directory relative to current working directory
+	// ────────────────────────────────────────────────────────────────────────────
+	// Derive the source directory from the location of this source file
+	fs::path sourceDir = fs::path(__FILE__).parent_path();
+	// ML_Oracles sits alongside this .cpp in the same directory
+	fs::path oracleDir = sourceDir / "ML_Oracles";
+	if (!fs::is_directory(oracleDir))
+		throw std::runtime_error("Cannot find ML_Oracles in current directory: " + oracleDir.string());
 
-	// Construct the command to run the Python script.
-	// The new Python script expects the dataset path as the first argument
-	// and the classifier name as the second.
-	// creates all the .sav files
-	std::string command = "python moeka\\ML_Oracles\\makeMLModels.py " + datasetPath + " " + classifierName;
+	// ────────────────────────────────────────────────────────────────
+//  Compute dataset CSV path by stripping any leading directories from the input
+// ────────────────────────────────────────────────────────────────
+	fs::path dsInput(datasetPath);
+	// Extract just the filename (e.g. "fisher_iris.csv")
+	std::string baseName = dsInput.filename().string();
+	// If there's no extension, append .csv
+	if (!dsInput.has_extension()) {
+		baseName += ".csv";
+	}
+	fs::path dataFile = fs::current_path() / "datasets" / baseName;
+	if (!fs::exists(dataFile))
+		throw std::runtime_error("Dataset file not found: " + dataFile.string());
 
-	// Execute the Python script which is building our models.
-	std::system(command.c_str());
+	// ────────────────────────────────────────────────────────────────
+	//  Build primary paths
+	// ────────────────────────────────────────────────────────────────
+	fs::path makeModelsPy = oracleDir / "makeMLModels.py";
+	fs::path serverPy = oracleDir / "MLInterviewServer.py";
+	fs::path attrFile = oracleDir / "functionAttributes.txt";
+	fs::path modelFile = oracleDir / (datasetPath + "_" + classifierName + ".sav");
 
-	this->realOrdinalNormalizedDataset = datasetPath + "ordinal_normalization.csv";
-	// Return an empty vector for now (modify as needed).
+	this->oracleML_path = modelFile.string();
+	this->realOrdinalNormalizedDataset = datasetPath + "_ordinal_normalization.csv";
 
-	// Specify the directory to search
-	std::filesystem::path directory = "moeka\\ML_Oracles\\";
-	std::filesystem::path savFile;
+	// ────────────────────────────────────────────────────────────────
+	//  Run makeMLModels.py within ML_Oracles
+	// ────────────────────────────────────────────────────────────────
+	std::string cmdMake = "cmd /C \"cd /d " + oracleDir.string() +
+		" && python \"" + makeModelsPy.filename().string() +
+		"\" \"" + dataFile.string() +
+		"\" \"" + classifierName + "\"\"";
+	std::cout << "[DEBUG] " << cmdMake << std::endl;
+	std::system(cmdMake.c_str());
 
-	// Iterate over the directory entries
-	for (const auto& entry : std::filesystem::directory_iterator(directory)) {
-		// Check if the entry is a regular file and has a .sav extension
-		if (entry.is_regular_file() && entry.path().extension() == ".sav") {
-			savFile = entry.path();
-			break; // Found the file, exit the loop early
+	// ────────────────────────────────────────────────────────────────
+	//  Locate the .sav model
+	// ────────────────────────────────────────────────────────────────
+	fs::path savFile;
+	for (auto& e : fs::directory_iterator(oracleDir)) {
+		if (e.is_regular_file() && e.path().extension() == ".sav") {
+			savFile = e.path();
+			break;
 		}
 	}
+	if (savFile.empty())
+		throw std::runtime_error("No .sav model in " + oracleDir.string());
+	std::cout << "Found model: " << savFile << "\n";
 
-	if (!savFile.empty()) {
-		std::cout << "Found .sav file: " << savFile << "\n";
+	// ────────────────────────────────────────────────────────────────
+	//  Launch the Python interview server
+	// ────────────────────────────────────────────────────────────────
+	std::string cmdServer = "cmd /C \"cd /d " + oracleDir.string() +
+		" && python \"" + serverPy.filename().string() +
+		"\" 6969 \"" + savFile.string() + "\"\"";
+	STARTUPINFOA        si{ sizeof(si) };
+	PROCESS_INFORMATION pi{};
+	if (CreateProcessA(nullptr, _strdup(cmdServer.c_str()), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi)) {
+		std::cout << "Server launched." << std::endl;
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
 	}
-	else {
-		std::cerr << "No .sav file found in directory " << directory << "\n";
-		throw std::runtime_error("No .sav file found");
-	}
 
-	// now we launch our python server
-	std::string command2 = "python moeka\\ML_Oracles\\MLInterviewServer.py 6969 " + savFile.string();
-	
-	STARTUPINFOA si = { 0 };
-	si.cb = sizeof(si);
-	PROCESS_INFORMATION pi = { 0 };
-
-	// Launch the process asynchronously
-	if (CreateProcessA(
-		NULL,       // No module name (use command line)
-		_strdup(command2.c_str()),    // Command line
-		NULL,       // Process handle not inheritable
-		NULL,       // Thread handle not inheritable
-		FALSE,      // Set handle inheritance to FALSE
-		0,          // No creation flags
-		NULL,       // Use parent's environment block
-		NULL,       // Use parent's starting directory 
-		{ &si },        // Pointer to STARTUPINFOA structure
-		{ &pi })        // Pointer to PROCESS_INFORMATION structure
-		)
-	std::cout << "Python server launched successfully." << std::endl;
-	// Close handles since we don't need them
-	CloseHandle(pi.hProcess);
-	CloseHandle(pi.hThread);
-		
-	// Initialize Winsock
-	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (iResult != 0) {
-		std::cerr << "WSAStartup failed: " << iResult << "\n";
+	// ────────────────────────────────────────────────────────────────
+	//  Connect over Winsock
+	// ────────────────────────────────────────────────────────────────
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
 		throw std::runtime_error("WSAStartup failed");
-	}
-
-	// Create a SOCKET for connecting to server
 	ConnectSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (ConnectSocket == INVALID_SOCKET) {
-		std::cerr << "Error at socket(): " << WSAGetLastError() << "\n";
-		WSACleanup();
-		throw std::runtime_error("Error at socket()");
-	}
-
-	// Set up the sockaddr_in structure
+	if (ConnectSocket == INVALID_SOCKET)
+		throw std::runtime_error("socket() failed");
+	sockaddr_in serverAddr{};
 	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(6969);  // just use this port number hard coded, no particular reason. 
+	serverAddr.sin_port = htons(6969);
 	inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
-
-	// Attempt to connect repeatedly until successful.
-	iResult = SOCKET_ERROR;
-	while ((iResult = connect(ConnectSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr))) == SOCKET_ERROR) {
-		std::cerr << "Connection attempt failed with error: " << WSAGetLastError() << "\n";
-		Sleep(1000);  // Wait for 1 second before retrying.
+	while (connect(ConnectSocket, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) == SOCKET_ERROR) {
+		std::cerr << "Waiting for server..." << std::endl;
+		Sleep(1000);
 	}
-	std::cout << "Connected to server successfully." << std::endl;
+	std::cout << "Connected to server." << std::endl;
 
-	printf("C++ client - Connected to server.\n");
-	fflush(stdout); // PRINT NO MATTER WHAT
-	
-	// now we read our file from the python that gives us our target classes, k values, and attributes.
-		// Open the file. Replace "attributes.txt" with your filename if needed.
-	std::ifstream inFile("moeka\\ML_Oracles\\functionAttributes.txt");
-	if (!inFile) {
-		throw new std::runtime_error("NO ATTRIBUTES FILE MADE BY PYTHON MAKE ML MODELS PROGRAM");
-	}
-
-	// Read the first integer which represents the number of target classes.
+	// ────────────────────────────────────────────────────────────────
+	//  Read back the attributes file
+	// ────────────────────────────────────────────────────────────────
+	std::ifstream inFile(attrFile);
+	if (!inFile)
+		throw std::runtime_error("Missing functionAttributes.txt");
 	inFile >> this->function_kv;
-
-	std::string name;
-	int kVal;
-
-	while (inFile >> name >> kVal) {
-		attribute_names.push_back({name, kVal, -1, -1});
-	}
+	std::string name; int kVal;
+	while (inFile >> name >> kVal)
+		attribute_names.push_back({ name, kVal, -1, -1 });
 	inFile.close();
+	fs::remove(attrFile);
 
-	// cleanup by deleting the file.
-	std::remove("moeka\\ML_Oracles\\functionAttributes.txt");
-
-	this->dimension = (int)attribute_names.size();
-
-	printf("COMPUTING HANSEL CHAINS\n");
-	// init hansel chains
+	// ────────────────────────────────────────────────────────────────
+	//  Compute Hansel chains
+	// ────────────────────────────────────────────────────────────────
+	this->dimension = static_cast<int>(attribute_names.size());
 	calculateHanselChains(dimension);
-	numChains = (int)hanselChainSet.size();
+	numChains = static_cast<int>(hanselChainSet.size());
 	numConfirmedInChains.resize(numChains);
 	chainsVisited.resize(numChains);
 
+	// remove our saved ML model
+	if (!savFile.empty() && fs::exists(savFile)) {
+		fs::remove(savFile);
+	}
+
 	return {};
 }
+
 
 
 moeka::moeka(char attributeSymbol)

@@ -15,6 +15,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import LabelEncoder
 
+MAX_K_VAL = 2
 
 def makeModel(input_file, selected_classifier, output_csv=None, monotonicity=None):
 
@@ -64,7 +65,7 @@ def makeModel(input_file, selected_classifier, output_csv=None, monotonicity=Non
             # Adding 1 for the center bin.
             k = int(pos_bins + neg_bins + 1)
             # Ensure k stays between 2 and 15.
-            k = max(2, min(k, 8))
+            k = max(2, min(k, MAX_K_VAL))
         ordinalValues.append(k)
 
     # set our monotonicity as 1 for all attributes for now. it can be reversed if a feature is not monotonic perhaps.
@@ -191,7 +192,7 @@ def makePrediction(model_filename, args):
     
     prediction = int(loaded_model.predict([features])[0])
     print("prediction: " + str(prediction))
-    
+       
     return prediction
 
 #   - The dataset file path,
