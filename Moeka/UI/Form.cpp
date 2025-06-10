@@ -174,6 +174,7 @@ void Form::drawML () {
 	// populate the dataset list by using the dFilePaths vector. only once, else it keeps adding stuff into the vector every frame. 
 	if (ml.dFilePaths.size() == 0) 
 		populateFilePaths(ml.datasetDirectory, ml.dFilePaths);
+
 	if (ImGui::BeginCombo("Dataset", ml.dFilePaths[ml.dIndex].c_str())) {
 		for (int a = 0; a < ml.dFilePaths.size(); a++) {
 			if (ImGui::Selectable(ml.dFilePaths[a].c_str(), ml.dIndex == a)) {
