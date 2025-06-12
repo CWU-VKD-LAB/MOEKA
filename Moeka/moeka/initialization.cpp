@@ -299,8 +299,8 @@ std::vector<int> moeka::initForMLInterview(std::string classifierName, std::stri
 		throw std::runtime_error("Cannot find ML_Oracles in current directory: " + oracleDir.string());
 
 	// ────────────────────────────────────────────────────────────────
-//  Compute dataset CSV path by stripping any leading directories from the input
-// ────────────────────────────────────────────────────────────────
+	//  Compute dataset CSV path by stripping any leading directories from the input
+	// ────────────────────────────────────────────────────────────────
 	fs::path dsInput(datasetPath);
 	// Extract just the filename (e.g. "fisher_iris.csv")
 	std::string baseName = dsInput.filename().string();
@@ -361,17 +361,19 @@ std::vector<int> moeka::initForMLInterview(std::string classifierName, std::stri
 	}
 
 	// ────────────────────────────────────────────────────────────────
-	//  Connect over Winsock
+	//  Connect over Winsock to the python prediction ML client
 	// ────────────────────────────────────────────────────────────────
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
 		throw std::runtime_error("WSAStartup failed");
 	ConnectSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (ConnectSocket == INVALID_SOCKET)
 		throw std::runtime_error("socket() failed");
+	
 	sockaddr_in serverAddr{};
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(6969);
 	inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
+	
 	while (connect(ConnectSocket, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) == SOCKET_ERROR) {
 		std::cerr << "Waiting for server..." << std::endl;
 		Sleep(1000);
@@ -384,10 +386,13 @@ std::vector<int> moeka::initForMLInterview(std::string classifierName, std::stri
 	std::ifstream inFile(attrFile);
 	if (!inFile)
 		throw std::runtime_error("Missing functionAttributes.txt");
+	
 	inFile >> this->function_kv;
 	std::string name; int kVal;
+	
 	while (inFile >> name >> kVal)
 		attribute_names.push_back({ name, kVal, -1, -1 });
+	
 	inFile.close();
 	fs::remove(attrFile);
 
