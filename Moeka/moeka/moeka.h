@@ -300,7 +300,7 @@ private:
 	/// @param vector_dimension 
 	/// @param chain a Hansel Chain
 	/// @return a Hansel Chain
-	std::vector<std::vector<dvector>> genChains(int num, int vector_dimension, std::unordered_map<int, std::vector<std::vector<dvector>>> chain);
+	std::vector<std::vector<dvector>> genChains(int num, int vector_dimension, std::unordered_map<int, std::vector<std::vector<dvector>>> chains);
 
 
 	/// @brief calculates a set of Hansel Chains from a given dimension and k-valued attributes

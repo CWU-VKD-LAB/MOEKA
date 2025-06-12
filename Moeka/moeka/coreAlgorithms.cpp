@@ -1,147 +1,86 @@
 #include "moeka.h"
 
 
-std::vector<std::vector<dvector>> moeka::genChains(int num, int vector_dimension, std::unordered_map<int, std::vector<std::vector<dvector>>> chain)
-{
-	std::unordered_map<int, std::vector<std::vector<dvector>>> chains = chain;
+std::vector<std::vector<dvector>> moeka::genChains(int num, int vector_dimension, std::unordered_map<int, std::vector<std::vector<dvector>>> chains) {
 
-	// add key string "0","1",...,num to the beginning of each element in the corresponding key
-	for (int j = 0; j < num; j++)
-	{
-		for (int k = 0; k < chains.at(j).size(); k++)
-		{
-			for (int l = 0; l < chains.at(j)[k].size(); l++)
-			{
-				std::vector<int> b(vector_dimension);
-				b[vector_dimension - 1] = j;
-
-				for (int i = vector_dimension - 1; i >= 1; i--)
-				{
-					// FIX
-					b[i - 1] = chains.at(j)[k][l].dataPoint[i]; // used to be for std::vector: b[i] = chains.at(j)[k][l][i - 1];
-				}
-
-				//b.setLevel();
-				dvector c;
-				c.dataPoint = b;
-				chains.at(j)[k][l] = c;
+	/*  A) shift datapoints & set new coordinate  */
+	for (int j = 0; j < num; ++j) {
+		for (auto& innerVec : chains[j]) {
+			for (auto& dv : innerVec) {
+				auto& p = dv.dataPoint;
+				for (int i = 0; i + 1 < vector_dimension; ++i)
+					p[i] = p[i + 1];
+				p[vector_dimension - 1] = j;
 			}
 		}
 	}
 
-	// move the largest of each sub std::vector to corresponding sub std::vector in the first key
-	// then move the largest of each subsequent sub std::vector to the second key's sub std::vector
-	// repeat until chain.at(num-2) is reached since the last key will have nothing moved to it
-	// j = current key being added to
-	// emptV = number of empty std::vectors
-	for (int j = 0; j < chains.size() - 1; j++)
-	{
-		for (int k = 0; k < chains.at(j).size(); k++)
-		{
-			// I think I need to make the code below recursive
-			int count = j;
-
-			for (count; count < chains.size() - 1; count++)
-			{
-				if (count + 1 >= chain.size())
-				{
-					break;
-				}
-
-				/// USE FIND AND END because kth std::vector doesn't exist for 3d 3val, k=2
-				if (k > chains.at(count + 1).size() - 1)
-				{
-					break;
-				}
-
-				if (chains.at(count + 1).at(k).empty())
-				{
-					// ### DEAL WITH EMPTY std::vectorS~!###
-					// chains.at(to_string(count + 1)).at(k).erase();
-					break;
-				}
-
-				int end = (int)chains.at(count + 1).at(k).size();
-
-				// add last element from position k of key count+1 to position k of j
-				chains.at(j)[k].push_back(chains.at(count + 1)[k].at(end - 1));
-
-				// pop off the moved element
-				chains.at(count + 1).at(k).pop_back();
+	/*  B) move “largest” elements down the chain hierarchy  */
+	for (int j = 0; j + 1 < num; ++j) {
+		auto& here = chains[j];
+		for (size_t k = 0; k < here.size(); ++k) {
+			for (int nxt = j; nxt + 1 < num; ++nxt) {
+				auto& src = chains[nxt + 1];
+				if (k >= src.size() || src[k].empty()) break;
+				here[k].push_back(std::move(src[k].back()));
+				src[k].pop_back();
 			}
 		}
 	}
 
-	// we need to prepare for the next iteration of i in the first for loop
-	// by adding all chains together, then adding combined chains to each key
-	for (int j = 1; j < num; j++)
-	{
-		for (int k = 0; k < chains.at(j).size(); k++)
-		{
-			chains.at(0).push_back(chains.at(j)[k]);
-		}
-	}
+	/*  C) concat every sub-vector into chains[0] once  */
+	auto& master = chains[0];
+	size_t total = master.size();
+	for (int j = 1; j < num; ++j) total += chains[j].size();
+	master.reserve(total);
 
-	for (int j = 0; j < num; j++) 
-	{
-		chains.at(j) = chains.at(0);
-	}
+	for (int j = 1; j < num; ++j)
+		for (auto& vec : chains[j])
+			master.push_back(std::move(vec));
 
-	std::vector<std::vector<dvector>> chainsTogether;
+	/*  D) replicate if the caller really wants N independent copies  */
+	for (int j = 1; j < num; ++j)
+		chains[j] = master;  // unavoidable copy per key
 
-	return chainsTogether = chains.at(0);
+	return master; // return with move instead of copy.
 }
 
+void moeka::calculateHanselChains(int vector_dimension) {
+	
+	hanselChainSet.clear();
 
-void moeka::calculateHanselChains(int vector_dimension)
-{
-	// For n dimensions, iterate through to generate chains and
-	for (int dim_num = 0; dim_num < vector_dimension; dim_num++)
-	{
-		int num = attribute_names[dim_num].kv;
+	/*  build 1-D base chain – reserve once  */
+	int num0 = attribute_names[0].kv;
+	std::vector<dvector> base;
+	base.reserve(num0);
+	
+	for (int k = 0; k < num0; ++k) {
+		dvector dv;
+		dv.dataPoint.assign(vector_dimension, 0);
+		dv.dataPoint.back() = k;
+		base.emplace_back(std::move(dv));
+	}
+	
+	hanselChainSet.emplace_back(std::move(base));
 
-		// Need a base chain to use for genChains
-		if (dim_num == 0)
-		{
-			//generate the base chain
-			std::vector<dvector> baseChain;
+	/*  extend one dimension at a time  */
+	for (int dim = 1; dim < vector_dimension; ++dim) {
+		
+		int num = attribute_names[dim].kv;
 
-			for (int k = 0; k < num; k++)
-			{
-				std::vector<int> b(vector_dimension);
-				b[vector_dimension - 1] = k;
-				dvector c;
-				c.dataPoint = b;
-				//b.setLevel();
-				baseChain.push_back(c);
-			}
+		/*  build map<k, copy of hanselChainSet> in one pass  */
+		std::unordered_map<int, std::vector<std::vector<dvector>>> chainMap;
+		chainMap.reserve(num);
+		
+		for (int k = 0; k < num; ++k)
+			chainMap.emplace(k, hanselChainSet);   // copy once per k (required)
 
-			//create a std::vector of std::vectors to hold the baseChain
-			hanselChainSet.push_back(baseChain);
-		}
-		else
-		{
-			std::unordered_map<int, std::vector<std::vector<dvector>>> chainNum;
-
-			for (int k = 0; k < num; k++)
-			{
-				chainNum[k] = hanselChainSet;
-			}
-
-			hanselChainSet = genChains(num, vector_dimension, chainNum);
-		}
+		hanselChainSet = genChains(num, vector_dimension, std::move(chainMap));
 	}
 
-	for (int i = 0; i < (int)hanselChainSet.size(); i++)
-	{
-		if (!hanselChainSet[i].size())
-		{
-			hanselChainSet.erase(hanselChainSet.begin() + i);
-			i--;
-		}
-	}
+	/*  strip empties  */
+	hanselChainSet.erase(std::remove_if(hanselChainSet.begin(), hanselChainSet.end(), [](const auto& v) { return v.empty(); }), hanselChainSet.end());
 }
-
 // CONTAINS ALL THE QUESTION ASKING FUNCTIONS AND THE CHAIN EXPANSION
 void moeka::start()
 {
@@ -323,6 +262,7 @@ void moeka::start()
 
 }
 
+// start used for when we are using UI interv
 void moeka::start(std::mutex *t, bool *endFlag, int *c)
 {
 
@@ -337,7 +277,6 @@ void moeka::start(std::mutex *t, bool *endFlag, int *c)
 
 void moeka::staticOrderQuestionsFunc()
 {
-	std::cout << "Thread: hello from static order questions func. Number of chains: " << numChains << std::endl;
 
 	for (int i = 0; i < numChains; i++)
 	{
@@ -377,14 +316,11 @@ void moeka::staticOrderQuestionsFunc()
 				}
 			}
 
-			std::cout << "Thread: starting binary search." << std::endl;
-
 			binarySearch(i, l, r);
 		}
 		else
 		{
 			// non-binary method
-			std::cout << "Thread: starting sequential search." << std::endl;
 
 			if (top)
 			{
@@ -519,7 +455,6 @@ void moeka::chainJumpOrderQuestionsFunc()
 // function which asks a question if we determine that we need to ask a question for this point
 bool moeka::questionFunc(int i, int j, int& vector_class)
 {
-	std::cout << "Thread: within question func." << std::endl;
 
 	// updated order must go before actual question because its tracking the intention of the question, not whether it was asked.
 	if (!hanselChainSet[i][j].majorityFlag || !usedMajorityFlag || !hanselChainSet[i][j].visited || !hanselChainSet[i][j].updatedQueryOrder) // used, not useMajority flag because otherwise may expand twice.
@@ -547,7 +482,6 @@ bool moeka::questionFunc(int i, int j, int& vector_class)
 	}
 	else
 	{
-		std::cout << "Thread: question was expanded. " << std::endl;
 		vector_class = hanselChainSet[i][j]._class;
 	}
 
@@ -610,7 +544,6 @@ int moeka::askingOfQuestion(int i, int j)
 			if (turnFlag)
 			{
 				// where we update the new datapoint.
-				std::cout << "Thread: sending data to supervisor..." << std::endl;
 				currentDatapoint = &hanselChainSet[i][j];
 
 				// now we unlock, so that the supervisor has time to lock, and then lock again to set the vector class when that's done
@@ -639,14 +572,12 @@ int moeka::askingOfQuestion(int i, int j)
 					throw std::runtime_error("send failed");
 				}
 
-				std::cout << "Sent: " << numbers << "\n";
 
 				// Receive the server's reply
 				char recvbuf[512];
 				iResult = recv(ConnectSocket, recvbuf, 511, 0);
 				if (iResult > 0) {
 					recvbuf[iResult] = '\0'; // null-terminate the string
-					std::cout << "Received: " << recvbuf << "\n";
 				}
 				else {
 					throw new std::runtime_error("COMMUNICATION ERROR");
@@ -655,7 +586,6 @@ int moeka::askingOfQuestion(int i, int j)
 				// parse the reply for our number and put it where it goes
 				std::string receivedStr(recvbuf);
 				int result = std::stoi(receivedStr);
-				std::cout << "Converted integer: " << result << std::endl;
 				vector_class = result;
 			}
 			//console version

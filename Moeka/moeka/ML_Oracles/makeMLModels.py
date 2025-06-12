@@ -15,7 +15,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import LabelEncoder
 
-MAX_K_VAL = 2
+MAX_K_VAL = 3
 
 def makeModel(input_file, selected_classifier, output_csv=None, monotonicity=None):
 
