@@ -1,3 +1,16 @@
+# Contacts:
+Austin Snyder:
+School email: austin.snyder@cwu.edu
+Personal email: austin.w.snyder@outlook.com
+LinkedIn: linkedin.com/in/austinsnyder411
+Discord: mxstic.
+
+Ryan Gallagher:
+School Email: ryan.gallagher@cwu.edu
+Personal Email: rygall75@gmail.com
+LinkedIn: linkedin.com/in/ryan-gallagher-0b2095285
+Discord: gally3338915
+
 # MOEKA Future Work
 
 We worked on mainly creating an ML interface to classify larger datasets.  
@@ -15,6 +28,8 @@ We worked on mainly creating an ML interface to classify larger datasets.
 - Right now, we also eat memory a TON. Way more than we should be. There is some kind of memory leak or unnecessary copying going on in the computation of hansel chains, or calculateAllPossibleExpansions. 
 - The ML server-client thing is pretty slow. It may be important to eventually port the Python to run in C++ somehow, or make it callable as a DLL in some way. Somehow making that run in parallel would be interesting as well. This is a very slow portion of the program at the moment.
 
+- The rendering has some sort of bottleneck with really large datasets. For example rendering 9 dimensional 3 k values, it computed all chains after a while, but never renders. It just hangs.
+- Right now there is a good deal of copying happening before we render, that is something we can investigate in Form.cpp. That is most likely not the entire issue.
 ## Quick Fixes
 
 - In rendered outputs, include class names, and attribute names. (`Window.cpp` hovering functionality is what you want to investigate).  
